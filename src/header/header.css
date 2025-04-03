@@ -1,0 +1,80 @@
+/* Barra de Promoção */
+.promo-bar {
+    width: 100%;
+    background: #4CAF50; /* Cor verde para promoções */
+    color: white;
+    text-align: center;
+    padding: 5px 0;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+/* Estilos do Header */
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #2e7d32;
+    padding: 10px 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilizando a Logo */
+.header-logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+
+}
+
+/* Barra de busca */
+.header-search {
+    flex: 1;
+    max-width: 900px;
+    height: 50px; /* Maior altura para mais destaque */
+    font-size: 18px;
+    border-radius: 25px; /* Cantos arredondados para um visual moderno */
+    border: 2px solid transparent; /* Remove a borda padrão */
+    padding: 8px 20px;
+    background: #e8f5e9; /* Fundo verde claro */
+    transition: all 0.3s ease-in-out;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); /* Sombra interna sutil */
+}
+
+/* Efeito ao focar na barra de busca */
+.header-search:focus-within {
+    background: #4CAF50;
+    border: 2px solid #4CAF50; /* Destaque verde ao focar */
+    box-shadow: 0 0 10px rgba(60, 151, 63, 0.3); /* Brilho sutil verde */
+}
+
+/* Ícones (favoritos, carrinho, usuário) */
+.header-icons {
+    margin-top: 15px;
+    display: flex;
+    gap: 105px; /* Maior espaçamento entre os ícones */
+    align-items: center;
+    margin-right: 30px;
+}
+
+.header-icons svg {
+    font-size: 32px; /* Ícones maiores */
+    cursor: pointer;
+    color: white;
+}
+
+/* Badge de notificação */
+.header-icons .ant-badge {
+    transform: scale(1.4); /* Aumenta os badges */
+}
+
+/* Avatar do usuário */
+.header-avatar {
+    margin-bottom: 15px;
+    width: 50px;
+    height: 50px;
+    font-size: 28px;
+    cursor: pointer;
+    background: #4CAF50; /* Avatar com fundo verde */
+    border-radius: 50%;
+}

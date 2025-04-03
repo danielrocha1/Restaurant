@@ -1,0 +1,142 @@
+.product-card {
+  width: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 16px;
+  transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Transição rápida */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Sombra suave por padrão */
+}
+
+.product-card:hover {
+  border: 3px solid #28a745;  /* Borda verde mais espessa ao passar o mouse */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Sombra mais intensa e maior no hover */
+}
+
+.product-image {
+  width: 100%;         /* Faz a imagem ocupar toda a largura do card */
+  height: auto;        /* Mantém a proporção da imagem */
+  max-height: 250px;   /* Limita a altura para evitar imagens muito grandes */
+  display: block;      /* Remove espaçamentos indesejados */
+  object-fit: contain; /* Garante que a imagem inteira fique visível sem cortes */
+  border-radius: 8px;  /* Arredonda os cantos para um design mais bonito */
+}
+
+.product-image:hover {
+  transform: scale(2.1); /* Aumenta a imagem em 10% */
+}
+
+.product-info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.product-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.product-description {
+  color: #666;
+  font-size: 14px;
+}
+
+.weight-options {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.weight-option {
+  cursor: pointer;
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #f5f5f5;
+  transition: background-color 0.2s ease-in-out; /* Transição rápida na mudança de cor */
+}
+
+.weight-option.selected {
+  background-color: #28a745;  /* Verde para a opção selecionada */
+  color: white;
+  border-color: #28a745; /* Borda verde */
+}
+
+.cart-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-price {
+  white-space: nowrap;  
+  font-size: 20px;
+  font-weight: bold;
+  color: #28a745;  /* Verde para o preço */
+}
+
+.add-to-cart {
+  background-color: #28a745;  /* Verde para o botão */
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.add-to-cart:hover {
+  background-color: #045a16;  /* Tom mais escuro de verde para o hover */
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 100%;
+}
+
+.quantity-button {
+  background-color: #f0f0f0 !important;  /* Fundo inicial */
+  padding: 6px !important;
+  border-radius: 50% !important;  /* Botões redondos */
+  border: none !important;        /* Remove borda padrão */
+  transition: background-color 0.2s ease-in-out !important;  /* Transição suave */
+}
+
+.quantity-button:hover {
+  background-color: #28a745 !important;  /* Fundo verde ao passar o mouse */
+  color: white !important;  /* Cor do ícone se torna branca */
+}
+
+.quantity-value {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.product-card {
+  position: relative; /* Necessário para posicionamento absoluto do botão de favoritar */
+}
+
+.favorite-button {
+  position: absolute;
+  top: 10px;  /* Distância do topo */
+  right: 10px; /* Distância da direita */
+  cursor: pointer;
+}
+
+.heart-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;  /* Tamanho do círculo */
+  height: 36px; /* Tamanho do círculo */
+  border-radius: 50%; /* Tornar o div um círculo */
+  background-color: #fff; /* Cor de fundo branca */
+  border: 2px solid transparent; /* Borda transparente por padrão */
+  transition: border-color 0.2s ease-in-out; /* Transição rápida na mudança de cor */
+}
+
+.heart-circle.favorite {
+  border-color: #bb041c;  /* Borda verde quando favoritado */
+}

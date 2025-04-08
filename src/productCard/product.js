@@ -1,20 +1,34 @@
 import { useState } from "react";
 import { Card, Button } from "antd";
-import { MinusOutlined, PlusOutlined, HeartOutlined, HeartFilled } from "@ant-design/icons";
+import {
+  MinusOutlined,
+  PlusOutlined,
+  HeartOutlined,
+  HeartFilled,
+} from "@ant-design/icons";
+import { useCart } from "../context/cartContext"; // ajuste o caminho se necessário
 import "./product.css";
 
 const ProductCard = ({ product }) => {
   const [selectedWeight, setSelectedWeight] = useState("7.5kg");
-  const [quantity, setQuantity] = useState(0);
   const [isFavorited, setIsFavorited] = useState(false);
   const weights = ["7.5kg", "10kg", "15kg"];
+  const { addToCart, removeFromCart, getQuantity } = useCart();
 
-  const addToCart = () => {
-    setQuantity(1);
+  const quantity = getQuantity(product.name, selectedWeight);
+
+  const handleAdd = () => {
+    addToCart(product, selectedWeight);
   };
 
-  const increaseQuantity = () => setQuantity(quantity + 1);
-  const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 0);
+  const handleIncrease = () => {
+    addToCart(product, selectedWeight);
+  };
+
+  const handleDecrease = () => {
+    removeFromCart(product.name, selectedWeight);
+  };
+
   const toggleFavorite = () => setIsFavorited(!isFavorited);
 
   return (
@@ -24,13 +38,15 @@ const ProductCard = ({ product }) => {
         <h2 className="product-title">{product.name}</h2>
         <p className="product-description">{product.description}</p>
 
-        {/* Opções de peso */}
+        {/* Pesos */}
         <div className="weight-options">
           {weights.map((weight) => (
             <div
               key={weight}
               onClick={() => setSelectedWeight(weight)}
-              className={`weight-option ${selectedWeight === weight ? "selected" : ""}`}
+              className={`weight-option ${
+                selectedWeight === weight ? "selected" : ""
+              }`}
             >
               {weight}
             </div>
@@ -39,30 +55,34 @@ const ProductCard = ({ product }) => {
 
         <div className="product-price">R$ {product.price}</div>
 
-        {/* Botão de Favoritar */}
+        {/* Favorito */}
         <div className="favorite-button" onClick={toggleFavorite}>
-          <div className={`heart-circle ${isFavorited ? 'favorite' : ''}`}>
-            {isFavorited ? <HeartFilled style={{ color: 'red' }} /> : <HeartOutlined style={{ color: 'red' }} />}
+          <div className={`heart-circle ${isFavorited ? "favorite" : ""}`}>
+            {isFavorited ? (
+              <HeartFilled style={{ color: "red" }} />
+            ) : (
+              <HeartOutlined style={{ color: "red" }} />
+            )}
           </div>
         </div>
 
-        {/* Controles do carrinho com animação */}
+        {/* Carrinho */}
         <div className={`cart-controls ${quantity > 0 ? "expanded" : "collapsed"}`}>
           {quantity === 0 ? (
-            <Button onClick={addToCart} className="add-to-cart" type=" ">
+            <Button onClick={handleAdd} className="add-to-cart">
               Adicionar ao Carrinho
             </Button>
           ) : (
             <div className="quantity-controls">
               <Button
-                onClick={decreaseQuantity}
+                onClick={handleDecrease}
                 className="quantity-button"
                 icon={<MinusOutlined />}
                 shape="circle"
               />
               <span className="quantity-value">{quantity}</span>
               <Button
-                onClick={increaseQuantity}
+                onClick={handleIncrease}
                 className="quantity-button"
                 icon={<PlusOutlined />}
                 shape="circle"

@@ -1,7 +1,11 @@
 import React from "react";
-import { Layout, Input, Space, Badge, Avatar } from "antd";
-import { HeartOutlined, ShoppingCartOutlined, UserOutlined } from "@ant-design/icons";
+import { Layout, Input, Space, Avatar } from "antd";
+import { UserOutlined } from "@ant-design/icons";
+import Cart from "../cart/cart"; // Importando o componente de carrinho   
 import "./header.css"; // Importando o CSS atualizado
+import Favorite from "../favorite/favorite";
+
+
 
 const { Header } = Layout;
 const { Search } = Input;
@@ -23,12 +27,8 @@ const AppHeader = () => {
 
         <Space className="header-icons">
         <Avatar size="large" icon={<UserOutlined />} className="header-avatar" />
-          <Badge count={2} size="small">
-            <HeartOutlined />
-          </Badge>
-          <Badge count={5} size="small">
-            <ShoppingCartOutlined />
-          </Badge>
+        <Favorite />
+        <Cart />
         </Space>
       </Header>
     </>

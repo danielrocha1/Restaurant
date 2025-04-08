@@ -1,0 +1,28 @@
+/* Carrinho */
+.ant-drawer-title {
+    font-weight: bold;
+    color: #2E7D32;
+}
+
+.ant-btn-primary {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+.ant-btn-primary:hover {
+    background-color: #388E3C;
+    border-color: #388E3C;
+}
+
+.cart-icon{
+    margin-right: 30px;
+
+}
+
+.cart-icon svg {
+    font-size: 38px; /* Ícones maiores */
+    cursor: pointer;
+    color: white;
+}
+
+

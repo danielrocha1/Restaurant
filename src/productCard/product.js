@@ -10,9 +10,8 @@ import { useCart } from "../context/cartContext"; // ajuste o caminho se necessÃ
 import "./product.css";
 
 const ProductCard = ({ product }) => {
-  const [selectedWeight, setSelectedWeight] = useState("7.5kg");
+  const [selectedWeight, setSelectedWeight] = useState(product.weights[0]);
   const [isFavorited, setIsFavorited] = useState(false);
-  const weights = ["7.5kg", "10kg", "15kg"];
   const { addToCart, removeFromCart, getQuantity } = useCart();
 
   const quantity = getQuantity(product.name, selectedWeight);
@@ -40,7 +39,7 @@ const ProductCard = ({ product }) => {
 
         {/* Pesos */}
         <div className="weight-options">
-          {weights.map((weight) => (
+          {product.weights.map((weight) => (
             <div
               key={weight}
               onClick={() => setSelectedWeight(weight)}
@@ -53,7 +52,7 @@ const ProductCard = ({ product }) => {
           ))}
         </div>
 
-        <div className="product-price">R$ {product.price}</div>
+        <div className="product-price">{product.price}</div>
 
         {/* Favorito */}
         <div className="favorite-button" onClick={toggleFavorite}>

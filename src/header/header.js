@@ -5,6 +5,8 @@ import Cart from "../cart/cart"; // Importando o componente de carrinho
 import "./header.css"; // Importando o CSS atualizado
 import Favorite from "../favorite/favorite";
 
+import CategoryBar from "../header/categoryBar/categorybar"; // Importando a barra de categorias
+
 
 
 const { Header } = Layout;
@@ -31,6 +33,8 @@ const AppHeader = () => {
         <Cart />
         </Space>
       </Header>
+      <CategoryBar />
+
     </>
   );
 };

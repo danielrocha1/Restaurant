@@ -1,0 +1,35 @@
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category{
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Sombra suave por padrão */
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  width: 70vw;
+  margin: 0 auto;
+
+}
+
+.navigation-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.custom-prev,
+.custom-next {
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s;
+}
+
+.custom-prev:hover,
+.custom-next:hover {
+  color: #000;
+}

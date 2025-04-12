@@ -21,11 +21,9 @@ const Cart = () => {
 
   return (
     <>
-      <div>
         <Badge count={totalItems} size="small" onClick={toggleCart}>
           <ShoppingCartOutlined style={{ fontSize: '32px', color: 'white', cursor: 'pointer' }} />
         </Badge>
-      </div>
 
       <Drawer
         title="Seu Carrinho"
@@ -80,7 +78,7 @@ const Cart = () => {
         )}
 
         {cart.length > 0 && (
-          <Button className="finalizar" type="primary" block>
+          <Button className="finalizar" type=" " block>
             Finalizar Compra
           </Button>
         )}

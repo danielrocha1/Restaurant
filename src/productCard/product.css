@@ -1,15 +1,19 @@
 .product-card {
-  width: 300px;
+  width: 300px;                /* Largura fixa */
+  height: 700px;               /* Altura fixa para todos os cards */
   border-radius: 8px;
   overflow: hidden;
   margin: 16px;
-  transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Transição rápida */
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Sombra suave por padrão */
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.2);
+  transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .product-card:hover {
-  border: 3px solid #28a745;  /* Borda verde mais espessa ao passar o mouse */
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Sombra mais intensa e maior no hover */
+  border: 3px solid #28a745;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .product-image {
@@ -43,10 +47,12 @@
 }
 
 .weight-options {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  gap: 12px;
   margin-bottom: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
 }
+
 
 .weight-option {
   cursor: pointer;
@@ -57,6 +63,10 @@
   font-weight: bold;
   background-color: #f5f5f5;
   transition: background-color 0.2s ease-in-out; /* Transição rápida na mudança de cor */
+}
+
+.weight-option:hover {
+  border-color: #28a745; /* Borda verde */  
 }
 
 .weight-option.selected {

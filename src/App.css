@@ -13,6 +13,24 @@
   }
 }
 
+.backtop-custom {
+  height: 40px;
+  width: 40px;
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
+  line-height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s;
+}
+
+.backtop-custom:hover {
+  background-color: #2e7d32;
+  transform: scale(1.1);
+}
+
 .App-header {
   background-color: #ffffff;
   min-height: 100vh;

@@ -1,5 +1,7 @@
-import React from "react";
 import { Layout, Divider } from "antd";
+import React, { useEffect, useState } from "react";
+import {  BackTop } from "antd";
+
 import AppHeader from "./header/header";
 
 import ProductCarousel from "./carousel/carousel";
@@ -74,23 +76,79 @@ function App() {
       image: "https://cobasi.vteximg.com.br/arquivos/ids/1062004-368-368/Racao-Formula-Natural-Fresh-Meat-Caes-Adultos-Mini-e-Pequeno-Frango.png?v=638634913337500000"
     }
   ];
+
+  const [scroll, setScroll] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setScroll(true);
+      } else {
+        setScroll(false);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
+
   return (
-    <>
+    <div style={{ marginTop: "180px",   }}>
       <AppHeader />
-      <Layout style={{ minHeight: "100vh" }}>
-        <Layout>
-          <Content style={{ margin: "24px 16px", padding: 24 }}>
+      <Layout style={{  }}>
+        <Layout style={{   backgroundColor: "#4CAF50"   }}>
+
+          <Content style={{ margin: "24px 16px", padding: 30 }}>
           <ProductCarousel categoryName="Cães" products={dogsProducts} />
+          </Content>
+
+          <Divider type="horizontal" />
+
+
+          <Content style={{ margin: "24px 16px", padding: 24 }}>
+          <ProductCarousel categoryName="Gatos" products={dogsProducts} />
+          </Content>
+
+          <Divider type="horizontal" />
+
+          <Content style={{ margin: "24px 16px", padding: 24 }}>
+          <ProductCarousel categoryName="Pássaros" products={dogsProducts} />
           </Content>
           
           <Divider type="horizontal" />
 
           <Content style={{ margin: "24px 16px", padding: 24 }}>
-          <ProductCarousel categoryName="Cães" products={dogsProducts} />
+          <ProductCarousel categoryName="Peixes" products={dogsProducts} />
           </Content>
+
+          <Divider type="horizontal" />
+
+          <Content style={{ margin: "24px 16px", padding: 24 }}>
+          <ProductCarousel categoryName="Rações" products={dogsProducts} />
+          </Content>
+
+          <Divider type="horizontal" style={{backgroundColor:"white", }} />
+
+          <Content style={{ margin: "24px 16px", padding: 24 }}>
+          <ProductCarousel categoryName="Brinquedos" products={dogsProducts} />
+          </Content>
+
+          <Divider type="horizontal" />
+
+
         </Layout>
       </Layout>
-    </>
+
+      {scroll && (
+        <BackTop>
+          <div className="backtop-custom">↑</div>
+        </BackTop>
+      )}
+    </div>
   );
 }
 

@@ -1,40 +1,52 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Layout, Input, Space, Avatar } from "antd";
 import { UserOutlined } from "@ant-design/icons";
-import Cart from "../cart/cart"; // Importando o componente de carrinho   
-import "./header.css"; // Importando o CSS atualizado
+import Cart from "../cart/cart";
 import Favorite from "../favorite/favorite";
+import CategoryBar from "../header/categoryBar/categorybar";
 
-import CategoryBar from "../header/categoryBar/categorybar"; // Importando a barra de categorias
-
-
+import "./header.css";
 
 const { Header } = Layout;
 const { Search } = Input;
 
 const AppHeader = () => {
+  const [hideHeader, setHideHeader] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setHideHeader(true); // Rolando para baixo
+      } else {
+        setHideHeader(false); // Rolando para cima
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
   return (
     <>
-      {/* Barra de Promoção */}
-      <div className="promo-bar">🔥 Promoção especial! Frete grátis para compras acima de R$ 100!</div>
+      {/* Promo Bar */}
+      <div className={`promo-bar ${hideHeader ? "header-hidden" : ""}`}>
+        🔥 Promoção especial! Frete grátis para compras acima de R$ 100!
+      </div>
 
-      <Header className="header-container">
-        {/* Logo */}
+      <Header className={`header-container ${hideHeader ? "header-hidden" : ""}`}>
         <div className="header-logo">Minha Loja</div>
-
-        {/* Barra de busca */}
         <Search placeholder="Buscar produtos..." allowClear className="header-search" />
-
-        {/* Ícones de Açõs */}
-
         <Space className="header-icons">
-        <Avatar size="large" icon={<UserOutlined />} className="header-avatar" />
-        <Favorite />
-        <Cart />
+          <Avatar size="large" icon={<UserOutlined />} className="header-avatar" />
+          <Favorite />
+          <Cart />
         </Space>
       </Header>
-      <CategoryBar />
 
+      <CategoryBar  hideHeader={hideHeader}/>
     </>
   );
 };

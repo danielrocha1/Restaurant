@@ -100,7 +100,7 @@ function App() {
     <div style={{ marginTop: "180px",   }}>
       <AppHeader />
       <Layout style={{  }}>
-        <Layout style={{   backgroundColor: "#4CAF50"   }}>
+        <Layout style={{  }}>
 
           <Content style={{ margin: "24px 16px", padding: 30 }}>
           <ProductCarousel categoryName="Cães" products={dogsProducts} />
@@ -131,8 +131,7 @@ function App() {
           <ProductCarousel categoryName="Rações" products={dogsProducts} />
           </Content>
 
-          <Divider type="horizontal" style={{backgroundColor:"white", }} />
-
+          <Divider type="horizontal"  />
           <Content style={{ margin: "24px 16px", padding: 24 }}>
           <ProductCarousel categoryName="Brinquedos" products={dogsProducts} />
           </Content>

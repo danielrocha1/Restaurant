@@ -16,7 +16,7 @@
 .backtop-custom {
   height: 40px;
   width: 40px;
-  background-color: #4CAF50;
+  background-color:#b1bd13;
   color: white;
   text-align: center;
   line-height: 40px;
@@ -27,7 +27,7 @@
 }
 
 .backtop-custom:hover {
-  background-color: #2e7d32;
+  background-color: #788012;
   transform: scale(1.1);
 }
 

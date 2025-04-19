@@ -13,21 +13,28 @@ const { Search } = Input;
 const AppHeader = () => {
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const SCROLL_THRESHOLD = 100;
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setHideHeader(true); // Rolando para baixo
-      } else {
-        setHideHeader(false); // Rolando para cima
+
+      if (currentScrollY > lastScrollY && currentScrollY > SCROLL_THRESHOLD) {
+        // Scrollando pra baixo E passou do threshold
+        setHideHeader(true);
+      } else if (currentScrollY < lastScrollY) {
+        // Scrollando pra cima
+        setHideHeader(false);
       }
+
       setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
+
 
   return (
     <>

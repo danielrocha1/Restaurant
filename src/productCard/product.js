@@ -6,29 +6,28 @@ import {
   HeartOutlined,
   HeartFilled,
 } from "@ant-design/icons";
-import { useCart } from "../context/cartContext"; // ajuste o caminho se necessário
+import { useCart } from "../context/cartContext";
+import { useFavorite } from "../context/favoriteContext"; // <--- novo
 import "./product.css";
 
 const ProductCard = ({ product }) => {
   const [selectedWeight, setSelectedWeight] = useState(product.weights[0]);
-  const [isFavorited, setIsFavorited] = useState(false);
   const { addToCart, removeFromCart, getQuantity } = useCart();
+  const { isFavorited, addFavorite, removeFavorite } = useFavorite(); // <---
 
   const quantity = getQuantity(product.name, selectedWeight);
 
-  const handleAdd = () => {
-    addToCart(product, selectedWeight);
-  };
+  const handleAdd = () => addToCart(product, selectedWeight);
+  const handleIncrease = () => addToCart(product, selectedWeight);
+  const handleDecrease = () => removeFromCart(product.name, selectedWeight);
 
-  const handleIncrease = () => {
-    addToCart(product, selectedWeight);
+  const toggleFavorite = () => {
+    if (isFavorited(product.name)) {
+      removeFavorite(product.name);
+    } else {
+      addFavorite(product);
+    }
   };
-
-  const handleDecrease = () => {
-    removeFromCart(product.name, selectedWeight);
-  };
-
-  const toggleFavorite = () => setIsFavorited(!isFavorited);
 
   return (
     <Card className="product-card" hoverable>
@@ -37,7 +36,6 @@ const ProductCard = ({ product }) => {
         <h2 className="product-title">{product.name}</h2>
         <p className="product-description">{product.description}</p>
 
-        {/* Pesos */}
         <div className="weight-options">
           {product.weights.map((weight) => (
             <div
@@ -54,10 +52,13 @@ const ProductCard = ({ product }) => {
 
         <div className="product-price">{product.price}</div>
 
-        {/* Favorito */}
         <div className="favorite-button" onClick={toggleFavorite}>
-          <div className={`heart-circle ${isFavorited ? "favorite" : ""}`}>
-            {isFavorited ? (
+          <div
+            className={`heart-circle ${
+              isFavorited(product.name) ? "favorite" : ""
+            }`}
+          >
+            {isFavorited(product.name) ? (
               <HeartFilled style={{ color: "red" }} />
             ) : (
               <HeartOutlined style={{ color: "red" }} />
@@ -65,8 +66,11 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
 
-        {/* Carrinho */}
-        <div className={`cart-controls ${quantity > 0 ? "expanded" : "collapsed"}`}>
+        <div
+          className={`cart-controls ${
+            quantity > 0 ? "expanded" : "collapsed"
+          }`}
+        >
           {quantity === 0 ? (
             <Button onClick={handleAdd} className="add-to-cart">
               Adicionar ao Carrinho

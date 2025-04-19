@@ -2,32 +2,22 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
 
 .backtop-custom {
-  height: 80px;
-  width: 80px;
-  background-color:#b1bd13;
+  height: 50px;
+  width: 50px;
+  background-color:#1ead01;
   color: white;
   text-align: center;
   line-height: 40px;
   border-radius: 50%;
-  font-size: 29px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-size: 49px;
+  box-shadow: 0 7px 8px rgba(0, 0, 0, 0.3);
   transition: all 0.3s;
 }
 
 .backtop-custom:hover {
-  background-color: #788012;
+  background-color: #178002;
   transform: scale(1.1);
 }
 
@@ -40,6 +30,7 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  
 }
 
 .App-link {

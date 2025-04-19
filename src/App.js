@@ -1,5 +1,5 @@
 import { Layout, Divider } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {  BackTop } from "antd";
 
 import AppHeader from "./header/header";
@@ -77,23 +77,29 @@ function App() {
     }
   ];
 
-  const [scroll, setScroll] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [scroll, setScroll] = useState(false);
+const lastScrollY = useRef(0);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setScroll(true);
-      } else {
-        setScroll(false);
-      }
-      setLastScrollY(currentScrollY);
-    };
+useEffect(() => {
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+    // Mostra o botão se passou de 550px
+    if (currentScrollY > 550) {
+      setScroll(true);
+    }
+
+    // Esconde se estiver a 550px ou menos
+    if (currentScrollY <= 550) {
+      setScroll(false);
+    }
+
+    lastScrollY.current = currentScrollY;
+  };
+
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
 
 
   return (
@@ -142,7 +148,7 @@ function App() {
         </Layout>
         {scroll && (
         <BackTop>
-          <div className="backtop-custom">↑</div>
+          <div className="backtop-custom" >↑</div>
         </BackTop>
       )}
       </Layout>

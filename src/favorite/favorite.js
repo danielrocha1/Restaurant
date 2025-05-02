@@ -18,19 +18,19 @@ const Favorite = () => {
       <div>
         <Badge count={favorites.length} size="small" onClick={toggleFavorite}>
           <HeartOutlined
-            style={{ fontSize: '32px', color: 'white', cursor: 'pointer' }}
+            style={{ fontSize: '12px', color: 'white', cursor: 'pointer', backgroundColor: 'white', borderRadius: '50%' , width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           />
         </Badge>
       </div>
 
       <Drawer
         title="Seus Favoritos"
-        placement="top"
+        placement="right"
         onClose={toggleFavorite}
         open={favoriteOpen}
-        width={800} // Aumenta a largura pra caber mais cards
-        height={700}
+        width={300}
       >
+
         {favorites.length === 0 ? (
           <p>Você ainda não adicionou favoritos.</p>
         ) : (

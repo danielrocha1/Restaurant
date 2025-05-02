@@ -22,7 +22,7 @@ const Cart = () => {
   return (
     <>
         <Badge count={totalItems} size="small" onClick={toggleCart}>
-          <ShoppingCartOutlined style={{ fontSize: '32px', color: 'white', cursor: 'pointer' }} />
+          <ShoppingCartOutlined style={{ fontSize: '12px', color: 'white', cursor: 'pointer', backgroundColor: 'white', borderRadius: '50%' , width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
         </Badge>
 
       <Drawer

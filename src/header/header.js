@@ -13,7 +13,7 @@ const { Search } = Input;
 const AppHeader = () => {
   const [hideHeader, setHideHeader] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const SCROLL_THRESHOLD = 100;
+  const SCROLL_THRESHOLD = 80;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,7 +40,7 @@ const AppHeader = () => {
     <>
       {/* Promo Bar */}
       <div className={`promo-bar ${hideHeader ? "header-hidden" : ""}`}>
-        🔥 Promoção especial! Frete grátis para compras acima de R$ 100!
+      <span style={{padding:"10px", backgroundColor:"black",}}>Mesa 103</span> 
       </div>
 
       <Header className={`header-container ${hideHeader ? "header-hidden" : ""}`}>

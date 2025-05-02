@@ -2,15 +2,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: white;
 }
 
 .category{
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Sombra suave por padrão */
-  background-color: white;
+  background-color: #d94a4a;
   border-radius: 8px;
-  padding: 16px;
+  padding: 30px;
   width: 75vw;
   margin: 0 auto;
+  height: 80vh;
+  margin-left: 12.4vw;
 
 }
 

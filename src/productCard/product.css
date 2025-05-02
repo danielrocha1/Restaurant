@@ -1,9 +1,9 @@
 .product-card {
-  width: 300px;                /* Largura fixa */
-  height: 700px;               /* Altura fixa para todos os cards */
+  width: 250px;                /* Largura fixa */
+  height: 380px;               /* Altura fixa para todos os cards */
   border-radius: 8px;
   overflow: hidden;
-  margin: 16px;
+  margin: 6px;
   box-shadow: 0 8px 10px rgba(0, 0, 0, 0.2);
   transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   display: flex;
@@ -12,21 +12,21 @@
 }
 
 .product-card:hover {
-  border: 3px solid #28a745;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid #d94a4a;
+  box-shadow: 0 10px 20px rgba(147, 132, 132, 0.2);
 }
 
 .product-image {
   width: 100%;         /* Faz a imagem ocupar toda a largura do card */
   height: auto;        /* Mantém a proporção da imagem */
-  max-height: 250px;   /* Limita a altura para evitar imagens muito grandes */
+  max-height: 100px;   /* Limita a altura para evitar imagens muito grandes */
   display: block;      /* Remove espaçamentos indesejados */
   object-fit: contain; /* Garante que a imagem inteira fique visível sem cortes */
   border-radius: 8px;  /* Arredonda os cantos para um design mais bonito */
 }
 
 .product-image:hover {
-  transform: scale(2.1); /* Aumenta a imagem em 10% */
+  transform: scale(1.4); /* Aumenta a imagem em 10% */
 }
 
 .product-info {
@@ -37,42 +37,41 @@
 }
 
 .product-title {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.product-description {
-  color: #666;
   font-size: 14px;
+  font-weight: bold;
 }
 
 .weight-options {
   display: grid;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 16px;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); /* Ajusta a largura mínima para 80px e permite que cresça */
 }
-
 
 .weight-option {
   cursor: pointer;
   padding: 8px 16px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
   background-color: #f5f5f5;
-  transition: background-color 0.2s ease-in-out; /* Transição rápida na mudança de cor */
+  transition: background-color 0.2s ease-in-out;
+  
+  text-align: center;        /* Centraliza o texto dentro do botão */
+  white-space: nowrap;       /* Impede a quebra de linha */
+  min-width: 60px;           /* Define uma largura mínima para cada botão */
 }
 
+
 .weight-option:hover {
-  border-color: #28a745; /* Borda verde */  
+  border-color: #d94a4a; /* Borda verde */  
 }
 
 .weight-option.selected {
-  background-color: #28a745;  /* Verde para a opção selecionada */
+  background-color: #d94a4a;  /* Verde para a opção selecionada */
   color: white;
-  border-color: #28a745; /* Borda verde */
+  border-color: #d94a4a; /* Borda verde */
 }
 
 .cart-controls {
@@ -85,13 +84,13 @@
   white-space: nowrap;  
   font-size: 20px;
   font-weight: bold;
-  color: #28a745;  /* Verde para o preço */
+  color: #d94a4a;  /* Verde para o preço */
 }
 
 .add-to-cart {
-  background-color: #28a745;  /* Verde para o botão */
+  background-color: #d94a4a;  /* Verde para o botão */
   color: white;
-  padding: 8px 16px;
+  padding: 8px 16px ;
   border-radius: 6px;
   width: 100%;
 }
@@ -115,7 +114,7 @@
 }
 
 .quantity-button:hover {
-  background-color: #28a745 !important;  /* Fundo verde ao passar o mouse */
+  background-color: #d94a4a !important;  /* Fundo verde ao passar o mouse */
   color: white !important;  /* Cor do ícone se torna branca */
 }
 

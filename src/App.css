@@ -4,9 +4,10 @@
 
 
 .backtop-custom {
+  margin-left: 15px;
   height: 50px;
   width: 50px;
-  background-color:#1ead01;
+  background-color:#d94a4a;
   color: white;
   text-align: center;
   line-height: 40px;
@@ -17,7 +18,7 @@
 }
 
 .backtop-custom:hover {
-  background-color: #178002;
+  background-color: #8e3232;
   transform: scale(1.1);
 }
 

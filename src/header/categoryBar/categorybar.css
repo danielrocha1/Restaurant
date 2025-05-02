@@ -1,47 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
 .category-bar-up {
-  transform: translateY(-115px); /* Sobe um pouco, o suficiente pra ocupar o espaço do header */
+  transform: translateX(-260px);
   transition: transform 0.4s ease-in-out;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-
-
 .category-bar {
-  transition: transform 0.2s ease-in-out;
   position: fixed;
-  top: 114px; /* ou ajuste conforme seu layout */
-  width: 100vw;
-  left: -1px;
-  right: 0;
+  top: 114px;
+  left: 0;
+  width: 240px;
+  height: calc(100vh - 114px);
+  background-color: #1c1c1c; /* Preto suave, estilo zen */
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.2);
   z-index: 998;
-  display: flex;
-  border: 1px solid #eaeaea;
-  gap: 6rem;
-  background-color: #2e7d32;
-  border-bottom: 1px solid #eaeaea;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  justify-content: center;
-  flex-wrap: wrap;
+  overflow-y: auto;
+  transition: transform 0.4s ease-in-out;
 }
 
-.category-item {
-  font-family: 'Source Sans Pro', sans-serif;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
+.ant-menu-dark {
+  background-color: transparent !important;
+  border-right: none;
+}
+
+.ant-menu-dark .ant-menu-item,
+.ant-menu-dark .ant-menu-submenu-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
   font-weight: 500;
-  color: #ffffff; /* verde escuro */
-  cursor: pointer;
+  padding-left: 24px !important;
+  color: #e0e0e0;
+  border-radius: 4px;
+  margin: 2px 8px;
+  transition: all 0.3s ease;
 }
 
-
-.category-item:hover {
-  background-color: #d0e9d6; /* verde mais escuro */
-  color: #1b5e20; /* verde mais escuro */
+.ant-menu-dark .ant-menu-submenu-title {
+  background-color: transparent;
 }
- 
 
-.category-item:hover::after {
-  width: 100%;
+.ant-menu-dark .ant-menu-item:hover,
+.ant-menu-dark .ant-menu-submenu-title:hover {
+  background-color: #e9e5dc !important; /* tom arroz */
+  color: #b71c1c !important; /* vermelho sakura */
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+  background-color: #fff3e0 !important;
+  color: #b71c1c !important;
+}
+
+.ant-menu-dark .ant-menu-submenu .ant-menu-item {
+  background-color: #2a2a2a !important;
+  padding-left: 36px !important;
+}
+
+.ant-menu-dark .ant-menu-submenu .ant-menu-item:hover {
+  background-color: #e9e5dc !important;
+  color: #b71c1c !important;
+}
+
+/* Scrollbar discreta */
+.category-bar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-bar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
 }

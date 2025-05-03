@@ -43,67 +43,68 @@ function App() {
   ];
 
   return (
-    <div style={{ marginTop: "80px" }}>
+    <body style={{ backgroundColor: "black", minHeight: "100vh", marginTop: "90px", color: "white" }}>
       <AppHeader />
       <Layout style={{ backgroundColor: "black", width: "98.5vw" }}>
       <Layout style={{ background: "transparent", }}>
-          <Content style={{ margin: "4px 16px", padding: 30, }}>
+          <Content style={{ margin: "4px 36px", padding: 30 }}>
             <ProductCarousel categoryName="Combinados" products={japaneseProducts} />
           </Content>
-          <Divider style={{ border: "2px solid white" }} />
+          <Divider style={{ border: "1px solid white", color:"white", fontSize:"20px", fontWeight:"bold" }} >Comidas Frias</Divider>
 
 
-          <Content style={{ margin: "4px 16px", padding: 24 }}>
+
+          <Content style={{ margin: "4px 36px", padding: 24 }}>
             <ProductCarousel categoryName="Sushis" products={japaneseProducts} />
           </Content>
           <Divider style={{ border: "1px solid white" }} />
 
-          <Content style={{ margin: "4px 16px", padding: 24 }}>
+          <Content style={{ margin: "4px 36px", padding: 24 }}>
             <ProductCarousel categoryName="Sashimis" products={japaneseProducts} />
           </Content>
           <Divider style={{ border: "1px solid white" }} />
 
-          <Content style={{ margin: "4px 16px", padding: 24  }}>
+          <Content style={{ margin: "4px 36px", padding: 24  }}>
             <ProductCarousel categoryName="Temakis" products={japaneseProducts} />
           </Content>
-          <Divider style={{ border: "1px solid white" }} />
+          <Divider style={{ border: "1px solid white", color:"white", fontSize:"22px", fontWeight:"bold" }} >Comidas Quentes</Divider>
 
-          <Content style={{ margin: "4px 16px", padding: 24 }}>
+          <Content style={{ margin: "4px 36px", padding: 24 }}>
             <ProductCarousel categoryName="Yakissoba" products={japaneseProducts} />
           </Content>
           <Divider style={{ border: "1px solid white" }} />
 
-          <Content style={{ margin: "4px 16px", padding: 24 }}>
+          <Content style={{ margin: "4px 36px", padding: 24 }}>
             <ProductCarousel categoryName="Lámen" products={japaneseProducts} />
           </Content>
           <Divider style={{ border: "1px solid white" }} />
 
-          <Content style={{ margin: "4px 16px", padding: 24 }}>
+          <Content style={{ margin: "4px 36px", padding: 24 }}>
             <ProductCarousel categoryName="Donburi" products={japaneseProducts} />
           </Content>
           <Divider style={{ border: "1px solid white" }} />
 
-          <Content style={{ margin: "4px 16px", padding: 24 }}>
+          <Content style={{ margin: "4px 36px", padding: 24 }}>
             <ProductCarousel categoryName="Entradas" products={japaneseProducts} />
           </Content>
           <Divider style={{ border: "1px solid white" }} />
 
-          <Content style={{ margin: "4px 16px", padding: 24 }}>
+          <Content style={{ margin: "4px 36px", padding: 24 }}>
             <ProductCarousel categoryName="Robatas (grelhados japoneses)" products={japaneseProducts} />
           </Content>
           <Divider style={{ border: "1px solid white" }} />
 
-          <Content style={{ margin: "4px 16px", padding: 24 }}>
+          <Content style={{ margin: "4px 36px", padding: 24 }}>
             <ProductCarousel categoryName="Acompanhamentos" products={japaneseProducts} />
           </Content>
           <Divider style={{ border: "1px solid white" }} />
 
-          <Content style={{ margin: "4px 16px", padding: 24 }}>
+          <Content style={{ margin: "4px 36px", padding: 24 }}>
             <ProductCarousel categoryName="Bebidas" products={japaneseProducts} />
           </Content>
           <Divider style={{ border: "1px solid white" }} />
 
-          <Content style={{ margin: "4px 16px", padding: 24 }}>
+          <Content style={{ margin: "4px 36px", padding: 24 }}>
             <ProductCarousel categoryName="Sobremesas" products={japaneseProducts} />
           </Content>
         </Layout>
@@ -114,7 +115,7 @@ function App() {
           </BackTop>
         )}
       </Layout>
-    </div>
+    </body>
   );
 }
 

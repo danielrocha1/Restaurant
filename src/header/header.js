@@ -39,11 +39,11 @@ const AppHeader = () => {
   return (
     <>
       {/* Promo Bar */}
-      <div className={`promo-bar ${hideHeader ? "header-hidden" : ""}`}>
+      <div className={"promo-bar "}>
       <span style={{padding:"10px", backgroundColor:"black",}}>Mesa 103</span> 
       </div>
 
-      <Header className={`header-container ${hideHeader ? "header-hidden" : ""}`}>
+      <Header className={"header-container"}>
         <div className="header-logo">Minha Loja</div>
         <Search placeholder="Buscar produtos..." allowClear className="header-search" />
         <Space className="header-icons">

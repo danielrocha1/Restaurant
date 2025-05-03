@@ -5,9 +5,9 @@ import React from 'react';
 
 const { SubMenu } = Menu;
 
-const CategoryBar = ({ hideHeader }) => {
+const CategoryBar = ( ) => {
   return (
-    <div className={`category-bar ${hideHeader ? 'category-bar-up' : ''}`}>
+    <div className={"category-bar"}>
       <Menu
         mode="inline"
         style={{ width: "15.4vw", backgroundColor: '#2e7d32', color: 'white' }}

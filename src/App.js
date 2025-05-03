@@ -6,6 +6,12 @@ import AppHeader from "./header/header";
 import ProductCarousel from "./carousel/carousel";
 import "./App.css";
 
+
+ //fundo     https://thumbs.dreamstime.com/b/seamless-sushi-roll-pattern-black-background-vector-seamless-sushi-roll-pattern-black-background-vector-illustration-240039559.jpg
+ //fundo     https://img.freepik.com/premium-vector/seamless-pattern-with-sushi-isolated-black-background-design-chalkboard_505564-1815.jpg?w=2000
+ //fundo     https://thumbs.dreamstime.com/z/vector-bw-seamless-sushi-pattern-japenese-food-rolls-rice-black-white-90630681.jpg
+
+
 const { Content } = Layout;
 
 function App() {
@@ -43,7 +49,7 @@ function App() {
   ];
 
   return (
-    <body style={{ backgroundColor: "black", minHeight: "100vh", marginTop: "90px", color: "white" }}>
+    <div style={{ backgroundColor: "black", minHeight: "100vh", marginTop: "90px", color: "white" }}>
       <AppHeader />
       <Layout style={{ backgroundColor: "black", width: "98.5vw" }}>
       <Layout style={{ background: "transparent", }}>
@@ -115,7 +121,7 @@ function App() {
           </BackTop>
         )}
       </Layout>
-    </body>
+    </div>
   );
 }
 

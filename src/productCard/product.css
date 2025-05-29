@@ -1,9 +1,9 @@
 .product-card {
-  width: 250px;                /* Largura fixa */
-  height: 380px;               /* Altura fixa para todos os cards */
+  width: 430px;                /* Largura fixa */
+  height: 480px;               /* Altura fixa para todos os cards */
   border-radius: 8px;
   overflow: hidden;
-  margin: 6px;
+  margin: 50px 0px 0px 40px;
   box-shadow: 0 8px 10px rgba(0, 0, 0, 0.2);
   transition: border 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
   display: flex;
@@ -17,17 +17,13 @@
 }
 
 .product-image {
-  width: 100%;         /* Faz a imagem ocupar toda a largura do card */
-  height: auto;        /* Mantém a proporção da imagem */
-  max-height: 100px;   /* Limita a altura para evitar imagens muito grandes */
-  display: block;      /* Remove espaçamentos indesejados */
-  object-fit: contain; /* Garante que a imagem inteira fique visível sem cortes */
-  border-radius: 8px;  /* Arredonda os cantos para um design mais bonito */
+  width: 100%;           /* Ocupa toda a largura do card */
+  height: 300px;         /* Altura fixa maior */
+  object-fit: cover;     /* Preenche o espaço mantendo proporção, pode cortar um pouco */
+  display: block;
+  border-radius: 8px;
 }
-
-.product-image:hover {
-  transform: scale(1.4); /* Aumenta a imagem em 10% */
-}
+ 
 
 .product-info {
   padding: 16px;

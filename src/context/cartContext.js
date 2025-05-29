@@ -36,12 +36,24 @@ export const CartProvider = ({ children }) => {
     setCart(cart.filter((item) => item.name !== name || item.weight !== weight));
   };
 
+  const decreaseFromCart = (name, weight) => {
+  setCart((prevCart) =>
+    prevCart.map((item) => {
+      if (item.name === name && item.weight === weight) {
+        const newQuantity = item.quantity - 1;
+        return newQuantity > 0 ? { ...item, quantity: newQuantity } : null;
+      }
+      return item;
+    }).filter(Boolean) // Remove os nulls (itens com quantidade 0)
+  );
+};
+
   const clearCart = () => {
     setCart([]);
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, getQuantity }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, decreaseFromCart, clearCart, getQuantity }}>
       {children}
     </CartContext.Provider>
   );

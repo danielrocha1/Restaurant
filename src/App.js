@@ -1,15 +1,19 @@
 import { Layout, Divider } from "antd";
 import React, { useEffect, useState, useRef } from "react";
 import { BackTop } from "antd";
+import productData from "./catalogo_akiro.json"; // <- aqui o seu JSON
 
 import AppHeader from "./header/header";
 import ProductCarousel from "./carousel/carousel";
 import "./App.css";
 
 
+//akiro logo https://cdn.neemo.com.br/uploads/item/photo/2039865/photo1690653160.jpeg.webp
+
  //fundo     https://thumbs.dreamstime.com/b/seamless-sushi-roll-pattern-black-background-vector-seamless-sushi-roll-pattern-black-background-vector-illustration-240039559.jpg
  //fundo     https://img.freepik.com/premium-vector/seamless-pattern-with-sushi-isolated-black-background-design-chalkboard_505564-1815.jpg?w=2000
  //fundo     https://thumbs.dreamstime.com/z/vector-bw-seamless-sushi-pattern-japenese-food-rolls-rice-black-white-90630681.jpg
+ //fundo     https://i.pinimg.com/736x/cb/ca/f4/cbcaf474e5d03f5c77dd016c6ad91a43.jpg
 
 
 const { Content } = Layout;
@@ -29,90 +33,62 @@ function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Produtos de exemplo - substitua por produtos reais de culinária japonesa
-  const japaneseProducts = [
-    {
-      name: "Sushi de Salmão",
-      price: "R$18,00",
-      brand: "Tokyo Sushi",
-      weights: ["6 un", "12 un"],
-      image: "https://th.bing.com/th/id/OIP.Xh0wnGqu46y0WkM9RveatgHaE7?w=800&h=533&rs=1&pid=ImgDetMain",
-    },
-    {
-      name: "Yakissoba de Frango",
-      price: "R$25,00",
-      brand: "Nippon Wok",
-      weights: ["pequeno", "grande"],
-      image: "https://www.guiadasemana.com.br/contentFiles/image/opt_w1180h738/2019/01/FEA/58657_shutterstock-1019534467.jpg",
-    },
-    // Adicione mais produtos conforme necessário
-  ];
+  
 
   return (
-    <div style={{ backgroundColor: "black", minHeight: "100vh", marginTop: "90px", color: "white" }}>
+    <div style={{ backgroundColor: "black",  marginTop: "100px", color: "white" }}>
       <AppHeader />
-      <Layout style={{ backgroundColor: "black", width: "98.5vw" }}>
+      <Layout
+        style={{
+          backgroundImage: "url('https://img.freepik.com/premium-vector/seamless-pattern-with-sushi-isolated-black-background-design-chalkboard_505564-1815.jpg?w=2000')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "500px 500px", // tamanho dos blocos
+          backgroundPosition: "top left",
+          backgroundAttachment: "fixed", // faz a imagem ficar estática
+          width: "98.8vw",
+        }}
+      >
       <Layout style={{ background: "transparent", }}>
-          <Content style={{ margin: "4px 36px", padding: 30 }}>
-            <ProductCarousel categoryName="Combinados" products={japaneseProducts} />
-          </Content>
-          <Divider style={{ border: "1px solid white", color:"white", fontSize:"20px", fontWeight:"bold" }} >Comidas Frias</Divider>
+ <>
+      {Object.entries(productData).map(([categoryName, value], index) => (
+        <div key={index}>
+          {/* <Divider
+            style={{
+              border: "1px solid white",
+              color: "white",
+              fontSize: "20px",
+              fontWeight: "bold",
+            }}
+          >
+            {categoryName}
+          </Divider> */}
 
-
-
-          <Content style={{ margin: "4px 36px", padding: 24 }}>
-            <ProductCarousel categoryName="Sushis" products={japaneseProducts} />
-          </Content>
-          <Divider style={{ border: "1px solid white" }} />
-
-          <Content style={{ margin: "4px 36px", padding: 24 }}>
-            <ProductCarousel categoryName="Sashimis" products={japaneseProducts} />
-          </Content>
-          <Divider style={{ border: "1px solid white" }} />
-
-          <Content style={{ margin: "4px 36px", padding: 24  }}>
-            <ProductCarousel categoryName="Temakis" products={japaneseProducts} />
-          </Content>
-          <Divider style={{ border: "1px solid white", color:"white", fontSize:"22px", fontWeight:"bold" }} >Comidas Quentes</Divider>
-
-          <Content style={{ margin: "4px 36px", padding: 24 }}>
-            <ProductCarousel categoryName="Yakissoba" products={japaneseProducts} />
-          </Content>
-          <Divider style={{ border: "1px solid white" }} />
-
-          <Content style={{ margin: "4px 36px", padding: 24 }}>
-            <ProductCarousel categoryName="Lámen" products={japaneseProducts} />
-          </Content>
-          <Divider style={{ border: "1px solid white" }} />
-
-          <Content style={{ margin: "4px 36px", padding: 24 }}>
-            <ProductCarousel categoryName="Donburi" products={japaneseProducts} />
-          </Content>
-          <Divider style={{ border: "1px solid white" }} />
-
-          <Content style={{ margin: "4px 36px", padding: 24 }}>
-            <ProductCarousel categoryName="Entradas" products={japaneseProducts} />
-          </Content>
-          <Divider style={{ border: "1px solid white" }} />
-
-          <Content style={{ margin: "4px 36px", padding: 24 }}>
-            <ProductCarousel categoryName="Robatas (grelhados japoneses)" products={japaneseProducts} />
-          </Content>
-          <Divider style={{ border: "1px solid white" }} />
-
-          <Content style={{ margin: "4px 36px", padding: 24 }}>
-            <ProductCarousel categoryName="Acompanhamentos" products={japaneseProducts} />
-          </Content>
-          <Divider style={{ border: "1px solid white" }} />
-
-          <Content style={{ margin: "4px 36px", padding: 24 }}>
-            <ProductCarousel categoryName="Bebidas" products={japaneseProducts} />
-          </Content>
-          <Divider style={{ border: "1px solid white" }} />
-
-          <Content style={{ margin: "4px 36px", padding: 24 }}>
-            <ProductCarousel categoryName="Sobremesas" products={japaneseProducts} />
-          </Content>
+          {/* Se a categoria tiver subcategorias */}
+          {Array.isArray(value) ? (
+            <Content style={{ margin: "4px 36px", padding: 24 }}>
+              <ProductCarousel
+                id={categoryName}
+                subCategoryName={categoryName}
+                products={value}
+              />
+            </Content>
+          ) : (
+            Object.entries(value).map(([subCategoryName, products], subIndex) => (
+              <Content
+                key={subIndex}
+                style={{ margin: "4px 36px", padding: 24 }}
+              >
+                <ProductCarousel
+                  id={`${subCategoryName}`}
+                  subCategoryName={subCategoryName}
+                  products={products}
+                />
+              </Content>
+            ))
+          )}
+        </div>
+      ))}
+    </>
         </Layout>
 
         {scroll && (
@@ -120,6 +96,7 @@ function App() {
             <div className="backtop-custom">↑</div>
           </BackTop>
         )}
+        
       </Layout>
     </div>
   );

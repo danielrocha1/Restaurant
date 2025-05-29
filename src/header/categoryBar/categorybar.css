@@ -9,7 +9,7 @@
   position: fixed;
   top: 114px;
   left: 0;
-  width: 240px;
+  width: 270px;
   height: calc(100vh - 114px);
   background-color: #1c1c1c; /* Preto suave, estilo zen */
   box-shadow: 3px 0 6px rgba(0, 0, 0, 0.2);
@@ -26,12 +26,12 @@
 .ant-menu-dark .ant-menu-item,
 .ant-menu-dark .ant-menu-submenu-title {
   font-family: 'Inter', sans-serif;
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 500;
   padding-left: 24px !important;
   color: #e0e0e0;
   border-radius: 4px;
-  margin: 2px 8px;
+  margin: 8px 8px;
   transition: all 0.3s ease;
 }
 
@@ -46,12 +46,17 @@
 }
 
 .ant-menu-dark .ant-menu-item-selected {
-  background-color: #fff3e0 !important;
+  background-color: #e9e5dc !important;
   color: #b71c1c !important;
 }
 
 .ant-menu-dark .ant-menu-submenu .ant-menu-item {
   background-color: #2a2a2a !important;
+  padding-left: 36px !important;
+}
+
+.ant-menu-dark .ant-menu-submenu .ant-menu-item-selected {
+  background-color: #e9e5dc !important;
   padding-left: 36px !important;
 }
 

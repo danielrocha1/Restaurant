@@ -6,7 +6,7 @@ import "./cart.css"
 
 const Cart = () => {
   const [cartOpen, setCartOpen] = useState(false);
-  const { cart, addToCart, removeFromCart, clearCart } = useCart();
+  const { cart, addToCart, removeFromCart, clearCart , decreaseFromCart} = useCart();
 
   const toggleCart = () => {
     setCartOpen(!cartOpen);
@@ -14,10 +14,14 @@ const Cart = () => {
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const totalPrice = cart.reduce(
-    (sum, item) => sum + parseFloat(item.price.replace(",", ".")) * item.quantity,
-    0
+const totalPrice = cart.reduce((sum, item) => {
+  const cleanPrice = parseFloat(
+    item.price.replace("R$", "").replace(",", ".").trim()
   );
+  return sum + (isNaN(cleanPrice) ? 0 : cleanPrice * item.quantity);
+}, 0);
+
+
 
   return (
     <>
@@ -30,7 +34,7 @@ const Cart = () => {
         placement="right"
         onClose={toggleCart}
         open={cartOpen}
-        width={350}
+        width={470}
         footer={
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <strong>Total: R$ {totalPrice.toFixed(2).replace(".", ",")}</strong>
@@ -51,7 +55,7 @@ const Cart = () => {
                 actions={[
                   <Button
                     icon={<MinusOutlined />}
-                    onClick={() => removeFromCart(item.name, item.weight)}
+                    onClick={() => decreaseFromCart(item.name, item.weight)}
                     type="text"
                     disabled={item.quantity === 1}
                   />,

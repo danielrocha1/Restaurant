@@ -2,38 +2,62 @@ import './categorybar.css';
 import { Menu } from 'antd';
 import { AppstoreOutlined } from '@ant-design/icons';
 import React from 'react';
+import json from "../../catalogo_akiro.json";
 
-const { SubMenu } = Menu;
+const handleScrollTo = (name) => {
+  const element = document.getElementById(name);
+  if (element) {
+    const yOffset = -130;
+    const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+};
 
-const CategoryBar = ( ) => {
+const buildMenuItems = (data) => {
+  const items = [];
+  let keyCount = 1;
+
+  Object.entries(data).forEach(([categoria, subcategorias]) => {
+    const key = `${keyCount++}`;
+
+    // Categoria sem subcategorias
+    if (Array.isArray(subcategorias)) {
+      items.push({
+        key,
+        label: categoria,
+        onClick: () => handleScrollTo(categoria),
+      });
+    } else {
+      // Categoria com subcategorias
+      const children = Object.keys(subcategorias).map((sub, idx) => ({
+        key: `${key}-${idx}`,
+        label: sub,
+        onClick: () => handleScrollTo(sub),
+      }));
+
+      items.push({
+        key,
+        icon: <AppstoreOutlined />,
+        label: categoria,
+        children,
+      });
+    }
+  });
+
+  return items;
+};
+
+const CategoryBar = () => {
+  const items = buildMenuItems(json);
+
   return (
-    <div className={"category-bar"}>
+    <div className="category-bar">
       <Menu
         mode="inline"
-        style={{ width: "15.4vw", backgroundColor: '#2e7d32', color: 'white' }}
-        defaultSelectedKeys={['1']}
+        style={{ width: "14vw", backgroundColor: '#2e7d32', color: 'white' }}
         theme="dark"
-      >
-        <Menu.Item key="1">Combinados</Menu.Item>
-
-        <SubMenu key="2" icon={<AppstoreOutlined />} title="Comidas Frias">
-          <Menu.Item key="2-1">Sushis</Menu.Item>
-          <Menu.Item key="2-2">Sashimis</Menu.Item>
-          <Menu.Item key="2-3">Temakis</Menu.Item>
-        </SubMenu>
-
-        <SubMenu key="3" icon={<AppstoreOutlined />} title="Comidas Quentes">
-          <Menu.Item key="3-1">Yakissoba</Menu.Item>
-          <Menu.Item key="3-2">Lámen</Menu.Item>
-          <Menu.Item key="3-3">Donburi</Menu.Item>
-        </SubMenu>
-
-        <Menu.Item key="4">Entradas</Menu.Item>
-        <Menu.Item key="5">Robatas</Menu.Item>
-        <Menu.Item key="6">Acompanhamentos</Menu.Item>
-        <Menu.Item key="7">Bebidas</Menu.Item>
-        <Menu.Item key="8">Sobremesas</Menu.Item>
-      </Menu>
+        items={items}
+      />
     </div>
   );
 };

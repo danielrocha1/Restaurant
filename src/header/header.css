@@ -42,7 +42,7 @@
 
 /* Estilizando a Logo */
 .header-logo {
-    font-size: 28px;
+    width: 80px;
     font-weight: bold;
     color: white;
 

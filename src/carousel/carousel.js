@@ -7,14 +7,14 @@ import 'swiper/css/navigation';
 import ProductCard from '../productCard/product';
 import './carousel.css';
 
-const ProductCarousel = ({ categoryName, products }) => {
+const ProductCarousel = ({ id, subCategoryName, products }) => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
   return (
-    <div className="category">
+    <div id={id} className="category">
       <div className="category-header">
-        <h2>{categoryName}</h2>
+        <h2>{subCategoryName}</h2>
         <div className="navigation-buttons">
           <button ref={prevRef} className="custom-prev">‹</button>
           <button ref={nextRef} className="custom-next">›</button>
@@ -23,8 +23,8 @@ const ProductCarousel = ({ categoryName, products }) => {
 
       <Swiper
         modules={[Navigation]}
-        spaceBetween={20}
-        slidesPerView={4}
+        spaceBetween={0}
+        slidesPerView={3}
         navigation={{
           prevEl: prevRef.current,
           nextEl: nextRef.current,

@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Input, Space, Avatar } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import { Layout, Space, } from "antd";
 import Cart from "../cart/cart";
-import Favorite from "../favorite/favorite";
 import CategoryBar from "../header/categoryBar/categorybar";
 
 import "./header.css";
 
 const { Header } = Layout;
-const { Search } = Input;
 
 const AppHeader = () => {
   const [hideHeader, setHideHeader] = useState(false);
@@ -44,11 +41,8 @@ const AppHeader = () => {
       </div>
 
       <Header className={"header-container"}>
-        <div className="header-logo">Minha Loja</div>
-        <Search placeholder="Buscar produtos..." allowClear className="header-search" />
+        <img  alt="logo" src="https://cdn.neemo.com.br/uploads/item/photo/2039865/photo1690653160.jpeg.webp" className="header-logo"/>
         <Space className="header-icons">
-          <Avatar size="large" icon={<UserOutlined />} className="header-avatar" />
-          <Favorite />
           <Cart />
         </Space>
       </Header>

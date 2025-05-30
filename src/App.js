@@ -19,6 +19,7 @@ import "./App.css";
 const { Content } = Layout;
 
 function App() {
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [scroll, setScroll] = useState(false);
   const lastScrollY = useRef(0);
 
@@ -36,7 +37,7 @@ function App() {
   
 
   return (
-    <div style={{ backgroundColor: "black",  marginTop: "100px", color: "white" }}>
+    <div style={{ backgroundColor: "black",  marginTop: isMobile ? "200px" : "100px", color: "white" }}>
       <AppHeader />
       <Layout
         style={{
@@ -65,7 +66,7 @@ function App() {
 
           {/* Se a categoria tiver subcategorias */}
           {Array.isArray(value) ? (
-            <Content style={{ margin: "4px 36px", padding: 24 }}>
+            <Content style={{ margin: isMobile ? 0 : "4px 36px", padding: 24 }}>
               <ProductCarousel
                 id={categoryName}
                 subCategoryName={categoryName}
@@ -76,7 +77,7 @@ function App() {
             Object.entries(value).map(([subCategoryName, products], subIndex) => (
               <Content
                 key={subIndex}
-                style={{ margin: "4px 36px", padding: 24 }}
+                style={{ margin: isMobile ? 0 : "4px 36px", padding: 24 }}
               >
                 <ProductCarousel
                   id={`${subCategoryName}`}

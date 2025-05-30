@@ -145,3 +145,80 @@
 .heart-circle.favorite {
   border-color: #bb041c;  /* Borda verde quando favoritado */
 }
+
+@media (max-width: 480px) {
+  .product-card {
+    width: 94%;
+    height: auto;
+    margin: 20px auto;
+    padding-bottom: 16px;
+  }
+
+  .product-image {
+    height: 180px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .product-info {
+    padding: 12px;
+    gap: 6px;
+  }
+
+  .product-title {
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .weight-options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .weight-option {
+    font-size: 12px;
+    padding: 6px 10px;
+    min-width: 0;  /* Permite adaptação completa ao grid */
+  }
+
+  .cart-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .product-price {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .add-to-cart {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .quantity-controls {
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .quantity-button {
+    width: 28px;
+    height: 28px;
+    padding: 4px !important;
+  }
+
+  .quantity-value {
+    font-size: 14px;
+  }
+
+  .favorite-button {
+    top: 8px;
+    right: 8px;
+  }
+
+  .heart-circle {
+    width: 28px;
+    height: 28px;
+  }
+}

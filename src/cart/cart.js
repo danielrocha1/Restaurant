@@ -16,11 +16,10 @@ const Cart = () => {
 
 const totalPrice = cart.reduce((sum, item) => {
   const cleanPrice = parseFloat(
-    item.price.replace("R$", "").replace(",", ".").trim()
+    (item.price || "").replace("R$", "").replace(",", ".").trim()
   );
   return sum + (isNaN(cleanPrice) ? 0 : cleanPrice * item.quantity);
 }, 0);
-
 
 
   return (

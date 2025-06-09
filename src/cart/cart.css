@@ -26,3 +26,6 @@
 }
 
 
+.ant-message {
+  z-index: 1050 !important; /* acima de modais e drawers */
+}

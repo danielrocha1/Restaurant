@@ -108,6 +108,14 @@
   scroll-margin-top: 130px;
 }
 
+.custom-prev:disabled,
+.custom-next:disabled {
+  color: black;
+}
+
+
+
+
 /* --- ESTILOS PARA MOBILE --- */
 @media (max-width: 768px) {
   .category {

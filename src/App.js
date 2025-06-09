@@ -1,95 +1,188 @@
-import { Layout, Divider } from "antd";
-import React, { useEffect, useState, useRef } from "react";
-import { BackTop } from "antd";
-import productData from "./catalogo_akiro.json"; // <- aqui o seu JSON
+import { Layout, BackTop } from "antd";
+import React, { useEffect, useState } from "react";
 
 import AppHeader from "./header/header";
 import ProductCarousel from "./carousel/carousel";
 import "./App.css";
 
-
-//akiro logo https://cdn.neemo.com.br/uploads/item/photo/2039865/photo1690653160.jpeg.webp
-
- //fundo     https://thumbs.dreamstime.com/b/seamless-sushi-roll-pattern-black-background-vector-seamless-sushi-roll-pattern-black-background-vector-illustration-240039559.jpg
- //fundo     https://img.freepik.com/premium-vector/seamless-pattern-with-sushi-isolated-black-background-design-chalkboard_505564-1815.jpg?w=2000
- //fundo     https://thumbs.dreamstime.com/z/vector-bw-seamless-sushi-pattern-japenese-food-rolls-rice-black-white-90630681.jpg
- //fundo     https://i.pinimg.com/736x/cb/ca/f4/cbcaf474e5d03f5c77dd016c6ad91a43.jpg
-
-
 const { Content } = Layout;
 
 function App() {
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [scroll, setScroll] = useState(false);
-  const lastScrollY = useRef(0);
+  const [productData, setProductData] = useState({});
+  const [pagination, setPagination] = useState({});
+  const [loadingByCategory, setLoadingByCategory] = useState({}); // 👈 NOVO
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setScroll(currentScrollY > 550);
-      lastScrollY.current = currentScrollY;
+      const isScrolled = window.scrollY > 550;
+      if (scroll !== isScrolled) {
+        setScroll(isScrolled);
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, [scroll]);
+
+  const fetchInitialData = async () => {
+  try {
+    const response = await fetch("http://localhost:4000/categoriasSub");
+    const data = await response.json();
+
+    for (const categoria of data) {
+      const { Nome: nomeCategoria, Subcategorias } = categoria;
+
+      // Caso só tenha "Sem subcategoria", busca pela categoria
+      if (
+        Subcategorias.length === 1 &&
+        Subcategorias[0].Nome === "Sem subcategoria"
+      ) {
+        const response = await fetch(
+          `http://localhost:4000/produtos-list?categoria=${encodeURIComponent(nomeCategoria)}&page=1`
+        );
+        const result = await response.json();
+        const produtos = Array.isArray(result.data) ? result.data : [];
+
+        setProductData((prev) => ({
+          ...prev,
+          [nomeCategoria]: produtos,
+        }));
+
+        setPagination((prev) => ({
+          ...prev,
+          [nomeCategoria]: {
+            currentPage: result.page || 1,
+            lastPage: result.last_page || 1,
+          },
+        }));
+      } else {
+        // Senão, busca pelas subcategorias
+        for (const sub of Subcategorias) {
+          if (sub.Nome === "Sem subcategoria") continue;
+
+          const response = await fetch(
+            `http://localhost:4000/produtos-list?categoria=${encodeURIComponent(sub.Nome)}&page=1`
+          );
+          const result = await response.json();
+          const produtos = Array.isArray(result.data) ? result.data : [];
+
+          setProductData((prev) => ({
+            ...prev,
+            [sub.Nome]: produtos,
+          }));
+
+          setPagination((prev) => ({
+            ...prev,
+            [sub.Nome]: {
+              currentPage: result.page || 1,
+              lastPage: result.last_page || 1,
+            },
+          }));
+        }
+      }
+    }
+  } catch (error) {
+    console.error("❌ Erro ao carregar categorias e subcategorias:", error);
+  }
+};
+
+
+
+  // ✅ fetchMoreProducts com loadingByCategory
+  const fetchMoreProducts = async (categoria, nextPage) => {
+    if (loadingByCategory[categoria]) {
+      console.log(`⏳ Já está carregando a categoria ${categoria}... ignorando`);
+      return;
+    }
+
+    setLoadingByCategory(prev => ({ ...prev, [categoria]: true }));
+    console.log(`⏳ Carregando mais produtos para categoria ${categoria}, página ${nextPage}...`);
+
+    try {
+      const response = await fetch(
+        `http://localhost:4000/produtos-list?categoria=${encodeURIComponent(categoria)}&page=${nextPage}`
+      );
+      const result = await response.json();
+      const newProducts = Array.isArray(result.data) ? result.data : [];
+
+      setProductData(prevData => ({
+        ...prevData,
+        [categoria]: [...(prevData[categoria] || []), ...newProducts],
+      }));
+
+      setPagination(prev => ({
+        ...prev,
+        [categoria]: {
+          currentPage: result.page || nextPage,
+          lastPage: result.last_page || prev[categoria]?.lastPage || nextPage,
+        },
+      }));
+    } catch (error) {
+      console.error(`❌ Erro ao carregar mais produtos para ${categoria}:`, error);
+    } finally {
+      setLoadingByCategory(prev => ({ ...prev, [categoria]: false }));
+    }
+  };
+
+  useEffect(() => {
+    fetchInitialData();
   }, []);
 
-  
-
   return (
-    <div style={{ backgroundColor: "black",  marginTop: isMobile ? "200px" : "100px", color: "white" }}>
+    <div
+      style={{
+        backgroundColor: "black",
+        marginTop: isMobile ? "150px" : "100px",
+        color: "white",
+      }}
+    >
       <AppHeader />
       <Layout
         style={{
-          backgroundImage: "url('https://img.freepik.com/premium-vector/seamless-pattern-with-sushi-isolated-black-background-design-chalkboard_505564-1815.jpg?w=2000')",
+          backgroundImage:
+            "url('https://img.freepik.com/premium-vector/seamless-pattern-with-sushi-isolated-black-background-design-chalkboard_505564-1815.jpg?w=2000')",
           backgroundRepeat: "repeat",
-          backgroundSize: "500px 500px", // tamanho dos blocos
-          backgroundPosition: "top left",
-          backgroundAttachment: "fixed", // faz a imagem ficar estática
+          backgroundSize: "500px 500px",
+          backgroundPosition: "center left",
+          backgroundAttachment: "fixed",
           width: "98.8vw",
         }}
       >
-      <Layout style={{ background: "transparent", }}>
- <>
-      {Object.entries(productData).map(([categoryName, value], index) => (
-        <div key={index}>
-          {/* <Divider
-            style={{
-              border: "1px solid white",
-              color: "white",
-              fontSize: "20px",
-              fontWeight: "bold",
-            }}
-          >
-            {categoryName}
-          </Divider> */}
-
-          {/* Se a categoria tiver subcategorias */}
-          {Array.isArray(value) ? (
-            <Content style={{ margin: isMobile ? 0 : "4px 36px", padding: 24 }}>
-              <ProductCarousel
-                id={categoryName}
-                subCategoryName={categoryName}
-                products={value}
-              />
+        <Layout style={{ background: "transparent" }}>
+          {Object.entries(productData).map(([categoria, products], index) => (
+            <Content
+              key={index}
+              style={{ margin: isMobile ? 0 : "4px 36px", padding: 24 }}
+            >
+              {products.length > 0 ? (
+                <>
+                  <p style={{ color: "white" }}>🧩 Exibindo categoria: {categoria}</p>
+                  <ProductCarousel
+                    id={categoria}
+                    subCategoryName={categoria}
+                    products={products}
+                    onRequestMore={fetchMoreProducts}
+                    currentPage={pagination[categoria]?.currentPage || 1}
+                    lastPage={pagination[categoria]?.lastPage || 1}
+                  />
+                </>
+              ) : (
+                <p style={{ color: "white" }}>
+                  ❌ Nenhum produto disponível para a categoria {categoria}.
+                </p>
+              )}
             </Content>
-          ) : (
-            Object.entries(value).map(([subCategoryName, products], subIndex) => (
-              <Content
-                key={subIndex}
-                style={{ margin: isMobile ? 0 : "4px 36px", padding: 24 }}
-              >
-                <ProductCarousel
-                  id={`${subCategoryName}`}
-                  subCategoryName={subCategoryName}
-                  products={products}
-                />
-              </Content>
-            ))
-          )}
-        </div>
-      ))}
-    </>
+          ))}
         </Layout>
 
         {scroll && (
@@ -97,7 +190,6 @@ function App() {
             <div className="backtop-custom">↑</div>
           </BackTop>
         )}
-        
       </Layout>
     </div>
   );

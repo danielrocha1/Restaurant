@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Space, } from "antd";
+import { Layout, Space } from "antd";
 import Cart from "../cart/cart";
 import CategoryBar from "../header/categoryBar/categorybar";
+
+import Logo from "../logo.png";
 
 import "./header.css";
 
@@ -12,42 +14,51 @@ const AppHeader = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const SCROLL_THRESHOLD = 80;
 
+  const promoMessages = [
+    "🎉 Promoção: Na compra de 2 Temakis, ganhe 1 refrigerante!",
+    "🍣 Sashimi em dobro toda terça!",
+    "🤑 Akiro sushi tem o melhor Uramaki e Gyoza da Região, aproveite!!",
+  ];
+
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
       if (currentScrollY > lastScrollY && currentScrollY > SCROLL_THRESHOLD) {
-        // Scrollando pra baixo E passou do threshold
         setHideHeader(true);
       } else if (currentScrollY < lastScrollY) {
-        // Scrollando pra cima
         setHideHeader(false);
       }
 
       setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', handleScroll);
-
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
-
 
   return (
     <>
-      {/* Promo Bar */}
-      <div className={"promo-bar "}>
-      <span style={{padding:"10px", backgroundColor:"black",}}>Mesa 103</span> 
+    <div className="promo-bar-container">
+      <div className="promo-bar">
+        <div className="promo-bar-track">
+          {promoMessages.map((msg, index) => (
+            <span key={index} className="promo-bar-message">
+              {msg}
+            </span>
+          ))}
+        </div>
       </div>
+    </div>
 
       <Header className={"header-container"}>
-        <img  alt="logo" src="https://cdn.neemo.com.br/uploads/item/photo/2039865/photo1690653160.jpeg.webp" className="header-logo"/>
+        <img alt="logo" src={Logo} className="header-logo" />
         <Space className="header-icons">
           <Cart />
         </Space>
       </Header>
 
-      <CategoryBar  hideHeader={hideHeader}/>
+      <CategoryBar hideHeader={hideHeader} />
     </>
   );
 };

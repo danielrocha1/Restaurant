@@ -1,59 +1,101 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useMemo, useCallback } from "react";
+import { message } from "antd"; // importa as mensagens do Ant Design
 
 const CartContext = createContext();
+
+const createKey = (name, weight) => `${name}_${weight}`;
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
-  const getQuantity = (name, weight) => {
-    const item = cart.find((item) => item.name === name && item.weight === weight);
-    return item ? item.quantity : 0;
-  };
-  
+  // quantityMap otimizado
+  const quantityMap = useMemo(() => {
+    const map = {};
+    for (const item of cart) {
+      const key = createKey(item.Nome, item.weight);
+      map[key] = item.quantity;
+    }
+    return map;
+  }, [cart]);
 
-  const addToCart = (product, weight) => {
-    const existingIndex = cart.findIndex(
-      (item) => item.name === product.name && item.weight === weight
+ const addToCart = useCallback((product, weight) => {
+  setCart((prevCart) => {
+    const index = prevCart.findIndex(
+      (item) => item.Nome === product.Nome && item.weight === weight
     );
 
-    if (existingIndex !== -1) {
-      const updatedCart = [...cart];
-      updatedCart[existingIndex].quantity += 1;
-      setCart(updatedCart);
+    if (index !== -1) {
+      const updatedCart = [...prevCart];
+      updatedCart[index] = {
+        ...updatedCart[index],
+        quantity: updatedCart[index].quantity + 1,
+      };
+      message.success(`Mais 1 unidade de ${product.Nome} (${weight}) adicionada ao carrinho`);
+      return updatedCart;
     } else {
-      setCart([
-        ...cart,
-        {
-          ...product,
-          weight,
-          quantity: 1,
-        },
-      ]);
+      const precoFinal = product.PrecoPromocional || product.Preco;
+      message.success(`${product.Nome} (${weight}) adicionado ao carrinho`);
+      return [...prevCart, { ...product, Preco: precoFinal, weight, quantity: 1 }];
     }
-  };
+  });
+}, []);
 
-  const removeFromCart = (name, weight) => {
-    setCart(cart.filter((item) => item.name !== name || item.weight !== weight));
-  };
-
-  const decreaseFromCart = (name, weight) => {
-  setCart((prevCart) =>
-    prevCart.map((item) => {
-      if (item.name === name && item.weight === weight) {
-        const newQuantity = item.quantity - 1;
-        return newQuantity > 0 ? { ...item, quantity: newQuantity } : null;
+  const removeFromCart = useCallback((name, weight) => {
+    setCart((prevCart) => {
+      const newCart = prevCart.filter(
+        (item) => item.Nome !== name || item.weight !== weight
+      );
+      if (newCart.length < prevCart.length) {
+        message.info(`${name} (${weight}) removido do carrinho`);
       }
-      return item;
-    }).filter(Boolean) // Remove os nulls (itens com quantidade 0)
-  );
-};
+      return newCart;
+    });
+  }, []);
 
-  const clearCart = () => {
+  const decreaseFromCart = useCallback((name, weight) => {
+    setCart((prevCart) => {
+      let itemRemoved = false;
+
+      const newCart = prevCart
+        .map((item) => {
+          if (item.Nome === name && item.weight === weight) {
+            const newQuantity = item.quantity - 1;
+            if (newQuantity > 0) {
+              message.info(`1 unidade de ${name} (${weight}) removida`);
+              return { ...item, quantity: newQuantity };
+            } else {
+              itemRemoved = true;
+              return null;
+            }
+          }
+          return item;
+        })
+        .filter(Boolean);
+
+      if (itemRemoved) {
+        message.info(`${name} (${weight}) removido do carrinho`);
+      }
+
+      return newCart;
+    });
+  }, []);
+
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+    message.warning("Carrinho esvaziado");
+  }, []);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, decreaseFromCart, clearCart, getQuantity }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        quantityMap,
+        addToCart,
+        removeFromCart,
+        decreaseFromCart,
+        clearCart,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

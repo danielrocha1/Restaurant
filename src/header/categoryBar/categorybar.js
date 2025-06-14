@@ -26,7 +26,7 @@ const CategoryBar = () => {
   }, []);
 
  useEffect(() => {
-  fetch("http://localhost:4000/categoriasSub")
+  fetch("https://restaurant-9gdi.onrender.com/categoriasSub")
     .then((res) => res.json())
     .then((data) => {
       console.log(data)

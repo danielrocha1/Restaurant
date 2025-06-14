@@ -36,7 +36,7 @@ function App() {
 
   const fetchInitialData = async () => {
   try {
-    const response = await fetch("http://localhost:4000/categoriasSub");
+    const response = await fetch("https://restaurant-9gdi.onrender.com/categoriasSub");
     const data = await response.json();
 
     for (const categoria of data) {
@@ -48,7 +48,7 @@ function App() {
         Subcategorias[0].Nome === "Sem subcategoria"
       ) {
         const response = await fetch(
-          `http://localhost:4000/produtos-list?categoria=${encodeURIComponent(nomeCategoria)}&page=1`
+          `https://restaurant-9gdi.onrender.com/produtos-list?categoria=${encodeURIComponent(nomeCategoria)}&page=1`
         );
         const result = await response.json();
         const produtos = Array.isArray(result.data) ? result.data : [];
@@ -71,7 +71,7 @@ function App() {
           if (sub.Nome === "Sem subcategoria") continue;
 
           const response = await fetch(
-            `http://localhost:4000/produtos-list?categoria=${encodeURIComponent(sub.Nome)}&page=1`
+            `https://restaurant-9gdi.onrender.com/produtos-list?categoria=${encodeURIComponent(sub.Nome)}&page=1`
           );
           const result = await response.json();
           const produtos = Array.isArray(result.data) ? result.data : [];
@@ -110,7 +110,7 @@ function App() {
 
     try {
       const response = await fetch(
-        `http://localhost:4000/produtos-list?categoria=${encodeURIComponent(categoria)}&page=${nextPage}`
+        `https://restaurant-9gdi.onrender.com/produtos-list?categoria=${encodeURIComponent(categoria)}&page=${nextPage}`
       );
       const result = await response.json();
       const newProducts = Array.isArray(result.data) ? result.data : [];

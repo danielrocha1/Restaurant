@@ -40,7 +40,7 @@ useEffect(() => {
           console.log("Total", cart.map(item => item.ID));
 
           try {
-            const response = await fetch('http://localhost:4000/checkout', {
+            const response = await fetch('https://restaurant-9gdi.onrender.com/checkout', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

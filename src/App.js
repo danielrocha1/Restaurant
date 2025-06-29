@@ -1,6 +1,7 @@
 import { Layout, BackTop } from "antd";
 import React, { useEffect, useState } from "react";
 
+import LoadingScreen from "./loading/loading"
 import AppHeader from "./header/header";
 import ProductCarousel from "./carousel/carousel";
 import "./App.css";
@@ -13,6 +14,21 @@ function App() {
   const [productData, setProductData] = useState({});
   const [pagination, setPagination] = useState({});
   const [loadingByCategory, setLoadingByCategory] = useState({}); // 👈 NOVO
+
+  const [showLoading, setShowLoading] = useState(true)
+
+  useEffect(() => {
+  // Conta todos os produtos carregados no total
+  const totalProducts = Object.values(productData).reduce(
+    (sum, produtos) => sum + produtos.length,
+    0
+  );
+
+  if (totalProducts >= 11) {
+    setShowLoading(false);
+  }
+}, [productData]);
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -137,6 +153,10 @@ function App() {
   useEffect(() => {
     fetchInitialData();
   }, []);
+
+  if (showLoading) {
+  return <LoadingScreen />;
+}
 
   return (
     <div

@@ -7,6 +7,9 @@ import (
 	"Restaurant/src/handlers"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"Restaurant/src/models"
+
+	"net/http"
+	"time"
  )
 
 func main() {
@@ -51,6 +54,19 @@ func main() {
 
 	app.Post("/checkout", handlers.Checkout)
 
+
+go func() {
+	for {
+		_, err := http.Get("https://restaurant-9gdi.onrender.com")
+		if err != nil {
+			log.Println("❌ Erro ao fazer ping:", err)
+		} else {
+			log.Println("✅ Ping enviado")
+		}
+
+		time.Sleep(50 * time.Second)
+	}
+}()
 
 	err := app.Listen(":4000")
 	if err != nil {

@@ -21,14 +21,19 @@ const CategoryBar = () => {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+    const handleOutsideSubmenu = (e) => {
+      const submenu = menuRef.current?.querySelector('.custom-submenu');
+      if (submenu && !submenu.contains(e.target)) {
         setOpenKeys([]);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleOutsideSubmenu);
+    return () => document.removeEventListener('mousedown', handleOutsideSubmenu);
   }, []);
+
+  const handleMenuClick = () => {
+    setOpenKeys([]);
+  };
 
  useEffect(() => {
   fetch("https://restaurant-9gdi.onrender.com/categoriasSub")
@@ -81,12 +86,13 @@ const CategoryBar = () => {
   return (
     <div className={`category-bar ${isMobile ? 'mobile' : ''}`} ref={menuRef}>
       <Menu
-        mode={isMobile ? "horizontal" : "inline"}
+        mode={isMobile ? "horizontal" : "vertical"}
         theme="dark"
         popupClassName="custom-submenu"
         openKeys={openKeys}
         onOpenChange={onOpenChange}
-        getPopupContainer={(trigger) => trigger.parentNode}
+        onClick={handleMenuClick}
+        getPopupContainer={() => menuRef.current}
         style={{
           width: isMobile ? 'max-content' : "14vw",
           display: isMobile ? "flex" : "block",

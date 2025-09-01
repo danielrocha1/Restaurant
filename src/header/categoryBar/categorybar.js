@@ -9,6 +9,11 @@ const CategoryBar = () => {
   const [menuItems, setMenuItems] = useState([]);
   const menuRef = useRef(null);
 
+  const onOpenChange = (keys) => {
+    const latest = keys.find((key) => !openKeys.includes(key));
+    setOpenKeys(latest ? [latest] : []);
+  };
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
@@ -78,7 +83,10 @@ const CategoryBar = () => {
       <Menu
         mode={isMobile ? "horizontal" : "inline"}
         theme="dark"
-        popupclassname="custom-submenu"
+        popupClassName="custom-submenu"
+        openKeys={openKeys}
+        onOpenChange={onOpenChange}
+        getPopupContainer={(trigger) => trigger.parentNode}
         style={{
           width: isMobile ? 'max-content' : "14vw",
           display: isMobile ? "flex" : "block",

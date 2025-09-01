@@ -76,9 +76,6 @@
 }
 
 .custom-submenu {
-  position: fixed !important;
-  top: 56px !important; /* Ajuste conforme a altura da sua .category-bar */
-  left: 0 !important;
   background-color: #2e7d32 !important;
   z-index: 9999;
   width: max-content;

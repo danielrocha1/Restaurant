@@ -18,6 +18,7 @@
   transition: transform 0.4s ease-in-out;
 }
 
+/* Ant Design Menu base */
 .ant-menu-dark {
   background-color: transparent !important;
   border-right: none;
@@ -75,6 +76,7 @@
   border-radius: 3px;
 }
 
+/* Submenu popup desktop */
 .custom-submenu {
   position: fixed !important;
   top: 56px !important; /* Ajuste conforme a altura da sua .category-bar */
@@ -86,91 +88,108 @@
 }
 
 
-
- /* MOBILE A PARTIR DAQUI */
-
-
- @media (max-width: 768px) {
+/* ================= MOBILE A PARTIR DAQUI ================= */
+@media (max-width: 768px) {
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
-/* Estilo base para a barra de categorias no mobile */
-.category-bar {
-  position: fixed;
-  /* top: 0;
-  left: 0; */
-  width: 100vw;
-  height: auto;
-  background-color: #1c1c1c; /* Preto suave, estilo zen */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  z-index: 998;
-  overflow-x: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
-  padding: 8px 0;
-  display: flex;
-  flex-direction: row;
-  gap: 12px;
-  scroll-behavior: smooth;
-}
+  /* Estilo base para a barra no mobile */
+  .category-bar {
+    position: fixed;
+    width: 100vw;
+    height: auto;
+    background-color: #1c1c1c; /* Preto suave */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 998;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    scroll-behavior: smooth;
+    top: 114px; /* mantém a margem superior igual ao desktop */
+    left: 0;
+  }
 
-/* Oculta a barra lateral no mobile */
-.category-bar-up {
-  display: none;
-}
+  /* Oculta a barra lateral no mobile */
+  .category-bar-up {
+    display: none;
+  }
 
-/* Estilização dos itens do menu no mobile */
-.ant-menu-dark {
-  background-color: transparent !important;
-  border-right: none;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-}
+  /* Container interno (linha rolável de categorias) */
+  .cat-scroll {
+    display: flex;
+    gap: 12px;
+    padding: 0 12px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+  }
 
-.ant-menu-dark .ant-menu-item,
-.ant-menu-dark .ant-menu-submenu-title {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  text-align: center;
-  padding: 8px 16px !important; /* espaçamento lateral */
-  white-space: nowrap !important; /* SEM quebra de linha */
-  border-radius: 20px;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  font-weight: 500;
-  color: #e0e0e0;
-  flex-shrink: 0; /* não encolhe */
-  transition: all 0.3s ease;
-}
+  /* Cada categoria no mobile (chip) */
+  .cat-chip {
+    flex: 0 0 auto;
+    border: none;
+    background: #2a2a2a; /* mesmo fundo dos subitens desktop */
+    color: #e0e0e0;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .cat-chip:hover {
+    background: #e9e5dc;  /* teu tom arroz */
+    color: #b71c1c;       /* teu vermelho sakura */
+  }
+  .cat-chip.has-sub {
+    padding-right: 28px;
+    position: relative;
+  }
 
+  /* Dropdown popup no mobile */
+  .mobile-dropdown,
+  .mobile-dropdown .ant-dropdown-menu {
+    background: #2a2a2a !important;
+    border-radius: 8px;
+    padding: 6px 0;
+  }
+  .mobile-dropdown .ant-dropdown-menu-item {
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+  }
+  .mobile-dropdown .ant-dropdown-menu-item:hover {
+    background: #e9e5dc !important;
+    color: #b71c1c !important;
+  }
 
-.ant-menu-dark .ant-menu-item:hover,
-.ant-menu-dark .ant-menu-submenu-title:hover {
-  background-color: #e9e5dc !important;
-  color: #b71c1c !important;
-}
+  .mobile-dropdown-overlay {
+    z-index: 9999;
+  }
 
-.ant-menu-dark .ant-menu-item-selected {
-  background-color: #e9e5dc !important;
-  color: #b71c1c !important;
-}
+  /* Corrige a posição do popup no mobile (senão fica fixo no topo) */
+  .custom-submenu {
+    position: absolute !important;
+    top: auto !important;
+    left: auto !important;
+    background-color: #2e7d32 !important; /* mantém a cor verde */
+  }
 
-/* Submenu como botão no mobile (ajustável conforme comportamento desejado) */
-.ant-menu-dark .ant-menu-submenu .ant-menu-item {
-  display: none;
-}
+  /* Scrollbar discreta para mobile (horizontal) */
+  .category-bar::-webkit-scrollbar {
+    height: 4px;
+  }
+  .category-bar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+  }
 
-/* Scrollbar discreta para mobile (horizontal) */
-.category-bar::-webkit-scrollbar {
-  height: 4px;
-}
-
-.category-bar::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
-}
-
-
-  
+  /* Acessibilidade (foco visível) */
+  .cat-chip:focus-visible {
+    outline: 2px solid #e9e5dc;
+    outline-offset: 2px;
+  }
 }

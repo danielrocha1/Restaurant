@@ -1,10 +1,17 @@
+/* Offsets shared with CategoryBar */
+:root {
+  --promo-bar-height: 2.5rem;
+  --header-height: 4.625rem;
+  --header-offset: calc(var(--promo-bar-height) + var(--header-height));
+}
+
 .promo-bar-container{
   background-color: rgb(180,45,45);
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  padding: 20px 0;
+  padding: 1rem 0;
   z-index: 1000;
 }
 
@@ -18,7 +25,7 @@
   background-color: rgb(180, 45, 45);
   color: white;
   font-weight: bold;
-  padding: 5px 0;
+  padding: 0.5rem 0;
   white-space: nowrap;
   z-index: 10000;
 }
@@ -30,7 +37,7 @@
 }
 
 .promo-bar-message {
-  margin-right: 580px;
+  margin-right: 12rem;
   display: inline-block;
   font-size: 1.6rem;
 }
@@ -47,8 +54,8 @@
 /* Estilos do Header */
 .header-container {
     position: fixed;
-    height: 10vh;
-    top: 40px; /* Altura da barra de promoção */
+    height: var(--header-height);
+    top: calc(var(--header-offset) - var(--header-height));
     left: 0;
     right: 0;
     z-index: 999; /* Fica abaixo da barra de promoção */
@@ -56,7 +63,7 @@
     align-items: center;
     justify-content: space-between;
     background-color: #1c1c1c; /* Preto suave, estilo zen */
-    padding: 10px 20px;
+    padding: 0.625rem 1.25rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease-in-out;
 
@@ -71,7 +78,7 @@
 
 /* Estilizando a Logo */
 .header-logo {
-    width: 90px;
+    width: 5.5rem;
     font-weight: bold;
     color: white;
 
@@ -80,20 +87,20 @@
 
 /* Ícones (favoritos, carrinho, usuário) */
 .header-icons {
-    margin-top: 15px;
+    margin-top: 1rem;
     display: flex;
-    gap: 105px; /* Maior espaçamento entre os ícones */
+    gap: 2rem;
     align-items: center;
-    margin-right: 30px;
-    
-    
+    margin-right: 2rem;
+
+
 }
 
 .header-icons svg {
-    font-size: 27px; /* Ícones maiores */
+    font-size: 1.7rem; /* Ícones maiores */
     cursor: pointer;
     color: #d94a4a;
-    
+
 }
 
 /* Badge de notificação */
@@ -103,13 +110,37 @@
 
 /* Avatar do usuário */
 .header-avatar {
-    margin-bottom: 15px;
-    width: 50px;
-    height: 50px;
-    font-size: 28px;
+    margin-bottom: 1rem;
+    width: 3.125rem;
+    height: 3.125rem;
+    font-size: 1.75rem;
     cursor: pointer;
     background: #ffffff; /* Avatar com fundo verde */
     border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --promo-bar-height: 2rem;
+    --header-height: 4rem;
+  }
+
+  .promo-bar {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    height: var(--header-height);
+    padding: 0.5rem 1rem;
+  }
+
+  .header-icons {
+    gap: 1rem;
+    margin: 0;
+  }
 }
 
 

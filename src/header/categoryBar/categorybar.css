@@ -1,9 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
-:root {
-  --header-offset: 114px;
-}
-
 .category-bar-up {
   transform: translateX(-260px);
   transition: transform 0.4s ease-in-out;
@@ -95,10 +91,6 @@
 /* ================= MOBILE A PARTIR DAQUI ================= */
 @media (max-width: 768px) {
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-
-  :root {
-    --header-offset: 120px;
-  }
 
   /* Estilo base para a barra no mobile */
   .category-bar {

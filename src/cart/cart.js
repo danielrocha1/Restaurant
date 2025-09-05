@@ -55,8 +55,8 @@ useEffect(() => {
             if (!response.ok) {
                 setQrModalVisible(false);
               setErrorModalVisible(true);
-              throw new Error(`Erro na requisição: ${response.statusText}`);
               html5QrCode.stop().catch(() => {});
+              throw new Error(`Erro na requisição: ${response.statusText}`);
 
             }
 

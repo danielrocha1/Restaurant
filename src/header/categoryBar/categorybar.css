@@ -96,7 +96,7 @@
   .category-bar {
     position: fixed;
     width: 100vw;
-    height: auto;
+    height: 7vh;
     background-color: #1c1c1c; /* Preto suave */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     z-index: 998;
@@ -108,7 +108,7 @@
     flex-direction: row;
     gap: 12px;
     scroll-behavior: smooth;
-    top: 114px; /* mantém a margem superior igual ao desktop */
+    top: 120px; /* mantém a margem superior igual ao desktop */
     left: 0;
   }
 
@@ -132,7 +132,8 @@
     border: none;
     background: #2a2a2a; /* mesmo fundo dos subitens desktop */
     color: #e0e0e0;
-    padding: 8px 16px;
+    padding: 10px 18px;
+    margin-bottom: 8px;
     border-radius: 20px;
     font-family: 'Inter', sans-serif;
     font-size: 1rem;
@@ -192,4 +193,17 @@
     outline: 2px solid #e9e5dc;
     outline-offset: 2px;
   }
+
+  /* altura do header fixo (desktop e mobile) */
+:root { --header-offset: 150px; }
+@media (max-width: 768px) {
+  :root { --header-offset: 210px; }
 }
+
+/* garante que a âncora não fique escondida pelo header */
+.content-section {
+  scroll-margin-top: var(--header-offset);
+}
+
+}
+

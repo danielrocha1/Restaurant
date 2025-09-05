@@ -1,13 +1,83 @@
+/* ==== Reset e correções globais ==== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;            /* remove a margem branca padrão do body */
+  padding: 0;
+  background: #000;     /* garante o fundo preto na página toda */
+  overflow-x: hidden;   /* mata qualquer overflow horizontal acidental */
+}
+
+/* evita que imagens/iframes causem overflow */
+img, video, canvas, svg, iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ==== A sua classe .App original ==== */
 .App {
   text-align: center;
 }
 
+/* ==== Container raiz da página ==== */
+.app-root {
+  background-color: #000;
+  color: #fff;
+  min-height: 100vh;
+  overflow-x: hidden; /* redundante, mas mantém seguro */
+}
 
+/* ==== Bloco de fundo com padrão ==== */
+.page-bg {
+  background-image: url('https://img.freepik.com/premium-vector/seamless-pattern-with-sushi-isolated-black-background-design-chalkboard_505564-1815.jpg?w=2000');
+  background-repeat: repeat;
+  background-size: 500px 500px;
+  background-position: center left;
+  background-attachment: fixed; /* bonito no desktop */
+  width: 100%;
+  min-height: 100vh;            /* evita “buracos” em telas baixas */
+}
+
+/* Em mobile, 'fixed' pode causar artefatos/brancos em alguns browsers */
+@media (max-width: 768px) {
+  .page-bg {
+    background-attachment: scroll;
+  }
+}
+
+/* ==== Container das seções (substitui <Layout>) ==== */
+.sections {
+  background: transparent;
+  max-width: 1400px;    /* ajuste se quiser mais largo/estreito */
+  margin: 0 auto;
+  padding: 0 16px 48px; /* respiro lateral + inferior */
+}
+
+/* ==== Seção de conteúdo (substitui <Content>) ==== */
+.content-section {
+  margin: 25px 0;
+  padding: 24px;
+  background: transparent;
+}
+
+/* Texto exibido quando não há produtos */
+.empty-text {
+  color: #fff;
+}
+
+/* ==== Botão do BackTop custom ==== */
+/* Dica: evite margin horizontal fixa que possa empurrar layout.
+   O BackTop do AntD já posiciona fixo; mantenha só o estilo visual. */
 .backtop-custom {
-  margin-left: 55px;
   height: 50px;
   width: 50px;
-  background-color:#d94a4a;
+  background-color: #d94a4a;
   color: white;
   text-align: center;
   line-height: 40px;
@@ -17,12 +87,19 @@
   transition: all 0.3s;
 }
 
+/* Se quiser deslocar, faça no componente <BackTop> com 'right'/'bottom', não com margin-left */
 .backtop-custom:hover {
   background-color: #8e3232;
   transform: scale(1.1);
 }
 
-
-
-
- 
+/* ==== Responsividade extra ==== */
+@media (max-width: 480px) {
+  .sections {
+    padding: 0 8px 40px;
+  }
+  .content-section {
+    padding: 16px;
+    margin: 16px 0;
+  }
+}

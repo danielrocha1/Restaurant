@@ -71,14 +71,32 @@ const CategoryBar = () => {
       });
   }, []);
 
-  const handleScrollTo = (name) => {
-    const el = document.getElementById(name);
-    if (!el) return;
-    const yOffset = isMobile ? -130 : -150;
-    const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-    window.scrollTo({ top: y, behavior: 'smooth' });
-    setOpenKeys([]);
-  };
+  // acha o contêiner que realmente rola (ou a janela)
+const getScrollableParent = (node) => {
+  if (!node) return window;
+  let cur = node.parentElement;
+  while (cur && cur !== document.body) {
+    const cs = getComputedStyle(cur);
+    const canScrollY = (cs.overflowY === "auto" || cs.overflowY === "scroll") && cur.scrollHeight > cur.clientHeight;
+    if (canScrollY) return cur;
+    cur = cur.parentElement;
+  }
+  return document.scrollingElement || document.documentElement || window;
+};
+
+const handleScrollTo = (name) => {
+  const el = document.getElementById(name);
+  if (!el) return;
+
+  // espera o dropdown fechar/reflow (evita “não rolou”)
+  requestAnimationFrame(() => {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+  });
+
+  setOpenKeys([]);
+};
+
+
 
   // desktop: manter só um submenu aberto (opcional)
   const onOpenChange = (keys) => {

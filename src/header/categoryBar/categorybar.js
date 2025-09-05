@@ -86,15 +86,31 @@ const CategoryBar = () => {
   const el = document.getElementById(id);
   if (!el) return;
 
+  const headerOffset =
+    parseInt(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        '--header-offset'
+      ),
+      10
+    ) || 0;
+
   // 1) usa o nativo (funciona melhor em iOS/Android)
   el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // 2) dá um retry rapidinho (fecha dropdown/reflow e tenta de novo)
-  setTimeout(() => {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 180);
+  const supportsSmoothScroll =
+    'scrollBehavior' in document.documentElement.style;
 
-  // 3) se ainda quiser compensar header fixo, deixa pelo CSS (abaixo)
+  if (supportsSmoothScroll) {
+    // 2) dá um retry rapidinho (fecha dropdown/reflow e tenta de novo)
+    setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 180);
+  } else {
+    const top = el.offsetTop - headerOffset;
+    window.scrollTo({ top, behavior: 'auto' });
+    setTimeout(() => window.scrollTo({ top, behavior: 'auto' }), 180);
+  }
+
   setOpenKeys([]);
 };
 

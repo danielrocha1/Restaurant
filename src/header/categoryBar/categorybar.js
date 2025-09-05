@@ -5,6 +5,16 @@ import { AppstoreOutlined, DownOutlined } from '@ant-design/icons';
 
 const SAFE_WINDOW = typeof window !== 'undefined';
 
+// gera id seguro (sem acento/espaço)
+const slug = (s = '') =>
+  s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // tira acentos
+    .replace(/[^a-zA-Z0-9\s-]/g, '') // tira símbolos estranhos
+    .trim()
+    .replace(/\s+/g, '-') // troca espaço por "-"
+    .toLowerCase();
+
 const CategoryBar = () => {
   const [isMobile, setIsMobile] = useState(SAFE_WINDOW ? window.innerWidth < 768 : false);
   const [openKeys, setOpenKeys] = useState([]);
@@ -36,31 +46,32 @@ const CategoryBar = () => {
         const items = (data || []).map((categoria, i) => {
           const catId = String(categoria.ID ?? i + 1);
           const catLabel = categoria.Nome;
+          const catSlug = slug(catLabel);
 
-          // subcategorias reais (ignora "Sem subcategoria")
           const subs = (categoria.Subcategorias || []).filter(
             (s) => s?.Nome && s.Nome !== 'Sem subcategoria'
           );
 
           if (subs.length === 0) {
-            // categoria simples (sem dropdown)
             return {
               key: `cat-${catId}`,
               label: catLabel,
-              onClick: () => handleScrollTo(catLabel),
+              onClick: () => handleScrollTo(catSlug),
             };
           }
 
-          // categoria com dropdown (tem subcategorias)
           return {
             key: `cat-${catId}`,
             icon: <AppstoreOutlined />,
             label: catLabel,
-            children: subs.map((sub) => ({
-              key: `sub-${catId}-${sub.ID ?? sub.Nome}`,
-              label: sub.Nome,
-              onClick: () => handleScrollTo(sub.Nome),
-            })),
+            children: subs.map((sub) => {
+              const subSlug = slug(sub.Nome);
+              return {
+                key: `sub-${catId}-${sub.ID ?? sub.Nome}`,
+                label: sub.Nome,
+                onClick: () => handleScrollTo(subSlug),
+              };
+            }),
           };
         });
 
@@ -71,34 +82,23 @@ const CategoryBar = () => {
       });
   }, []);
 
-  // acha o contêiner que realmente rola (ou a janela)
-const getScrollableParent = (node) => {
-  if (!node) return window;
-  let cur = node.parentElement;
-  while (cur && cur !== document.body) {
-    const cs = getComputedStyle(cur);
-    const canScrollY = (cs.overflowY === "auto" || cs.overflowY === "scroll") && cur.scrollHeight > cur.clientHeight;
-    if (canScrollY) return cur;
-    cur = cur.parentElement;
-  }
-  return document.scrollingElement || document.documentElement || window;
-};
-
-const handleScrollTo = (name) => {
-  const el = document.getElementById(name);
+ const handleScrollTo = (id) => {
+  const el = document.getElementById(id);
   if (!el) return;
 
-  // espera o dropdown fechar/reflow (evita “não rolou”)
-  requestAnimationFrame(() => {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
-  });
+  // 1) usa o nativo (funciona melhor em iOS/Android)
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+  // 2) dá um retry rapidinho (fecha dropdown/reflow e tenta de novo)
+  setTimeout(() => {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 180);
+
+  // 3) se ainda quiser compensar header fixo, deixa pelo CSS (abaixo)
   setOpenKeys([]);
 };
 
 
-
-  // desktop: manter só um submenu aberto (opcional)
   const onOpenChange = (keys) => {
     const latest = keys.find((k) => !openKeys.includes(k));
     if (!latest) return setOpenKeys(keys);
@@ -108,8 +108,6 @@ const handleScrollTo = (name) => {
   return (
     <div className={`category-bar ${isMobile ? 'mobile' : ''}`} ref={menuRef}>
       {isMobile ? (
-        // MOBILE: TODAS as categorias expostas como "chips" roláveis.
-        // Somente quem tem children abre Dropdown.
         <nav className="cat-scroll" aria-label="Categorias">
           {menuItems.map((item) => {
             const hasChildren = Array.isArray(item.children) && item.children.length > 0;
@@ -119,7 +117,7 @@ const handleScrollTo = (name) => {
                 <button
                   key={item.key}
                   className="cat-chip"
-                  onClick={() => handleScrollTo(item.label)}
+                  onClick={item.onClick}
                   type="button"
                 >
                   {item.label}
@@ -127,10 +125,7 @@ const handleScrollTo = (name) => {
               );
             }
 
-            // Dropdown só para categorias com subcategorias (ex.: Pratos Quentes/Frios)
-            const dropdownMenu = {
-              items: item.children, // cada child já tem onClick
-            };
+            const dropdownMenu = { items: item.children };
 
             return (
               <Dropdown key={item.key} menu={dropdownMenu} trigger={['click']} placement="bottom">
@@ -142,7 +137,6 @@ const handleScrollTo = (name) => {
           })}
         </nav>
       ) : (
-        // DESKTOP: Menu vertical inline (como já estava)
         <Menu
           mode="inline"
           theme="dark"

@@ -141,7 +141,7 @@ const CategoryBar = () => {
           mode="inline"
           theme="dark"
           rootClassName="category-menu-root"
-          style={{ width: '14vw', backgroundColor: '#2e7d32' }}
+          style={{ width: '23vw',  }}
           items={menuItems}
           openKeys={openKeys}
           onOpenChange={onOpenChange}

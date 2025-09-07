@@ -5,7 +5,7 @@
   left: 0;
   width: 100%;
   padding: 20px 0;
-  z-index: 1000;
+  z-index: 998;
 }
 
 .promo-bar {
@@ -74,6 +74,7 @@
     width: 90px;
     font-weight: bold;
     color: white;
+    z-index: 999;
 
 }
 

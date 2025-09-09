@@ -12,9 +12,9 @@
 
 .category-bar {
   position: fixed;                 /* fixa a barra na tela, não rola com o conteúdo */
-  top: 95px;                       /* distância do topo (compensa o header fixo) */
+  top: 115px;                       /* distância do topo (compensa o header fixo) */
   left: 0;                         /* encosta na lateral esquerda da janela */
-  width: 26vw;                    /* largura da barra lateral */
+  width: 13vw;                    /* largura da barra lateral */
   height: calc(100vh - 95px);      /* altura total da viewport menos o header */
   background-color: #1c1c1c;       /* fundo preto suave (estilo zen) */
   box-shadow: 3px 0 6px rgba(0, 0, 0, 0.2); /* sombra lateral para profundidade */
@@ -42,7 +42,7 @@
   border-radius: 4px;               /* cantos levemente arredondados no hover/seleção */
   margin: 8px 8px;                  /* respiro vertical e horizontal entre itens */
   transition: all 0.3s ease;   
-  width: 25vw;     /* transições suaves (cor, fundo, etc.) */
+  width: 13vw;     /* transições suaves (cor, fundo, etc.) */
 }
 
 /* Garante que o título do submenu não tenha bg sólido por padrão */
@@ -66,7 +66,8 @@
 
 /* Itens FILHOS dentro de submenus (nível inferior) */
 .ant-menu-dark .ant-menu-submenu .ant-menu-item {
-  width: 21vw; 
+  width: 11vw; 
+  margin-left:33px;
   background-color: #2a2a2a !important; /* fundo diferente para subnível */
   
   padding-left: 36px !important;        /* recuo maior para indicar hierarquia */

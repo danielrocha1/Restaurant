@@ -173,7 +173,7 @@ function App() {
     <div
       style={{
         backgroundColor: "black",
-        marginTop: isMobile ? "150px" : "100px",
+        marginTop: isMobile ? "150px" : "130px",
         color: "white",
       }}
     >

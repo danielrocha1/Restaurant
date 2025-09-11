@@ -120,7 +120,6 @@
     flex-direction: row;             /* garante direção horizontal */
     gap: 12px;                       /* espaço entre os chips */
     scroll-behavior: smooth;         /* rolagem suave ao usar scrollTo */
-    top: 93px;                      /* compensa headers maiores no mobile */
     left: 0;
   }
 

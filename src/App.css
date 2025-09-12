@@ -1,3 +1,30 @@
+
+/* Fallback + unidades dinâmicas modernas */
+:root {
+  --app-h: 100dvh;   /* altura “estável” que ignora a barra variável */
+}
+
+@supports not (height: 100dvh) {
+  :root { --app-h: 100vh; } /* fallback p/ navegadores antigos */
+}
+
+/* Exemplo de container que antes usava 100vh */
+.app,
+.page,
+.fullscreen {
+  min-height: var(--app-h);
+  min-height: 100svh;  /* quando a barra está visível */
+  min-height: 100lvh;  /* quando a barra some (Chrome novo) */
+}
+
+/* Evitar “teleporte” do scroll dentro de containers */
+html, body { height: 100%; }
+body { overflow-y: auto; overscroll-behavior-y: contain; }
+
+
+
+
+
 /* ==== Reset e correções globais ==== */
 *,
 *::before,

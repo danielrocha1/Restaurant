@@ -240,3 +240,111 @@
     height: 28px;
   }
 }
+
+
+/* ====== TABLET (481px–1024px) ====== */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .product-card {
+    /* ocupa bem o slide/coluna sem sobrar espaço */
+    width: clamp(320px, 44vw, 520px);
+    height: auto;
+    margin: 24px auto;
+    border-radius: 16px;
+  }
+
+  .product-image {
+    /* altura flexível pra variar entre portrait/landscape */
+     height: clamp(120px, 20vw, 200px);
+    border-radius: 16px 16px 0 0;
+    object-fit: contain;
+  }
+
+  .product-info {
+    padding: 16px;
+    gap: 10px;
+  }
+
+  .product-title {
+    font-size: 16px;
+    text-align: left; /* no tablet já cabe melhor alinhado à esquerda */
+  }
+
+  .weight-options {
+    /* 3 colunas no tablet pra caber mais opções */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .weight-option {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .price-container {
+    margin-bottom: 8px;
+  }
+
+  .product-price,
+  .product-price.promocional {
+    font-size: 19px; /* levemente maior que mobile, menor que desktop */
+  }
+
+  .cart-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* ❗ substitui 7vw por valor fixo pra não “explodir” no tablet */
+    gap: 16px;
+    margin-top: auto;
+  }
+
+  .add-to-cart {
+    font-size: 15px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    width: auto;         /* evita ocupar 100% no tablet */
+    min-width: 140px;    /* alvo de toque confortável */
+    text-align: center;
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;           /* ❗ remove 7vw no tablet */
+  }
+
+  .quantity-button {
+    width: 32px;
+    height: 32px;
+    padding: 6px !important;
+    border-radius: 50% !important;
+  }
+
+  .quantity-value {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .favorite-button {
+    top: 10px;
+    right: 10px;
+  }
+
+  .heart-circle {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Opcional: refinamento quando o tablet está em landscape */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+  .product-card {
+    width: clamp(320px, 42vw, 520px);
+  }
+  .product-image {
+    height: 180px;
+    width:100%;
+
+  }
+}

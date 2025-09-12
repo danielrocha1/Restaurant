@@ -144,3 +144,73 @@
     align-items: center;
   }
 }
+
+
+/* ===== Tablet (iPad vertical/horizontal, Android tablets) ===== */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Evita empurrar por causa de sidebar fixa no desktop */
+  .category {
+    width: 85vw;
+    height: 85vh;            /* ocupa bem sem estourar a viewport */
+    margin-left: 80px;       /* remove o 12.4vw do desktop */
+    margin-right: auto;
+    /* se tiver muito conteúdo interno, deixe crescer */
+    max-height: 75vh;
+    overflow: hidden;        /* garante layout limpo; troque para auto se quiser scroll interno */
+  }
+
+  .category-header {
+    gap: 8px;
+    border-radius: 8px;
+  }
+
+  /* Mostra os botões no tablet e garante alvo de toque confortável */
+  .navigation-buttons {
+    display: flex;
+    gap: 12px;
+    margin-right: 10px;
+  }
+
+  .custom-prev,
+  .custom-next {
+    font-size: 44px;         /* menor que desktop, maior que mobile */
+    line-height: 1;
+    padding: 6px;            /* área de toque (~44px) */
+  }
+
+  /* Altura do carrossel no tablet:
+     use vh para se ajustar à barra do navegador */
+  .swiper-wrapper {
+    height: 60vh;
+    min-height: 420px;
+    max-height: 560px;
+  }
+
+  /* Quando rolar para âncoras, compensa header fixo um pouco menor que no desktop */
+  .product-carousel {
+    scroll-margin-top: 110px;
+  }
+}
+
+/* ===== Desktop-only ajustes (mantém teu espaçamento lateral atual) ===== */
+@media (min-width: 1025px) {
+  .category {
+    width: 80vw;
+    height: 70vh;
+    margin: 0 auto;
+    margin-left: 12.4vw; /* se precisa acomodar sidebar fixa, mantém aqui */
+  }
+
+  .custom-prev,
+  .custom-next {
+    font-size: 54px;
+  }
+
+  .swiper-wrapper {
+    height: 85%;
+  }
+
+  .product-carousel {
+    scroll-margin-top: 130px;
+  }
+}

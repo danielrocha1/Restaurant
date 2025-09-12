@@ -115,7 +115,17 @@ const ProductCarousel = ({
         modules={[Navigation]}
         direction={isMobile ? 'vertical' : 'horizontal'}
         spaceBetween={10}
-        slidesPerView={isMobile ? 1 : 3}
+        breakpoints={{
+    0: {
+      slidesPerView: 1, // mobile
+    },
+    769: {
+      slidesPerView: 2, // tablet
+    },
+    1025: {
+      slidesPerView: 3, // desktop
+    },
+  }}
         observer={true}
         observeParents={true}
         navigation={

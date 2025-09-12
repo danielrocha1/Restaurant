@@ -244,3 +244,25 @@
 @media (max-width: 768px) {
   :root { --header-offset: 210px; }
 }
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  
+  .category-bar {
+    width:20vw;
+    top:16vh;         /* se tiver muito conteúdo interno, deixe crescer */
+  
+  }
+
+.ant-menu-dark .ant-menu-item,
+.ant-menu-dark .ant-menu-submenu-title {
+  width:18vw;
+  font-size:0.8rem;
+}
+
+.ant-menu-dark .ant-menu-submenu .ant-menu-item {
+  width: 16vw; 
+}
+
+
+
+}

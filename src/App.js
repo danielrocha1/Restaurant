@@ -25,6 +25,18 @@ function App() {
   const [pagination, setPagination] = useState({});
   const [loadingByCategory, setLoadingByCategory] = useState({});
   const [showLoading, setShowLoading] = useState(true);
+  const [isTablet, setIsTablet] = useState(
+  window.innerWidth > 768 && window.innerWidth <= 1024
+);
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsMobile(window.innerWidth <= 768);
+    setIsTablet(window.innerWidth > 768 && window.innerWidth <= 1024);
+  };
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
 
   useEffect(() => {
     const totalProducts = Object.values(productData).reduce(
@@ -173,7 +185,7 @@ function App() {
     <div
       style={{
         backgroundColor: "black",
-        marginTop: isMobile ? "170px" : "130px",
+        marginTop: isMobile ? "170px" : isTablet ? "80px" : "130px",
         color: "white",
       }}
     >

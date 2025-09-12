@@ -248,7 +248,7 @@
     /* ocupa bem o slide/coluna sem sobrar espaço */
     width: clamp(320px, 44vw, 520px);
     height: auto;
-    margin: 24px auto;
+    margin: 0 auto;
     border-radius: 16px;
   }
 
@@ -340,10 +340,12 @@
 /* Opcional: refinamento quando o tablet está em landscape */
 @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
   .product-card {
-    width: clamp(320px, 42vw, 520px);
+    margin-top:15px;
+    width: clamp(320px, 7vw, 520px);
+    height:auto;
   }
   .product-image {
-    height: 180px;
+    height: 130px;
     width:100%;
 
   }

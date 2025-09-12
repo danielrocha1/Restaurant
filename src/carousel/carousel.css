@@ -150,12 +150,10 @@
 @media (min-width: 769px) and (max-width: 1024px) {
   /* Evita empurrar por causa de sidebar fixa no desktop */
   .category {
-    width: 85vw;
-    height: 85vh;            /* ocupa bem sem estourar a viewport */
-    margin-left: 80px;       /* remove o 12.4vw do desktop */
+    width: 75vw;
+    height: 84vh;            /* ocupa bem sem estourar a viewport */
+    margin-left: 160px;       /* remove o 12.4vw do desktop */
     margin-right: auto;
-    /* se tiver muito conteúdo interno, deixe crescer */
-    max-height: 75vh;
     overflow: hidden;        /* garante layout limpo; troque para auto se quiser scroll interno */
   }
 

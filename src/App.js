@@ -190,16 +190,11 @@ useEffect(() => {
       }}
     >
       <AppHeader />
+      <div className="bg-fixed" aria-hidden />
+
       <Layout
-        style={{
-          backgroundImage:
-            "url('https://img.freepik.com/premium-vector/seamless-pattern-with-sushi-isolated-black-background-design-chalkboard_505564-1815.jpg?w=2000')",
-          backgroundRepeat: "repeat",
-          backgroundSize: "500px 500px",
-          backgroundPosition: "center left",
-          backgroundAttachment: "fixed",
-          width: "98.8vw",
-        }}
+      className="app-shell"
+     
       >
         <Layout style={{ background: "transparent" }}>
           {Object.entries(productData).map(([categoria, products], index) => {

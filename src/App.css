@@ -1,4 +1,35 @@
+/* 1) Fundo fixo visível atrás de tudo */
+.bg-fixed {
+  position: fixed;
+  inset: 0;
+  z-index: 0; /* não use -1 para não “sumir” atrás do body */
+  pointer-events: none;
+  background-image: url('https://img.freepik.com/premium-vector/seamless-pattern-with-sushi-isolated-black-background-design-chalkboard_505564-1815.jpg?w=2000');
+  background-repeat: repeat;
+  background-size: 500px 500px;
+  background-position: center left;
+  /* evita “pulo” no Chrome mobile */
+  will-change: transform;
+  transform: translateZ(0);
+}
 
+/* 2) Garanta que o conteúdo venha por cima do fundo */
+.app-shell {
+  position: relative;
+  z-index: 1;
+  background: transparent; /* importantíssimo para o fundo aparecer */
+}
+
+/* 3) Evita que o body esconda o z-index 0 do fundo */
+html, body, #root {
+  min-height: 100%;
+  background: transparent; /* se o body for preto, o fundo some */
+  margin: 0;
+}
+
+
+
+ 
 /* Fallback + unidades dinâmicas modernas */
 :root {
   --app-h: 100dvh;   /* altura “estável” que ignora a barra variável */

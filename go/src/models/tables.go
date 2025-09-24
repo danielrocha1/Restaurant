@@ -2,12 +2,19 @@ package models
 
 import "time"
 
+// Table representa só as colunas que você quer no banco.
+// Todas as tags usam `column:` explicitamente para evitar surpresas de pluralização/nomes.
 type Table struct {
-	ID          uint       `gorm:"primaryKey;autoIncrement"`
-	Number      int        `gorm:"not null"` // número fixo da mesa
-	LastOrderAt *time.Time
-	OpenedAt    *time.Time
-	ClosedAt    *time.Time
-	ServiceID   *uint
-	IsOpen      bool       `gorm:"not null;default:false"`
-} 
+	ID          uint       `gorm:"column:id;primaryKey;autoIncrement"`
+	Number      int        `gorm:"column:number;not null"`
+	LastOrderAt *time.Time `gorm:"column:last_order_at"`
+	OpenedAt    *time.Time `gorm:"column:opened_at"`
+	ClosedAt    *time.Time `gorm:"column:closed_at"`
+	ServiceID   *uint      `gorm:"column:service_id"`
+	IsOpen      bool       `gorm:"column:is_open;not null;default:false"`
+}
+
+// Garante o nome exato da tabela e evita pluralização/inflections
+func (Table) TableName() string {
+	return "tables"
+}

@@ -10,4 +10,4 @@ type Table struct {
 	ClosedAt    *time.Time
 	ServiceID   *uint
 	IsOpen      bool       `gorm:"not null;default:false"`
-}
+} 

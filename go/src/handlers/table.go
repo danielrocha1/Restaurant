@@ -27,7 +27,7 @@ func TouchOrOpenTable(db *gorm.DB) fiber.Handler {
 		}
 
 		now := time.Now().UTC()
-		var current models.Table
+		var current models.StatusTable
 
 		err := db.Transaction(func(tx *gorm.DB) error {
 			q := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
@@ -37,7 +37,7 @@ func TouchOrOpenTable(db *gorm.DB) fiber.Handler {
 			if err := q.First(&current).Error; err != nil {
 				if err == gorm.ErrRecordNotFound {
 					// não tem mesa aberta -> cria nova
-					current = models.Table{
+					current = models.StatusTable{
 						Number:      body.Number,
 						IsOpen:      true,
 						OpenedAt:    &now,
@@ -77,7 +77,7 @@ func CloseTable(db *gorm.DB) fiber.Handler {
 		}
 
 		now := time.Now().UTC()
-		var current models.Table
+		var current models.StatusTable
 
 		if err := db.Where("number = ? AND is_open = ?", body.Number, true).
 			Order("opened_at DESC").
@@ -107,7 +107,7 @@ func GetOpenTable(db *gorm.DB) fiber.Handler {
 			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "body inválido"})
 		}
 
-		var current models.Table
+		var current models.StatusTable
 		if err := db.Where("number = ? AND is_open = ?", body.Number, true).
 			Order("opened_at DESC").
 			First(&current).Error; err != nil {
@@ -129,7 +129,7 @@ func ListTableHistory(db *gorm.DB) fiber.Handler {
 			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "body inválido"})
 		}
 
-		var rows []models.Table
+		var rows []models.StatusTable
 		if err := db.Where("number = ?", body.Number).
 			Order("opened_at DESC NULLS LAST, id DESC").
 			Find(&rows).Error; err != nil {

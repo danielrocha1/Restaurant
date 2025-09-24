@@ -14,4 +14,3 @@ type Table struct {
 	UpdatedAt   time.Time
 }
 
-func (Table) TableName() string { return "tables" }

@@ -18,6 +18,7 @@ func main() {
 	database.DB.AutoMigrate(&models.Produto{},
 							&models.Order{},
 							&models.Categoria{},
+           &models.Tables{},
 						)
 
 

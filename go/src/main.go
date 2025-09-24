@@ -56,6 +56,14 @@ func main() {
 	app.Post("/checkout", handlers.Checkout)
 
 
+
+
+  app.Post("/tables/:number/activity", handlers.TouchOrOpenTable(db))
+  app.Post("/tables/:number/close",    handlers.CloseTable(db))
+  app.Get ("/tables/:number/open",     handlers.GetOpenTable(db))
+  app.Get ("/tables/:number/history",  handlers.ListTableHistory(db))
+
+
 go func() {
 	for {
 		_, err := http.Get("https://restaurant-9gdi.onrender.com")

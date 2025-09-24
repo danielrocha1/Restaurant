@@ -22,7 +22,7 @@ func main() {
 		&models.Produto{},
 		&models.Order{},
 		&models.Categoria{},
-		&models.Table{},
+		&models.StatusTable{},
 	); err != nil {
 		log.Fatalf("AutoMigrate erro: %v", err)
 	}

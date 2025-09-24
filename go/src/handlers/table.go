@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
-	"restaurant/go/src/models"
+	"Restaurant/src/models"
 )
 
 type TablePayload struct {

@@ -4,7 +4,7 @@ import "time"
 
 // Table representa só as colunas que você quer no banco.
 // Todas as tags usam `column:` explicitamente para evitar surpresas de pluralização/nomes.
-type Table struct {
+type StatusTable struct {
 	ID          uint       `gorm:"column:id;primaryKey;autoIncrement"`
 	Number      int        `gorm:"column:number;not null"`
 	LastOrderAt *time.Time `gorm:"column:last_order_at"`
@@ -15,6 +15,6 @@ type Table struct {
 }
 
 // Garante o nome exato da tabela e evita pluralização/inflections
-func (Table) TableName() string {
-	return "tables"
+func (StatusTable) TableName() string {
+	return "status_tables"
 }

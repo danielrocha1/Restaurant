@@ -40,7 +40,7 @@ const CategoryBar = () => {
   }, []);
 
   useEffect(() => {
-    fetch('https://restaurant-9gdi.onrender.com/categoriasSub')
+    fetch('https://restaurant-sw98.onrender.com/categoriasSub')
       .then((res) => res.json())
       .then((data) => {
         const items = (data || []).map((categoria, i) => {

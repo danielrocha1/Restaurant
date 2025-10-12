@@ -68,7 +68,7 @@ useEffect(() => {
   const fetchInitialData = async () => {
     try {
       const response = await fetch(
-        "https://restaurant-9gdi.onrender.com/categoriasSub"
+        "https://restaurant-sw98.onrender.com/categoriasSub"
       );
       const data = await response.json();
 

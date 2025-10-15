@@ -68,7 +68,11 @@ useEffect(() => {
   const fetchInitialData = async () => {
     try {
       const response = await fetch(
+<<<<<<< HEAD
         "http://192.168.0.105:4000/categoriasSub"
+=======
+        "https://restaurant-sw98.onrender.com/categoriasSub"
+>>>>>>> 10e2d2b245b025e1e56977bd43e3643a43bcfae0
       );
       const data = await response.json();
 
@@ -80,7 +84,11 @@ useEffect(() => {
           Subcategorias[0].Nome === "Sem subcategoria"
         ) {
           const response = await fetch(
+<<<<<<< HEAD
             `http://192.168.0.105:4000/produtos-list?categoria=${encodeURIComponent(
+=======
+            `https://restaurant-sw98.onrender.com/produtos-list?categoria=${encodeURIComponent(
+>>>>>>> 10e2d2b245b025e1e56977bd43e3643a43bcfae0
               nomeCategoria
             )}&page=1`
           );
@@ -104,7 +112,11 @@ useEffect(() => {
             if (sub.Nome === "Sem subcategoria") continue;
 
             const response = await fetch(
+<<<<<<< HEAD
               `http://192.168.0.105:4000/produtos-list?categoria=${encodeURIComponent(
+=======
+              `https://restaurant-sw98.onrender.com/produtos-list?categoria=${encodeURIComponent(
+>>>>>>> 10e2d2b245b025e1e56977bd43e3643a43bcfae0
                 sub.Nome
               )}&page=1`
             );

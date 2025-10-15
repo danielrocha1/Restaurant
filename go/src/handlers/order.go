@@ -3,9 +3,7 @@ package handlers
 import (
 	"Restaurant/src/database"
 	"Restaurant/src/models"
-	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,37 +15,8 @@ func GetOrders(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar pedidos"})
 	}
 
-	for i, order := range orders {
-		if order.IDProdutos == "" {
-			continue
-		}
-
-		// Separar string por vírgula, ex: "1,2,3"
-		raw := strings.ReplaceAll(order.IDProdutos, "[", "")
-		raw = strings.ReplaceAll(raw, "]", "")
-		raw = strings.ReplaceAll(raw, "{", "")
-		raw = strings.ReplaceAll(raw, "}", "")
-
-		strIDs := strings.Split(raw, ",")
-		var intIDs []int
-		for _, idStr := range strIDs {
-			id, err := strconv.Atoi(strings.TrimSpace(idStr))
-			if err == nil {
-				intIDs = append(intIDs, id)
-			}
-		}
-
-		fmt.Println(intIDs)
-		// Buscar os produtos por ID
-		var produtos []models.Produto
-		if len(intIDs) > 0 {
-			if err := database.DB.Where("id IN ?", intIDs).Find(&produtos).Error; err != nil {
-				return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar produtos"})
-			}
-		}
-
-		orders[i].Produtos = produtos
-	}
+	 
+	 
 
 	return c.JSON(orders)
 }
@@ -68,7 +37,7 @@ func CreateOrder(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Erro no corpo da requisição"})
 	}
 
-	order.Timestamp = time.Now()
+	order.CreatedAt = time.Now()
 
 	if err := database.DB.Create(&order).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao criar pedido"})
@@ -91,7 +60,7 @@ func UpdateOrder(c *fiber.Ctx) error {
 
 	// Atualiza os campos (incluindo status)
 	order.NomeLoja = updateData.NomeLoja
-	order.Mesa = updateData.Mesa
+	order.MesaID = updateData.MesaID
 	order.QRCode = updateData.QRCode
 	order.Total = updateData.Total
 	order.Status = updateData.Status

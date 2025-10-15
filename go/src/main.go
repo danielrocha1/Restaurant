@@ -23,6 +23,7 @@ func main() {
 		&models.Order{},
 		&models.Categoria{},
 		&models.StatusTable{},
+		&models.OrderItem{},
 	); err != nil {
 		log.Fatalf("AutoMigrate erro: %v", err)
 	}
@@ -63,10 +64,10 @@ func main() {
 
 	// Tables — endpoints que RECEBEM o número via BODY (conforme você pediu)
 	// Os handlers devem ter a forma: func TouchOrOpenTable(db *gorm.DB) fiber.Handler
-	app.Post("/tables/activity", handlers.TouchOrOpenTable(database.DB))
+	
 	app.Post("/tables/close", handlers.CloseTable(database.DB))
-	app.Post("/tables/open", handlers.GetOpenTable(database.DB))
-	app.Post("/tables/history", handlers.ListTableHistory(database.DB))
+	app.Post("/tables/view", handlers.ViewListTable(database.DB))
+	app.Get("/tables/isOpen", handlers.ViewOpenTables(database.DB))
 
 	// Ping para manter app acordado no Render (opcional)
 	go func() {

@@ -6,68 +6,17 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 
 	"Restaurant/src/models"
+	"encoding/json"
+	"database/sql"
 )
 
 type TablePayload struct {
-	Number    int   `json:"number"`
+	Number    uint   `json:"number"`
 	ServiceID *uint `json:"service_id,omitempty"`
 }
-
-// POST /tables/activity
-// Se mesa aberta -> atualiza last_order_at
-// Se mesa fechada -> cria nova sessão aberta
-func TouchOrOpenTable(db *gorm.DB) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		var body TablePayload
-		if err := c.BodyParser(&body); err != nil || body.Number <= 0 {
-			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "body inválido"})
-		}
-
-		now := time.Now().UTC()
-		var current models.StatusTable
-
-		err := db.Transaction(func(tx *gorm.DB) error {
-			q := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-				Where("number = ? AND is_open = ?", body.Number, true).
-				Order("opened_at DESC")
-
-			if err := q.First(&current).Error; err != nil {
-				if err == gorm.ErrRecordNotFound {
-					// não tem mesa aberta -> cria nova
-					current = models.StatusTable{
-						Number:      body.Number,
-						IsOpen:      true,
-						OpenedAt:    &now,
-						LastOrderAt: &now,
-						ServiceID:   body.ServiceID,
-					}
-					return tx.Create(&current).Error
-				}
-				return err
-			}
-
-			// mesa já aberta -> só atualiza last_order_at
-			current.LastOrderAt = &now
-			if body.ServiceID != nil {
-				current.ServiceID = body.ServiceID
-			}
-			return tx.Save(&current).Error
-		})
-
-		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-				"error":  "falha ao registrar atividade",
-				"detail": err.Error(),
-			})
-		}
-
-		return c.Status(http.StatusOK).JSON(current)
-	}
-}
-
+ 
 // POST /tables/close
 func CloseTable(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -99,27 +48,146 @@ func CloseTable(db *gorm.DB) fiber.Handler {
 	}
 }
 
-// POST /tables/open
-func GetOpenTable(db *gorm.DB) fiber.Handler {
+
+func ViewOpenTables(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// Consulta todas as mesas abertas
+		rows, err := db.Raw("SELECT * FROM status_tables WHERE is_open = true").Rows()
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"error":  "erro ao consultar status_table",
+				"detail": err.Error(),
+			})
+		}
+		defer rows.Close()
+
+		cols, err := rows.Columns()
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"error":  "erro ao ler colunas",
+				"detail": err.Error(),
+			})
+		}
+
+		results := make([]map[string]interface{}, 0)
+
+		for rows.Next() {
+			values := make([]interface{}, len(cols))
+			valuePtrs := make([]interface{}, len(cols))
+			for i := range values {
+				valuePtrs[i] = &values[i]
+			}
+
+			if err := rows.Scan(valuePtrs...); err != nil {
+				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+					"error":  "erro ao fazer scan das linhas",
+					"detail": err.Error(),
+				})
+			}
+
+			rowMap := make(map[string]interface{}, len(cols))
+			for i, col := range cols {
+				v := values[i]
+
+				if b, ok := v.([]byte); ok {
+					var maybeJSON interface{}
+					if json.Unmarshal(b, &maybeJSON) == nil {
+						rowMap[col] = maybeJSON
+					} else {
+						rowMap[col] = string(b)
+					}
+				} else if v == nil {
+					rowMap[col] = nil
+				} else if val, ok := v.(sql.NullString); ok {
+					if val.Valid {
+						rowMap[col] = val.String
+					} else {
+						rowMap[col] = nil
+					}
+				} else {
+					rowMap[col] = v
+				}
+			}
+
+			results = append(results, rowMap)
+		}
+
+		return c.Status(http.StatusOK).JSON(results)
+	}
+}
+
+
+// POST /tables/history
+func ViewListTable(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var body TablePayload
 		if err := c.BodyParser(&body); err != nil || body.Number <= 0 {
 			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "body inválido"})
 		}
 
-		var current models.StatusTable
-		if err := db.Where("number = ? AND is_open = ?", body.Number, true).
-			Order("opened_at DESC").
-			First(&current).Error; err != nil {
-			if err == gorm.ErrRecordNotFound {
-				return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "mesa sem sessão aberta"})
-			}
-			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "erro ao buscar mesa"})
+		// Consulta a view — filtra por mesa_id; troque para order_id se quiser.
+		rows, err := db.Raw("SELECT * FROM view_pedidos_abertos_com_produtos_json WHERE mesa_id = ?", body.Number).Rows()
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "erro ao consultar view", "detail": err.Error()})
+		}
+		defer rows.Close()
+
+		cols, err := rows.Columns()
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "erro ao ler colunas", "detail": err.Error()})
 		}
 
-		return c.Status(http.StatusOK).JSON(current)
+		results := make([]map[string]interface{}, 0)
+
+		for rows.Next() {
+			// prepara pointers
+			values := make([]interface{}, len(cols))
+			valuePtrs := make([]interface{}, len(cols))
+			for i := range values {
+				valuePtrs[i] = &values[i]
+			}
+
+			if err := rows.Scan(valuePtrs...); err != nil {
+				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "erro ao fazer scan das linhas", "detail": err.Error()})
+			}
+
+			rowMap := make(map[string]interface{}, len(cols))
+			for i, col := range cols {
+				var v interface{} = values[i]
+
+				// Postgres driver frequentemente retorna []byte para text/json
+				if b, ok := v.([]byte); ok {
+					// tenta desserializar JSON (para 'produtos' por exemplo)
+					var maybeJSON interface{}
+					if json.Unmarshal(b, &maybeJSON) == nil {
+						rowMap[col] = maybeJSON
+					} else {
+						// se não for JSON válido, retornar string
+						rowMap[col] = string(b)
+					}
+				} else if v == nil {
+					rowMap[col] = nil
+				} else if val, ok := v.(sql.NullString); ok {
+					// lidar com sql.NullString se driver usar isso
+					if val.Valid {
+						rowMap[col] = val.String
+					} else {
+						rowMap[col] = nil
+					}
+				} else {
+					rowMap[col] = v
+				}
+			}
+
+			results = append(results, rowMap)
+		}
+
+		// retornar array (mesmo vazio) — assim você sempre tem consistência no frontend
+		return c.Status(http.StatusOK).JSON(results)
 	}
 }
+
+
 
 // POST /tables/history
 func ListTableHistory(db *gorm.DB) fiber.Handler {

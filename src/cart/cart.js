@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Badge, Drawer, Button, List, Avatar, Modal } from 'antd';
 import { ShoppingCartOutlined, MinusOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useCart } from '../context/cartContext';
@@ -10,6 +10,12 @@ const Cart = () => {
   const [qrModalVisible, setQrModalVisible] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
+
+  // Flag para evitar múltiplos envios concurrentes (guard rápido, não re-render)
+  const isSendingRef = useRef(false);
+  // Estado para refletir na UI (desabilitar botão, mostrar loader, etc.)
+  const [isSending, setIsSending] = useState(false);
+
   const { cart, addToCart, removeFromCart, clearCart, decreaseFromCart } = useCart();
 
   const toggleCart = () => setCartOpen(!cartOpen);
@@ -20,79 +26,121 @@ const Cart = () => {
     return sum + (isNaN(cleanPrice) ? 0 : cleanPrice * item.quantity);
   }, 0);
 
-useEffect(() => {
-  if (qrModalVisible) {
-    const timeout = setTimeout(() => {
-      const readerElement = document.getElementById("reader");
-      if (!readerElement) {
-        console.error("Elemento #reader não encontrado");
-        return;
-      }
+  useEffect(() => {
+  if (!qrModalVisible) return;
 
-      const html5QrCode = new Html5Qrcode("reader");
+  let html5QrCode = null;
+  const scannerStartedRef = { current: false }; // objeto local — não precisa re-render
 
-      html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        async (decodedText, decodedResult) => {
-          console.log("Código QR:", decodedText);
-          console.log("Pedido (carrinho):", cart);
-          console.log("Total", cart.map(item => item.ID));
+  const timeout = setTimeout(() => {
+    const readerElement = document.getElementById("reader");
+    if (!readerElement) {
+      console.error("Elemento #reader não encontrado");
+      return;
+    }
 
-          try {
-            const response = await fetch('https://restaurant-9gdi.onrender.com/checkout', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                qrCode: decodedText,
-                itens: cart.map(item => item.ID),
-                total: totalPrice.toFixed(2).replace(".", ","),
-              }),
-            });
+    html5QrCode = new Html5Qrcode("reader");
 
-            if (!response.ok) {
-                setQrModalVisible(false);
-              setErrorModalVisible(true);
-              html5QrCode.stop().catch(() => {});
-              throw new Error(`Erro na requisição: ${response.statusText}`);
-
-            }
-
-            if(response.ok){
-                setQrModalVisible(false);
-                setCartOpen(false);
-                clearCart();
-                setSuccessModalVisible(true);
-                html5QrCode.stop().catch(() => {});
-
-                }
-
-            // Pode ler resposta se quiser:
-            // const data = await response.json();
-            // console.log('Resposta backend:', data);
-
-          } catch (error) {
-            console.error('Erro ao enviar pedido para o backend:', error);
-          }
-          
-        },
-        (errorMessage) => {
-          if (!errorMessage.includes("NotFoundException")) {
-            console.warn("Erro QR:", errorMessage);
-          }
+    // Inicia o scanner. start() retorna uma Promise que resolve quando a câmera está ativa.
+    const startPromise = html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      async (decodedText /*, decodedResult */) => {
+        if (isSendingRef.current) {
+          console.log("Já enviando pedido — ignorando scan duplicado.");
+          return;
         }
-      ).catch(err => console.error("Erro ao iniciar o leitor:", err));
 
-      return () => {
-        html5QrCode.stop().catch(() => {});
-      };
-    }, 300);
+        isSendingRef.current = true;
+        setIsSending(true);
 
-    return () => clearTimeout(timeout);
-  }
-}, [qrModalVisible, cart, clearCart]);
+        try {
+          const productList = cart.map(item => ({
+            id: item.ID,
+            quantity: item.quantity,
+            price: item.PrecoPromocional
+              ? parseFloat(item.PrecoPromocional)
+              : parseFloat(item.Preco)
+          }));
+
+          const response = await fetch('http://192.168.0.105:4000/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              qrCode: decodedText,
+              items: productList,
+              total: Number(totalPrice.toFixed(2))
+            }),
+          });
+
+          if (!response.ok) {
+            // só tenta parar se o scanner estiver rodando
+            if (scannerStartedRef.current) {
+              await html5QrCode.stop().catch(err => {
+                console.debug("Erro ao parar scanner no erro de requisição (ignorado):", err?.message || err);
+              });
+              scannerStartedRef.current = false;
+            }
+            setQrModalVisible(false);
+            setErrorModalVisible(true);
+            throw new Error(`Erro na requisição: ${response.statusText}`);
+          }
+
+          // sucesso: pare o scanner se estiver rodando
+          if (scannerStartedRef.current) {
+            await html5QrCode.stop().catch(err => {
+              console.debug("Erro ao parar scanner após sucesso (ignorado):", err?.message || err);
+            });
+            scannerStartedRef.current = false;
+          }
+          setQrModalVisible(false);
+          setCartOpen(false);
+          clearCart();
+          setSuccessModalVisible(true);
+        } catch (error) {
+          console.error('Erro ao enviar pedido para o backend:', error);
+        } finally {
+          isSendingRef.current = false;
+          setIsSending(false);
+        }
+      },
+      (errorMessage) => {
+        if (!errorMessage.includes("NotFoundException")) {
+          console.warn("Erro QR:", errorMessage);
+        }
+      }
+    );
+
+    // quando start() resolve, marcamos que o scanner realmente iniciou
+    startPromise
+      .then(() => {
+        scannerStartedRef.current = true;
+        console.log("Scanner iniciado.");
+      })
+      .catch(err => {
+        // se o start falhar (ex: permissão negada), garantimos que a flag fique falsa
+        scannerStartedRef.current = false;
+        console.error("Falha ao iniciar scanner:", err);
+      });
+
+  }, 300);
+
+  // cleanup: só chamar stop() se o scanner tiver realmente iniciado
+  return () => {
+    clearTimeout(timeout);
+    if (html5QrCode && scannerStartedRef.current) {
+      html5QrCode.stop().catch(err => {
+        // ignora o erro "Cannot stop..." e loga só debug
+        console.debug("Erro ao parar scanner no cleanup (ignorado):", err?.message || err);
+      });
+      scannerStartedRef.current = false;
+    }
+    // garante liberar a flag global de envio
+    isSendingRef.current = false;
+    setIsSending(false);
+  };
+}, [qrModalVisible, cart, clearCart, totalPrice]);
+
 
 
   return (
@@ -167,8 +215,14 @@ useEffect(() => {
         )}
 
         {cart.length > 0 && (
-          <Button className="finalizar" type="primary" block onClick={() => setQrModalVisible(true)}>
-            Finalizar Compra (QR)
+          <Button
+            className="finalizar"
+            type="primary"
+            block
+            onClick={() => setQrModalVisible(true)}
+            disabled={isSending} // desabilita botão enquanto estiver enviando
+          >
+            {isSending ? 'Enviando...' : 'Finalizar Compra (QR)'}
           </Button>
         )}
       </Drawer>
@@ -185,7 +239,7 @@ useEffect(() => {
       </Modal>
 
       <Modal
-        open={successModalVisible} // <-- Adicione isso
+        open={successModalVisible}
         footer={null}
         onCancel={() => setSuccessModalVisible(false)}
         centered
@@ -218,7 +272,6 @@ useEffect(() => {
           </Button>
         </div>
       </Modal>
-
     </>
   );
 };

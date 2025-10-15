@@ -6,7 +6,7 @@ import "time"
 // Todas as tags usam `column:` explicitamente para evitar surpresas de pluralização/nomes.
 type StatusTable struct {
 	ID          uint       `gorm:"column:id;primaryKey;autoIncrement"`
-	Number      int        `gorm:"column:number;not null"`
+	Number      uint        `gorm:"column:number;not null"`
 	LastOrderAt *time.Time `gorm:"column:last_order_at"`
 	OpenedAt    *time.Time `gorm:"column:opened_at"`
 	ClosedAt    *time.Time `gorm:"column:closed_at"`

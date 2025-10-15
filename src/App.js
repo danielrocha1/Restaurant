@@ -68,7 +68,7 @@ useEffect(() => {
   const fetchInitialData = async () => {
     try {
       const response = await fetch(
-        "https://restaurant-9gdi.onrender.com/categoriasSub"
+        "http://192.168.0.105:4000/categoriasSub"
       );
       const data = await response.json();
 
@@ -80,7 +80,7 @@ useEffect(() => {
           Subcategorias[0].Nome === "Sem subcategoria"
         ) {
           const response = await fetch(
-            `https://restaurant-9gdi.onrender.com/produtos-list?categoria=${encodeURIComponent(
+            `http://192.168.0.105:4000/produtos-list?categoria=${encodeURIComponent(
               nomeCategoria
             )}&page=1`
           );
@@ -104,7 +104,7 @@ useEffect(() => {
             if (sub.Nome === "Sem subcategoria") continue;
 
             const response = await fetch(
-              `https://restaurant-9gdi.onrender.com/produtos-list?categoria=${encodeURIComponent(
+              `http://192.168.0.105:4000/produtos-list?categoria=${encodeURIComponent(
                 sub.Nome
               )}&page=1`
             );
@@ -146,7 +146,7 @@ useEffect(() => {
 
     try {
       const response = await fetch(
-        `https://restaurant-9gdi.onrender.com/produtos-list?categoria=${encodeURIComponent(
+        `http://192.168.0.105:4000/produtos-list?categoria=${encodeURIComponent(
           categoria
         )}&page=${nextPage}`
       );

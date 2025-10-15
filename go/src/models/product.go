@@ -23,3 +23,12 @@ type Produto struct {
 	Subcategoria   Subcategoria   `gorm:"foreignKey:SubcategoriaID"`
 	DeletedAt      gorm.DeletedAt `gorm:"index"`
 }
+
+
+type OrderProduto struct {
+	gorm.Model
+	ID             uint           `gorm:"foreignKey"`
+	IDService             uint           `gorm:"foreignKey"`
+	Quantity	uint 
+	
+}

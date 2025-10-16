@@ -39,22 +39,7 @@ const Cart = () => {
       return;
     }
 
-<<<<<<< HEAD
     html5QrCode = new Html5Qrcode("reader");
-=======
-          try {
-            const response = await fetch('https://restaurant-sw98.onrender.com/checkout', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                qrCode: decodedText,
-                itens: cart.map(item => item.ID),
-                total: totalPrice.toFixed(2).replace(".", ","),
-              }),
-            });
->>>>>>> 10e2d2b245b025e1e56977bd43e3643a43bcfae0
 
     // Inicia o scanner. start() retorna uma Promise que resolve quando a câmera está ativa.
     const startPromise = html5QrCode.start(
@@ -78,7 +63,7 @@ const Cart = () => {
               : parseFloat(item.Preco)
           }));
 
-          const response = await fetch('http://192.168.0.105:4000/checkout', {
+          const response = await fetch('https://restaurant-sw98.onrender.com/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

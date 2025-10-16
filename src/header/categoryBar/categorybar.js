@@ -40,11 +40,7 @@ const CategoryBar = () => {
   }, []);
 
   useEffect(() => {
-<<<<<<< HEAD
-    fetch('http://192.168.0.105:4000/categoriasSub')
-=======
     fetch('https://restaurant-sw98.onrender.com/categoriasSub')
->>>>>>> 10e2d2b245b025e1e56977bd43e3643a43bcfae0
       .then((res) => res.json())
       .then((data) => {
         const items = (data || []).map((categoria, i) => {

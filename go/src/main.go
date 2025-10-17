@@ -45,6 +45,7 @@ func main() {
 
 	app.Get("/produtos-lists", handlers.GetProdutosLists)
 	app.Get("/produtos-list", handlers.GetProdutosList)
+	app.Get("/produtos-list/admin", handlers.GetProdutosListAdmin)
 
 	// Categorias
 	app.Get("/categorias", handlers.GetCategorias)

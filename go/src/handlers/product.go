@@ -94,6 +94,35 @@ func GetProdutosList(c *fiber.Ctx) error {
 	})
 }
 
+func GetProdutosListAdmin(c *fiber.Ctx) error {
+    // 1. Recebe o filtro de categoria da query string
+	categoria := c.Query("categoria", "")
+
+	var produtos []models.Produto
+
+    // 2. Inicializa a query no banco de dados
+	db := database.DB.Model(&models.Produto{}).
+		Joins("JOIN subcategorias ON subcategorias.id = produtos.subcategoria_id").
+		Joins("JOIN categorias ON categorias.id = subcategorias.categoria_id").
+		Where("produtos.active = ?", true) // FILTRO OBRIGATÓRIO PARA PRODUTOS ATIVOS
+
+    // 3. Aplica o filtro de categoria, se fornecido
+	if categoria != "" {
+		db = db.Where("subcategorias.nome = ? OR categorias.nome = ?", categoria, categoria)
+	}
+
+    // 4. Executa a busca (agora sem Limit e Offset) e pré-carrega os dados relacionados
+	if err := db.Preload("Subcategoria.Categoria").Find(&produtos).Error; err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar produtos"})
+	}
+    
+    // 5. Retorna a lista completa de produtos (sem informações de paginação)
+	return c.JSON(fiber.Map{
+		"data": produtos,
+        // O campo "total" é opcional, mas se quiser mantê-lo, precisa de um Count separado.
+        // Para uma resposta limpa, o ideal é retornar apenas os dados.
+	})
+}
 
 
 func GetProdutosLists(c *fiber.Ctx) error {

@@ -207,3 +207,146 @@ func ListTableHistory(db *gorm.DB) fiber.Handler {
 		return c.Status(http.StatusOK).JSON(rows)
 	}
 }
+
+
+// POST /tables/open
+func ViewClosedTables(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// Aqui podemos receber filtros opcionais no body, mas vamos manter simples
+		var body struct{} // nenhum dado necessário do body
+
+		_ = c.BodyParser(&body) // ignoramos erros, pois não precisamos de campos
+
+		// Consulta todas as mesas abertas
+		rows, err := db.Raw("SELECT * FROM status_tables WHERE is_open = false").Rows()
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"error":  "erro ao consultar status_table",
+				"detail": err.Error(),
+			})
+		}
+		defer rows.Close()
+
+		cols, err := rows.Columns()
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"error":  "erro ao ler colunas",
+				"detail": err.Error(),
+			})
+		}
+
+		results := make([]map[string]interface{}, 0)
+
+		for rows.Next() {
+			values := make([]interface{}, len(cols))
+			valuePtrs := make([]interface{}, len(cols))
+			for i := range values {
+				valuePtrs[i] = &values[i]
+			}
+
+			if err := rows.Scan(valuePtrs...); err != nil {
+				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+					"error":  "erro ao fazer scan das linhas",
+					"detail": err.Error(),
+				})
+			}
+
+			rowMap := make(map[string]interface{}, len(cols))
+			for i, col := range cols {
+				v := values[i]
+
+				if b, ok := v.([]byte); ok {
+					var maybeJSON interface{}
+					if json.Unmarshal(b, &maybeJSON) == nil {
+						rowMap[col] = maybeJSON
+					} else {
+						rowMap[col] = string(b)
+					}
+				} else if v == nil {
+					rowMap[col] = nil
+				} else if val, ok := v.(sql.NullString); ok {
+					if val.Valid {
+						rowMap[col] = val.String
+					} else {
+						rowMap[col] = nil
+					}
+				} else {
+					rowMap[col] = v
+				}
+			}
+
+			results = append(results, rowMap)
+		}
+
+		return c.Status(http.StatusOK).JSON(results)
+	}
+}
+
+// POST /tables/closed
+func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var body struct {
+			Date string `json:"date"`
+		}
+
+		if err := c.BodyParser(&body); err != nil || body.Date == "" {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+				"error": "corpo inválido ou data ausente",
+			})
+		}
+
+		rows, err := db.Raw(`
+			SELECT * FROM status_tables 
+			WHERE is_open = false 
+			AND DATE(closed_at) = ?
+		`, body.Date).Rows()
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"error":  "erro ao consultar status_table",
+				"detail": err.Error(),
+			})
+		}
+		defer rows.Close()
+
+		cols, err := rows.Columns()
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"error":  "erro ao ler colunas",
+				"detail": err.Error(),
+			})
+		}
+
+		results := make([]map[string]interface{}, 0)
+		for rows.Next() {
+			values := make([]interface{}, len(cols))
+			valuePtrs := make([]interface{}, len(cols))
+			for i := range values {
+				valuePtrs[i] = &values[i]
+			}
+			if err := rows.Scan(valuePtrs...); err != nil {
+				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+					"error":  "erro ao fazer scan das linhas",
+					"detail": err.Error(),
+				})
+			}
+
+			rowMap := make(map[string]interface{}, len(cols))
+			for i, col := range cols {
+				v := values[i]
+				if b, ok := v.([]byte); ok {
+					var maybeJSON interface{}
+					if json.Unmarshal(b, &maybeJSON) == nil {
+						rowMap[col] = maybeJSON
+					} else {
+						rowMap[col] = string(b)
+					}
+				} else {
+					rowMap[col] = v
+				}
+			}
+			results = append(results, rowMap)
+		}
+
+		return c.Status(http.StatusOK).JSON(results)
+	}
+}

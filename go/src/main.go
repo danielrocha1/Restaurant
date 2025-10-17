@@ -66,7 +66,8 @@ func main() {
 	// Tables — endpoints que RECEBEM o número via BODY (conforme você pediu)
 	// Os handlers devem ter a forma: func TouchOrOpenTable(db *gorm.DB) fiber.Handler
 	
-	app.Post("/tables/close", handlers.CloseTable(database.DB))
+	app.Post("/tables/viewclose", handlers.ViewClosedTables(database.DB))
+	app.Post("/tables/viewcloseondate", handlers.ViewClosedTablesOnDate(database.DB))
 	app.Post("/tables/view", handlers.ViewListTable(database.DB))
 	app.Get("/tables/isOpen", handlers.ViewOpenTables(database.DB))
 

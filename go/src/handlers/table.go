@@ -213,12 +213,14 @@ func ListTableHistory(db *gorm.DB) fiber.Handler {
 func ViewClosedTables(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Aqui podemos receber filtros opcionais no body, mas vamos manter simples
-		var body struct{} // nenhum dado necessário do body
+		var body struct{
+			ID uint 
+		} // nenhum dado necessário do body
 
 		_ = c.BodyParser(&body) // ignoramos erros, pois não precisamos de campos
 
 		// Consulta todas as mesas abertas
-		rows, err := db.Raw("SELECT * FROM status_tables WHERE is_open = false").Rows()
+		rows, err := db.Raw("SELECT * FROM view_transacoes_mesa WHERE mesa_id = ?", body.ID).Rows()
 		if err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 				"error":  "erro ao consultar status_table",
@@ -283,70 +285,65 @@ func ViewClosedTables(db *gorm.DB) fiber.Handler {
 }
 
 // POST /tables/closed
+// A estrutura para o resultado da consulta SQL
+type TableSummary struct {
+    ID              uint       `json:"id" gorm:"column:id"`
+    Number          int        `json:"number" gorm:"column:number"`
+    LastOrderAt     *time.Time `json:"last_order_at" gorm:"column:last_order_at"` // Ponteiro, pois pode ser NULL
+    OpenedAt        time.Time  `json:"opened_at" gorm:"column:opened_at"`
+    ClosedAt        *time.Time `json:"closed_at" gorm:"column:closed_at"` // Ponteiro, pois pode ser NULL/tem a data de fechamento
+    ServiceID       *uint      `json:"service_id" gorm:"column:service_id"` // Assumindo uint ou int, e ponteiro para ser NULL
+    IsOpen          bool       `json:"is_open" gorm:"column:is_open"`
+
+    // Campo agregado do JOIN
+    TotalOrderValue float64 `json:"total_order_value" gorm:"column:total_order_value"`
+}
+
 func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		var body struct {
-			Date string `json:"date"`
-		}
+    return func(c *fiber.Ctx) error {
+        var body struct {
+            Date string `json:"date"` // Espera-se "YYYY-MM-DD"
+        }
 
-		if err := c.BodyParser(&body); err != nil || body.Date == "" {
-			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-				"error": "corpo inválido ou data ausente",
-			})
-		}
+        if err := c.BodyParser(&body); err != nil || body.Date == "" {
+            return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+                "error": "Corpo inválido ou data ausente (formato esperado da data: 'YYYY-MM-DD')",
+            })
+        }
 
-		rows, err := db.Raw(`
-			SELECT * FROM status_tables 
-			WHERE is_open = false 
-			AND DATE(closed_at) = ?
-		`, body.Date).Rows()
-		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-				"error":  "erro ao consultar status_table",
-				"detail": err.Error(),
-			})
-		}
-		defer rows.Close()
+        var results []TableSummary
 
-		cols, err := rows.Columns()
-		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-				"error":  "erro ao ler colunas",
-				"detail": err.Error(),
-			})
-		}
+        // 💡 Ajuste na SELECT: `st.*` seleciona todos os campos da status_tables.
+        // A struct TableSummary irá mapeá-los.
+        query := `
+            SELECT 
+                st.*, 
+                COALESCE(SUM(o.total), 0) AS total_order_value 
+            FROM 
+                status_tables st
+            LEFT JOIN 
+                orders o ON o.mesa_id = st.id 
+            WHERE 
+                st.is_open = false 
+                -- DATE() ou CAST(closed_at AS DATE) funciona na maioria dos SQLs
+                -- para comparar apenas a parte da data, ignorando o fuso horário.
+                AND DATE(st.closed_at) = ?
+            GROUP BY 
+                st.id 
+            ORDER BY
+                st.closed_at DESC
+        `
 
-		results := make([]map[string]interface{}, 0)
-		for rows.Next() {
-			values := make([]interface{}, len(cols))
-			valuePtrs := make([]interface{}, len(cols))
-			for i := range values {
-				valuePtrs[i] = &values[i]
-			}
-			if err := rows.Scan(valuePtrs...); err != nil {
-				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-					"error":  "erro ao fazer scan das linhas",
-					"detail": err.Error(),
-				})
-			}
+        // Executa a consulta e escaneia os resultados diretamente na slice de structs
+        // O GORM faz o mapeamento das colunas (st.id, st.number, etc. e total_order_value) 
+        // para os campos da struct TableSummary.
+        if err := db.Raw(query, body.Date).Scan(&results).Error; err != nil {
+            return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+                "error":  "Erro ao consultar mesas fechadas com total de pedidos",
+                "detail": err.Error(),
+            })
+        }
 
-			rowMap := make(map[string]interface{}, len(cols))
-			for i, col := range cols {
-				v := values[i]
-				if b, ok := v.([]byte); ok {
-					var maybeJSON interface{}
-					if json.Unmarshal(b, &maybeJSON) == nil {
-						rowMap[col] = maybeJSON
-					} else {
-						rowMap[col] = string(b)
-					}
-				} else {
-					rowMap[col] = v
-				}
-			}
-			results = append(results, rowMap)
-		}
-
-		return c.Status(http.StatusOK).JSON(results)
-	}
+        return c.Status(http.StatusOK).JSON(results)
+    }
 }

@@ -77,7 +77,7 @@ func main() {
 	// Ping para manter app acordado no Render (opcional)
 	go func() {
 		for {
-			_, err := http.Get("https://restaurant-9gdi.onrender.com")
+			_, err := http.Get("https://restaurant-sw98.onrender.com")
 			if err != nil {
 				log.Println("❌ Erro ao fazer ping:", err)
 			} else {

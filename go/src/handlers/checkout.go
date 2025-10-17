@@ -4,8 +4,8 @@ import (
     "context"
     "errors"
     "fmt"
-    "regexp"
-    "strconv"
+    // "regexp"
+    // "strconv"
     "strings"
     "time"
 
@@ -104,36 +104,36 @@ func getOrCreateStatusTx(tx *gorm.DB, tableNumber uint) (models.StatusTable, err
 // -------------------------
 type Itens struct {
     ID         uint    `json:"id"`
-    Preco      float64 `json:"price"`
+    Preco      uint `json:"price"`
     Quantidade uint    `json:"quantity"`
 }
 
 type CheckoutRequest struct {
     QRCode string  `json:"qrCode"`
     Itens  []Itens `json:"items"`
-    Total  float64 `json:"total"`
+    Total  uint `json:"total"`
 }
 
 // -------------------------
 // UTIL: PARSE PRICE
 // -------------------------
-func parsePriceString(s string) (float64, error) {
-    s = strings.TrimSpace(s)
-    re := regexp.MustCompile(`[^\d.,\-]`)
-    s = re.ReplaceAllString(s, "")
-    if s == "" {
-        return 0, nil
-    }
+// func parsePriceString(s string) (float64, error) {
+//     s = strings.TrimSpace(s)
+//     re := regexp.MustCompile(`[^\d.,\-]`)
+//     s = re.ReplaceAllString(s, "")
+//     if s == "" {
+//         return 0, nil
+//     }
 
-    if strings.Contains(s, ".") && strings.Contains(s, ",") {
-        s = strings.ReplaceAll(s, ".", "")
-        s = strings.ReplaceAll(s, ",", ".")
-    } else {
-        s = strings.ReplaceAll(s, ",", ".")
-    }
+//     if strings.Contains(s, ".") && strings.Contains(s, ",") {
+//         s = strings.ReplaceAll(s, ".", "")
+//         s = strings.ReplaceAll(s, ",", ".")
+//     } else {
+//         s = strings.ReplaceAll(s, ",", ".")
+//     }
 
-    return strconv.ParseFloat(s, 64)
-}
+//     return strconv.ParseFloat(s, 64)
+// }
 
 // -------------------------
 // CHECKOUT HANDLER
@@ -231,26 +231,23 @@ func Checkout(c *fiber.Ctx) error {
     }
 
     var itemsToUpsert []models.OrderItem
-    total := 0.0
+    var total uint
     for id, qty := range itemMap {
         prod, ok := prodMap[id]
         if !ok {
             return c.Status(400).JSON(fiber.Map{"error": fmt.Sprintf("Produto ID %d não encontrado", id)})
         }
 
-        var priceStr string
-        if prod.PrecoPromocional != "" {
+        var priceStr uint
+        if prod.PrecoPromocional != ' ' {
             priceStr = prod.PrecoPromocional
         } else {
             priceStr = prod.Preco
         }
         
-        price, err := parsePriceString(priceStr)
-        if err != nil {
-            return c.Status(500).JSON(fiber.Map{"error": "Erro ao converter preço", "produto_id": prod.ID})
-        }
-
-        total += price * float64(qty)
+        price := priceStr
+         
+        total += price * uint(qty)
 
         itemsToUpsert = append(itemsToUpsert, models.OrderItem{
             OrderID:       order.ID,

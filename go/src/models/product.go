@@ -16,8 +16,8 @@ type Produto struct {
 	Active		   bool
 	Nome           string         `gorm:"size:255"`
 	Descricao      string         `gorm:"type:text"`
-	Preco          string         `gorm:"size:255"`
-	PrecoPromocional          string         `gorm:"size:255"`
+	Preco          uint         `gorm:"size:255"`
+	PrecoPromocional          uint         `gorm:"size:255"`
 	Imagem         string         `gorm:"size:512"`
 	SubcategoriaID uint           `gorm:"column:subcategoria_id"`
 	Subcategoria   Subcategoria   `gorm:"foreignKey:SubcategoriaID"`

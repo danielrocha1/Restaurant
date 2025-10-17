@@ -25,7 +25,7 @@ type OrderItem struct {
 	OrderID   uint           `gorm:"index;not null"`
 	ProdutoID uint           `gorm:"index;not null"`
 	Quantidade uint          `gorm:"not null;default:1"`
-	PrecoUnitario float64    `gorm:"not null"` // fixa o preço do produto no momento do pedido
+	PrecoUnitario uint    `gorm:"not null"` // fixa o preço do produto no momento do pedido
 	CreatedAt time.Time
 
 	// relações

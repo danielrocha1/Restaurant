@@ -24,6 +24,7 @@ func main() {
 		&models.Categoria{},
 		&models.StatusTable{},
 		&models.OrderItem{},
+		&models.PaymentRecord{},
 	); err != nil {
 		log.Fatalf("AutoMigrate erro: %v", err)
 	}
@@ -68,6 +69,8 @@ func main() {
 	app.Post("/tables/close", handlers.CloseTable(database.DB))
 	app.Post("/tables/view", handlers.ViewListTable(database.DB))
 	app.Get("/tables/isOpen", handlers.ViewOpenTables(database.DB))
+
+	app.Post("/payment/", handlers.PaymentHandler)
 
 	// Ping para manter app acordado no Render (opcional)
 	go func() {

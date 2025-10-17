@@ -103,8 +103,7 @@ func GetProdutosListAdmin(c *fiber.Ctx) error {
     // 2. Inicializa a query no banco de dados
 	db := database.DB.Model(&models.Produto{}).
 		Joins("JOIN subcategorias ON subcategorias.id = produtos.subcategoria_id").
-		Joins("JOIN categorias ON categorias.id = subcategorias.categoria_id").
-		Where("produtos.active = ?", true) // FILTRO OBRIGATÓRIO PARA PRODUTOS ATIVOS
+		Joins("JOIN categorias ON categorias.id = subcategorias.categoria_id") // FILTRO OBRIGATÓRIO PARA PRODUTOS ATIVOS
 
     // 3. Aplica o filtro de categoria, se fornecido
 	if categoria != "" {

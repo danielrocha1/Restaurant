@@ -79,11 +79,11 @@ func UpdateProduto(c *fiber.Ctx) error {
 	
 	// 1. Notifica todos os clientes sobre a mudança de status/preço
 	broadcast.BroadcastProductUpdate(
-		int(produto.ID), 
-		produto.Nome, 
-		produto.Active, 
-		produto.Preco,
-		produto.PrecoPromocional, 
+		int(updatedData.ID), 
+		updatedData.Nome, 
+		updatedData.Active, 
+		updatedData.Preco,
+		updatedData.PrecoPromocional, 
 	)
 	log.Printf("[Handler] Produto ID %s atualizado e broadcast enviado.", id)
 

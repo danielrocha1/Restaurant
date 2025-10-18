@@ -71,6 +71,10 @@ func UpdateProduto(c *fiber.Ctx) error {
 
 	// Atualiza o produto existente com os novos dados
 	database.DB.Model(&produto).Updates(updatedData)
+
+	if err := database.DB.First(&produto, id).Error; err != nil {
+		return c.Status(404).SendString("Produto não encontrado")
+	}	
 	
 	// Atualiza o objeto 'produto' após o Save para garantir que tenhamos o estado mais recente (com ID, etc.)
 	// E garante que campos como Preco e Status foram atualizados no objeto 'produto' original
@@ -79,11 +83,11 @@ func UpdateProduto(c *fiber.Ctx) error {
 	
 	// 1. Notifica todos os clientes sobre a mudança de status/preço
 	broadcast.BroadcastProductUpdate(
-		int(updatedData.ID), 
-		updatedData.Nome, 
-		updatedData.Active, 
-		updatedData.Preco,
-		updatedData.PrecoPromocional, 
+		int(produto.ID), 
+		produto.Nome, 
+		produto.Active, 
+		produto.Preco,
+		produto.PrecoPromocional, 
 	)
 	log.Printf("[Handler] Produto ID %s atualizado e broadcast enviado.", id)
 

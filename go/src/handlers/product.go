@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 
@@ -73,11 +72,8 @@ func UpdateProduto(c *fiber.Ctx) error {
 	// Atualiza o produto existente com os novos dados
 	database.DB.Model(&produto).Updates(updatedData)
 
-	var updatedProduto models.Produto
-	if err := database.DB.First(&updatedProduto, id).Error; err != nil {
-		return c.Status(404).SendString("Produto não encontrado")
-	}	
-	fmt.Println(c.JSON(updatedProduto))
+	
+
 	// Atualiza o objeto 'produto' após o Save para garantir que tenhamos o estado mais recente (com ID, etc.)
 	// E garante que campos como Preco e Status foram atualizados no objeto 'produto' original
 	// Se você usou c.BodyParser(&produto) acima, 'produto' já está atualizado.
@@ -85,15 +81,15 @@ func UpdateProduto(c *fiber.Ctx) error {
 	
 	// 1. Notifica todos os clientes sobre a mudança de status/preço
 	broadcast.BroadcastProductUpdate(
-		int(updatedProduto.ID), 
-		updatedProduto.Nome, 
-		updatedProduto.Active, 
-		updatedProduto.Preco,
-		updatedProduto.PrecoPromocional, 
+		int(produto.ID), 
+		produto.Nome, 
+		produto.Active, 
+		produto.Preco,
+		produto.PrecoPromocional, 
 	)
 	log.Printf("[Handler] Produto ID %s atualizado e broadcast enviado.", id)
 
-	return c.JSON(updatedProduto)
+	return c.JSON(produto)
 }
 
 func DeleteProduto(c *fiber.Ctx) error {

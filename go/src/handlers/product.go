@@ -1,14 +1,15 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
 	"Restaurant/src/database"
 	"Restaurant/src/models"
-	
+
 	// Importamos o pacote main para acessar a função de broadcast
-	"Restaurant/src/broadcast" 
+	"Restaurant/src/broadcast"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -76,7 +77,7 @@ func UpdateProduto(c *fiber.Ctx) error {
 	if err := database.DB.First(&updatedProduto, id).Error; err != nil {
 		return c.Status(404).SendString("Produto não encontrado")
 	}	
-	
+	fmt.Println(c.JSON(updatedProduto))
 	// Atualiza o objeto 'produto' após o Save para garantir que tenhamos o estado mais recente (com ID, etc.)
 	// E garante que campos como Preco e Status foram atualizados no objeto 'produto' original
 	// Se você usou c.BodyParser(&produto) acima, 'produto' já está atualizado.

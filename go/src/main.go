@@ -5,19 +5,32 @@ import (
 	"net/http"
 	"time"
 
+	"Restaurant/src/broadcast"
 	"Restaurant/src/database"
 	"Restaurant/src/handlers"
 	"Restaurant/src/models"
 
+	"github.com/valyala/fasthttp/fasthttpadaptor"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+
+	"github.com/gorilla/websocket"
 )
 
+// Gorilla Upgrader
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
 func main() {
-	// conecta no banco e deixa a variável database.DB pronta
+	// Conectar banco
 	database.Connect()
 
-	// auto-migrate dos models
+	// AutoMigrate
 	if err := database.DB.AutoMigrate(
 		&models.Produto{},
 		&models.Order{},
@@ -29,6 +42,10 @@ func main() {
 		log.Fatalf("AutoMigrate erro: %v", err)
 	}
 
+	// Inicia o Hub
+	go broadcast.GlobalHub.Run()
+	log.Println("[INFO] WebSocket Hub iniciado.")
+
 	app := fiber.New()
 	app.Use(cors.New())
 
@@ -36,7 +53,27 @@ func main() {
 		return c.SendString("API está rodando!")
 	})
 
-	// Produtos
+	// ------------------------------
+	// ROTA WEBSOCKET (Gorilla)
+	// ------------------------------
+	app.All("/ws", func(c *fiber.Ctx) error {
+		h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			conn, err := upgrader.Upgrade(w, r, nil)
+			if err != nil {
+				log.Println("Erro ao fazer upgrade:", err)
+				return
+			}
+			broadcast.HandleConnection(conn)
+		})
+
+		// Converte para FastHTTP
+		fasthttpadaptor.NewFastHTTPHandlerFunc(h)(c.Context())
+		return nil
+	})
+
+	// ------------------------------
+	// ROTAS REST
+	// ------------------------------
 	app.Get("/produtos", handlers.GetProdutos)
 	app.Get("/produtos/:id", handlers.GetProduto)
 	app.Post("/produtos", handlers.CreateProduto)
@@ -47,7 +84,6 @@ func main() {
 	app.Get("/produtos-list", handlers.GetProdutosList)
 	app.Get("/produtos-list/admin", handlers.GetProdutosListAdmin)
 
-	// Categorias
 	app.Get("/categorias", handlers.GetCategorias)
 	app.Get("/categoriassub", handlers.GetCategoriasSub)
 	app.Get("/categorias/:id", handlers.GetCategoria)
@@ -55,7 +91,6 @@ func main() {
 	app.Put("/categorias/:id", handlers.UpdateCategoria)
 	app.Delete("/categorias/:id", handlers.DeleteCategoria)
 
-	// Orders
 	app.Get("/orders", handlers.GetOrders)
 	app.Get("/orders/:id", handlers.GetOrder)
 	app.Post("/orders", handlers.CreateOrder)
@@ -63,18 +98,13 @@ func main() {
 	app.Delete("/orders/:id", handlers.DeleteOrder)
 
 	app.Post("/checkout", handlers.Checkout)
-
-	// Tables — endpoints que RECEBEM o número via BODY (conforme você pediu)
-	// Os handlers devem ter a forma: func TouchOrOpenTable(db *gorm.DB) fiber.Handler
-	
 	app.Post("/tables/viewclose", handlers.ViewClosedTables(database.DB))
 	app.Post("/tables/viewcloseondate", handlers.ViewClosedTablesOnDate(database.DB))
 	app.Post("/tables/view", handlers.ViewListTable(database.DB))
 	app.Get("/tables/isOpen", handlers.ViewOpenTables(database.DB))
-
 	app.Post("/payment/", handlers.PaymentHandler)
 
-	// Ping para manter app acordado no Render (opcional)
+	// Ping opcional para manter app acordado
 	go func() {
 		for {
 			_, err := http.Get("https://restaurant-9gdi.onrender.com")
@@ -87,7 +117,8 @@ func main() {
 		}
 	}()
 
-	// start server
+	// Start server
+	log.Println("Servidor iniciado na porta :4000")
 	if err := app.Listen(":4000"); err != nil {
 		log.Fatalf("Erro ao iniciar servidor: %v", err)
 	}

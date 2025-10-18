@@ -1,57 +1,107 @@
 package handlers
 
 import (
+	"log"
 	"strconv"
-    "github.com/gofiber/fiber/v2"
-    "Restaurant/src/database"
-    "Restaurant/src/models"
+
+	"Restaurant/src/database"
+	"Restaurant/src/models"
+	
+	// Importamos o pacote main para acessar a função de broadcast
+	"Restaurant/src/broadcast" 
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func GetProdutos(c *fiber.Ctx) error {
-    var produtos []models.Produto
-    database.DB.Find(&produtos)
-    return c.JSON(produtos)
+	var produtos []models.Produto
+	database.DB.Find(&produtos)
+	return c.JSON(produtos)
 }
 
 func GetProduto(c *fiber.Ctx) error {
-    id := c.Params("id")
-    var produto models.Produto
-    result := database.DB.First(&produto, id)
-    if result.Error != nil {
-        return c.Status(404).SendString("Produto não encontrado")
-    }
-    return c.JSON(produto)
+	id := c.Params("id")
+	var produto models.Produto
+	result := database.DB.First(&produto, id)
+	if result.Error != nil {
+		return c.Status(404).SendString("Produto não encontrado")
+	}
+	return c.JSON(produto)
 }
 
 func CreateProduto(c *fiber.Ctx) error {
-    var produto models.Produto
-    if err := c.BodyParser(&produto); err != nil {
-        return err
-    }
-    database.DB.Create(&produto)
-    return c.JSON(produto)
+	var produto models.Produto
+	if err := c.BodyParser(&produto); err != nil {
+		return err
+	}
+	
+	// 1. Salva o novo produto no DB
+	database.DB.Create(&produto)
+	
+	// 2. Notifica todos os clientes do novo produto
+	// (Assumimos status ATIVO e preço definido)
+	broadcast.BroadcastProductUpdate(
+		int(produto.ID), 
+		produto.Nome, // Se o nome do produto for 'Nome' na struct models.Produto
+		produto.Active, // Se o status do produto for 'Status' na struct models.Produto
+		produto.Preco, // Se o preço do produto for 'Price' na struct models.Produto
+		produto.PrecoPromocional, // Se o preço do produto for 'Price' na struct models.Produto
+
+	)
+	log.Printf("[Handler] Novo produto criado e broadcast enviado. ID: %d", produto.ID)
+
+	return c.JSON(produto)
 }
 
 func UpdateProduto(c *fiber.Ctx) error {
-    id := c.Params("id")
-    var produto models.Produto
-    if err := database.DB.First(&produto, id).Error; err != nil {
-        return c.Status(404).SendString("Produto não encontrado")
-    }
-    if err := c.BodyParser(&produto); err != nil {
-        return err
-    }
-    database.DB.Save(&produto)
-    return c.JSON(produto)
+	id := c.Params("id")
+	var produto models.Produto
+	
+	// Salva o estado atual do produto para comparar se houver necessidade (opcional)
+	if err := database.DB.First(&produto, id).Error; err != nil {
+		return c.Status(404).SendString("Produto não encontrado")
+	}
+	
+	// Cria uma cópia temporária para o BodyParser, se você não quiser
+	// que o BodyParser sobrescreva o ID (embora o GORM lide com isso)
+	var updatedData models.Produto
+	if err := c.BodyParser(&updatedData); err != nil {
+		return err
+	}
+
+	// Atualiza o produto existente com os novos dados
+	database.DB.Model(&produto).Updates(updatedData)
+	
+	// Atualiza o objeto 'produto' após o Save para garantir que tenhamos o estado mais recente (com ID, etc.)
+	// E garante que campos como Preco e Status foram atualizados no objeto 'produto' original
+	// Se você usou c.BodyParser(&produto) acima, 'produto' já está atualizado.
+	// Vamos assumir que 'produto' tem os dados mais recentes após o Save acima.
+	
+	// 1. Notifica todos os clientes sobre a mudança de status/preço
+	broadcast.BroadcastProductUpdate(
+		int(produto.ID), 
+		produto.Nome, 
+		produto.Active, 
+		produto.Preco,
+		produto.PrecoPromocional, 
+	)
+	log.Printf("[Handler] Produto ID %s atualizado e broadcast enviado.", id)
+
+	return c.JSON(produto)
 }
 
 func DeleteProduto(c *fiber.Ctx) error {
-    id := c.Params("id")
-    result := database.DB.Delete(&models.Produto{}, id)
-    if result.RowsAffected == 0 {
-        return c.Status(404).SendString("Produto não encontrado")
-    }
-    return c.SendString("Produto removido com sucesso")
+	id := c.Params("id")
+	result := database.DB.Delete(&models.Produto{}, id)
+	if result.RowsAffected == 0 {
+		return c.Status(404).SendString("Produto não encontrado")
+	}
+
+    // Opcional: Enviar um broadcast específico para DELETAR o produto na UI
+    // main.BroadcastProductDelete(id) // Se você criar uma função BroadcastProductDelete
+    // Por enquanto, o status DESATIVADO cobre a maioria dos casos de remoção do cardápio.
+
+	return c.SendString("Produto removido com sucesso")
 }
 
 func GetProdutosList(c *fiber.Ctx) error {
@@ -95,34 +145,33 @@ func GetProdutosList(c *fiber.Ctx) error {
 }
 
 func GetProdutosListAdmin(c *fiber.Ctx) error {
-    // 1. Recebe o filtro de categoria da query string
+	// 1. Recebe o filtro de categoria da query string
 	categoria := c.Query("categoria", "")
 
 	var produtos []models.Produto
 
-    // 2. Inicializa a query no banco de dados
+	// 2. Inicializa a query no banco de dados
 	db := database.DB.Model(&models.Produto{}).
 		Joins("JOIN subcategorias ON subcategorias.id = produtos.subcategoria_id").
 		Joins("JOIN categorias ON categorias.id = subcategorias.categoria_id") // FILTRO OBRIGATÓRIO PARA PRODUTOS ATIVOS
 
-    // 3. Aplica o filtro de categoria, se fornecido
+	// 3. Aplica o filtro de categoria, se fornecido
 	if categoria != "" {
 		db = db.Where("subcategorias.nome = ? OR categorias.nome = ?", categoria, categoria)
 	}
 
-    // 4. Executa a busca (agora sem Limit e Offset) e pré-carrega os dados relacionados
+	// 4. Executa a busca (agora sem Limit e Offset) e pré-carrega os dados relacionados
 	if err := db.Preload("Subcategoria.Categoria").Find(&produtos).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar produtos"})
 	}
-    
-    // 5. Retorna a lista completa de produtos (sem informações de paginação)
+
+	// 5. Retorna a lista completa de produtos (sem informações de paginação)
 	return c.JSON(fiber.Map{
 		"data": produtos,
-        // O campo "total" é opcional, mas se quiser mantê-lo, precisa de um Count separado.
-        // Para uma resposta limpa, o ideal é retornar apenas os dados.
+		// O campo "total" é opcional, mas se quiser mantê-lo, precisa de um Count separado.
+		// Para uma resposta limpa, o ideal é retornar apenas os dados.
 	})
 }
-
 
 func GetProdutosLists(c *fiber.Ctx) error {
 	var produtos []models.Produto
@@ -179,9 +228,9 @@ func GetProdutosAgrupadosPorCategoria(c *fiber.Ctx) error {
 		}
 
 		resultado[nome] = fiber.Map{
-			"data":      produtos,
-			"total":     total,
-			"page":      1,
+			"data": produtos,
+			"total": total,
+			"page": 1,
 			"last_page": (total + int64(limit) - 1) / int64(limit),
 		}
 	}

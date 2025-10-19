@@ -239,6 +239,18 @@
     width: 28px;
     height: 28px;
   }
+
+  
+  .produto-inativo {
+  opacity: 0.5;
+  pointer-events: none; /* desativa cliques */
+}
+
+.produto-ativo {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 }
 
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const WSContext = createContext();
 
@@ -8,17 +8,22 @@ export const WSProvider = ({ children }) => {
   useEffect(() => {
     const ws = new WebSocket("wss://restaurant-sw98.onrender.com/ws");
 
+    ws.onopen = () => console.log("📡 [WS] Conectado");
+    ws.onerror = (err) => console.error("💥 [WS] Erro", err);
+    ws.onclose = () => console.log("📡 [WS] Desconectado");
+
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setMessages(prev => [...prev, data]);
+      try {
+        const data = JSON.parse(event.data);
+        console.log("📩 [WS] Mensagem recebida:", data);
+        setMessages((prev) => [...prev, data]);
+      } catch (err) {
+        console.error("💥 [WS] Falha ao processar mensagem:", err, event.data);
+      }
     };
 
     return () => ws.close();
   }, []);
-
-   useEffect(() => {
-    console.log("Mensagem Recebida:", messages)
-  }, [messages]);
 
   return (
     <WSContext.Provider value={{ messages }}>
@@ -27,4 +32,7 @@ export const WSProvider = ({ children }) => {
   );
 };
 
-export const useWS = () => useContext(WSContext);
+export const useWS = () => {
+  console.log("📡 [useWS] Hook chamado");
+  return useContext(WSContext);
+};

@@ -28,7 +28,7 @@ const ProductCard = ({ product }) => {
   const handleDecrease = () => decreaseFromCart(product.Nome, selectedWeight);
 
   return (
-    <Card className="product-card" hoverable>
+    <Card className="product-card"  hoverable>
       <img src={product.Imagem} alt={product.Nome} className="product-image" />
       <div className="product-info">
         <h2 className="product-title">{product.Nome}</h2>

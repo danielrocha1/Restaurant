@@ -147,7 +147,7 @@ const ProductCarousel = ({
         className="swiper-wrapper"
       >
         {products.map((product, index) => (
-          <SwiperSlide key={product.id || index}>
+          <SwiperSlide key={index} data-produto-id={`${product.ID}`}>
             <ProductCard product={product} />
           </SwiperSlide>
         ))}

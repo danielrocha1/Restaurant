@@ -6,6 +6,8 @@ import AppHeader from "./header/header";
 import ProductCarousel from "./carousel/carousel";
 import "./App.css";
 
+import { useWS } from "./context/wsContext";
+
 const { Content } = Layout;
 
 // 🔑 Função slug única para ids
@@ -28,6 +30,69 @@ function App() {
   const [isTablet, setIsTablet] = useState(
   window.innerWidth > 768 && window.innerWidth <= 1024
 );
+
+
+const { messages } = useWS(); // 📡 aqui pega todas as mensagens WS
+const normalizeProduto = (prod) => ({
+    ID: prod.id ?? prod.ID ?? prod.Id,
+    Nome: prod.nome ?? prod.Nome ?? prod.title ?? "",
+    Preco: prod.preco ?? prod.Preco ?? prod.price ?? 0,
+    PrecoPromocional:
+      prod.preco_promocional ??
+      prod.PrecoPromocional ??
+      prod.precoPromocional ??
+      0,
+    Active: prod.active ?? prod.Active ?? prod.is_active ?? prod.isActive ?? false,
+    // demais campos se precisar
+  });
+  
+useEffect(() => {
+  if (messages.length === 0) return;
+
+  const lastMsg = messages[messages.length - 1];
+  console.log("📩 [WS] Processando última mensagem:", lastMsg);
+
+  if (!lastMsg.produto) {
+    console.log("⚠️ [WS] Mensagem não contém produto. Ignorando.");
+    return;
+  }
+
+  const prod = normalizeProduto(lastMsg.produto);
+  console.log("🔧 [WS] Produto normalizado:", prod);
+
+  setProductData((prevData) => {
+    const newData = { ...prevData };
+    console.log("🗂️ [WS] Estado anterior do productData:", prevData);
+
+    Object.keys(newData).forEach((categoria) => {
+      const exists = newData[categoria].some((p) => p.ID === prod.ID);
+      console.log(`📌 [WS] Categoria "${categoria}": produto existe?`, exists);
+
+      if (!prod.Active) {
+        // remove produto inativo
+        newData[categoria] = newData[categoria].filter((p) => p.ID !== prod.ID);
+        console.log(`❌ [WS] Produto ${prod.ID} removido da categoria "${categoria}"`);
+      } else if (exists) {
+        // atualiza produto existente
+        newData[categoria] = newData[categoria].map((p) =>
+          p.ID === prod.ID ? { ...p, ...prod } : p
+        );
+        console.log(`✏️ [WS] Produto ${prod.ID} atualizado na categoria "${categoria}"`);
+      } else {
+        // adiciona produto novo
+        newData[categoria] = [...newData[categoria], prod];
+        console.log(`✅ [WS] Produto ${prod.ID} adicionado à categoria "${categoria}"`);
+      }
+    });
+
+    console.log("🗂️ [WS] Novo estado do productData:", newData);
+    return newData;
+  });
+}, [messages]);
+
+
+
+
 
 useEffect(() => {
   const handleResize = () => {

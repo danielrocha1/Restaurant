@@ -86,14 +86,9 @@ func (h *Hub) Run() {
 func BroadcastProductUpdate(produto models.Produto) {
 	message := fiber.Map{
 		"action": "update",
-		"produto": fiber.Map{
-			"id":                produto.ID,
-			"nome":              produto.Nome,
-			"active":            produto.Active,
-			"preco":             produto.Preco,
-			"preco_promocional": produto.PrecoPromocional,
-		},
+		"produto":  produto,
 	}
+	
 	GlobalHub.broadcast <- message
 	log.Printf("[BROADCAST] Produto ID %d enviado com ação 'update'.", produto.ID)
 }

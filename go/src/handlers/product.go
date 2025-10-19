@@ -3,7 +3,7 @@ package handlers
 import (
 	"log"
 	"strconv"
-
+	"encoding/json"
 	"Restaurant/src/database"
 	"Restaurant/src/models"
 
@@ -40,14 +40,7 @@ func CreateProduto(c *fiber.Ctx) error {
 	
 	// 2. Notifica todos os clientes do novo produto
 	// (Assumimos status ATIVO e preço definido)
-	broadcast.BroadcastProductUpdate(
-		int(produto.ID), 
-		produto.Nome, // Se o nome do produto for 'Nome' na struct models.Produto
-		produto.Active, // Se o status do produto for 'Status' na struct models.Produto
-		produto.Preco, // Se o preço do produto for 'Price' na struct models.Produto
-		produto.PrecoPromocional, // Se o preço do produto for 'Price' na struct models.Produto
-
-	)
+	broadcast.BroadcastProductUpdate(produto)
 	log.Printf("[Handler] Novo produto criado e broadcast enviado. ID: %d", produto.ID)
 
 	return c.JSON(produto)
@@ -56,41 +49,72 @@ func CreateProduto(c *fiber.Ctx) error {
 func UpdateProduto(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var produto models.Produto
-	
-	// Salva o estado atual do produto para comparar se houver necessidade (opcional)
+
+	// Busca o produto atual no banco
 	if err := database.DB.First(&produto, id).Error; err != nil {
+		log.Printf("[UpdateProduto] Produto ID %s não encontrado.", id)
 		return c.Status(404).SendString("Produto não encontrado")
 	}
-	
-	// Cria uma cópia temporária para o BodyParser, se você não quiser
-	// que o BodyParser sobrescreva o ID (embora o GORM lide com isso)
+
+	// Mostra o estado atual do produto
+	log.Printf("[ANTES] Produto atual (ID %d): Nome=%s | Preço=%d | Promo=%d | Active=%t",
+		produto.ID, produto.Nome, produto.Preco, produto.PrecoPromocional, produto.Active)
+
+	// Lê o body raw para podermos decodificar tanto em struct quanto em map
+	body := c.Body()
+
+	// Decodifica em struct (opcional)
 	var updatedData models.Produto
-	if err := c.BodyParser(&updatedData); err != nil {
-		return err
+	if err := json.Unmarshal(body, &updatedData); err != nil {
+		log.Printf("[ERRO] Falha ao unmarshal para struct: %v", err)
+		// não retorna ainda; vamos tentar decodificar em map a seguir
 	}
 
-	// Atualiza o produto existente com os novos dados
-	database.DB.Model(&produto).Updates(updatedData)
+	// Decodifica em map para capturar valores zero explicitamente
+	var updatesMap map[string]interface{}
+	if err := json.Unmarshal(body, &updatesMap); err != nil {
+		log.Printf("[ERRO] Falha ao unmarshal para map: %v", err)
+		return c.Status(400).SendString("Corpo inválido")
+	}
 
-	
+	// LOG do que chegou como map
+	log.Printf("[RECEBIDO MAP] %+v", updatesMap)
+	log.Printf("[RECEBIDO STRUCT] Nome=%s | Preço=%d | Promo=%d | Active=%t",
+		updatedData.Nome, updatedData.Preco, updatedData.PrecoPromocional, updatedData.Active)
 
-	// Atualiza o objeto 'produto' após o Save para garantir que tenhamos o estado mais recente (com ID, etc.)
-	// E garante que campos como Preco e Status foram atualizados no objeto 'produto' original
-	// Se você usou c.BodyParser(&produto) acima, 'produto' já está atualizado.
-	// Vamos assumir que 'produto' tem os dados mais recentes após o Save acima.
-	
-	// 1. Notifica todos os clientes sobre a mudança de status/preço
-	broadcast.BroadcastProductUpdate(
-		int(produto.ID), 
-		produto.Nome, 
-		produto.Active, 
-		produto.Preco,
-		produto.PrecoPromocional, 
-	)
-	log.Printf("[Handler] Produto ID %s atualizado e broadcast enviado.", id)
+	// Opcional: normalize keys (se enviar JSON em snake_case -> map terá "preco_promocional", seu DB usa PrecoPromocional)
+	// Exemplo simples: transformar keys comuns para o nome do campo GORM (ajuste conforme seu JSON)
+	if v, ok := updatesMap["preco_promocional"]; ok {
+		updatesMap["preco_promocional"] = v // se seu DB/columns usam esses nomes, ok. Caso contrário, use "preco_promocional" => "preco_promocional" conforme GORM tag
+	}
+	// Se você usa JSON tags como "preco_promocional" no struct, GORM/DB vai trabalhar com struct -> map translation automaticamente.
+	// Aqui assumimos que updatesMap usa as keys do JSON (ex: "preco", "preco_promocional", "nome", "active")
+
+	// Faz a atualização usando o map (aceita false/0/"")
+	if err := database.DB.Model(&produto).Updates(updatesMap).Error; err != nil {
+		log.Printf("[ERRO] Falha ao atualizar produto: %v", err)
+		return c.Status(500).SendString("Erro ao atualizar produto")
+	}
+
+	// Recarrega o produto do banco após atualização
+	if err := database.DB.First(&produto, id).Error; err != nil {
+		log.Printf("[ERRO] Falha ao recarregar produto após update: %v", err)
+		// apesar disso, segue pra retornar algo
+	}
+
+	// Mostra o produto final após o update
+	log.Printf("[DEPOIS] Produto atualizado (ID %d): Nome=%s | Preço=%d | Promo=%d | Active=%t",
+		produto.ID, produto.Nome, produto.Preco, produto.PrecoPromocional, produto.Active)
+
+	// Envia broadcast com as novas informações
+	broadcast.BroadcastProductUpdate(produto)
+
+	log.Printf("[BROADCAST] Produto ID %s enviado para os clientes WebSocket.", id)
 
 	return c.JSON(produto)
 }
+
+
 
 func DeleteProduto(c *fiber.Ctx) error {
 	id := c.Params("id")

@@ -5,6 +5,8 @@ import (
 	"log"
 	"sync"
 	"Restaurant/src/models"
+	"github.com/gofiber/fiber/v2"
+
 
 	"github.com/gorilla/websocket"
 )
@@ -18,7 +20,7 @@ type Client struct {
 // Hub mantém todos os clientes conectados e distribui mensagens.
 type Hub struct {
 	clients    map[*Client]bool
-	broadcast  chan models.ProductUpdate
+	broadcast  chan interface{}
 	register   chan *Client
 	unregister chan *Client
 	mu         sync.Mutex
@@ -31,7 +33,7 @@ var GlobalHub = NewHub()
 func NewHub() *Hub {
 	return &Hub{
 		clients:    make(map[*Client]bool),
-		broadcast:  make(chan models.ProductUpdate),
+		broadcast:  make(chan interface{}),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 	}
@@ -75,21 +77,25 @@ func (h *Hub) Run() {
 				}
 			}
 			h.mu.Unlock()
-			log.Printf("Broadcast: Produto %d enviado para %d clientes.\n", update.ID, len(h.clients))
+			log.Printf("Broadcast: Produto %d enviado para %d clientes.\n", update, len(h.clients))
 		}
 	}
 }
 
 // BroadcastProductUpdate envia uma atualização de produto para todos os clientes
-func BroadcastProductUpdate(id int, nome string, active bool, preco, precoPromocional uint) {
-	update := models.ProductUpdate{
-		ID:               id,
-		Nome:             nome,
-		Active:           active,
-		Preco:            preco,
-		PrecoPromocional: precoPromocional,
+func BroadcastProductUpdate(produto models.Produto) {
+	message := fiber.Map{
+		"action": "update",
+		"produto": fiber.Map{
+			"id":                produto.ID,
+			"nome":              produto.Nome,
+			"active":            produto.Active,
+			"preco":             produto.Preco,
+			"preco_promocional": produto.PrecoPromocional,
+		},
 	}
-	GlobalHub.broadcast <- update
+	GlobalHub.broadcast <- message
+	log.Printf("[BROADCAST] Produto ID %d enviado com ação 'update'.", produto.ID)
 }
 
 // readPump lê mensagens do WebSocket (principalmente para detectar desconexão)

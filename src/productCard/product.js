@@ -1,10 +1,21 @@
 import { useState } from "react";
-import { Card, Button } from "antd";
+import { Card, Button, Typography } from "antd";
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { useCart } from "../context/cartContext";
 import "./product.css";
 
+const { Text } = Typography;
+
 const createKey = (name, weight) => `${name}_${weight}`;
+
+// Função utilitária para formatar preços
+const formatPrice = (price) => {
+  if (price == null) return "";
+  return (price / 100).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+};
 
 const ProductCard = ({ product }) => {
   const defaultWeight =
@@ -14,11 +25,7 @@ const ProductCard = ({ product }) => {
 
   const [selectedWeight, setSelectedWeight] = useState(defaultWeight);
 
-  const {
-    addToCart,
-    decreaseFromCart,
-    quantityMap,
-  } = useCart();
+  const { addToCart, decreaseFromCart, quantityMap } = useCart();
 
   const key = createKey(product.Nome, selectedWeight);
   const quantity = quantityMap[key] || 0;
@@ -28,7 +35,7 @@ const ProductCard = ({ product }) => {
   const handleDecrease = () => decreaseFromCart(product.Nome, selectedWeight);
 
   return (
-    <Card className="product-card"  hoverable>
+    <Card className="product-card" hoverable>
       <img src={product.Imagem} alt={product.Nome} className="product-image" />
       <div className="product-info">
         <h2 className="product-title">{product.Nome}</h2>
@@ -49,11 +56,15 @@ const ProductCard = ({ product }) => {
 
         {product.PrecoPromocional ? (
           <div className="price-container">
-            <div className="product-price original">{product.Preco}</div>
-            <div className="product-price promocional">{product.PrecoPromocional}</div>
+            <Text delete className="product-price original">
+              {formatPrice(product.Preco)}
+            </Text>
+            <Text className="product-price promocional">
+              {formatPrice(product.PrecoPromocional)}
+            </Text>
           </div>
         ) : (
-          <div className="product-price">{product.Preco}</div>
+          <div className="product-price">{formatPrice(product.Preco)}</div>
         )}
 
         <div className={`cart-controls ${quantity > 0 ? "expanded" : "collapsed"}`}>

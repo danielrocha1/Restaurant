@@ -40,7 +40,7 @@ func CreateProduto(c *fiber.Ctx) error {
 	
 	// 2. Notifica todos os clientes do novo produto
 	// (Assumimos status ATIVO e preço definido)
-	broadcast.BroadcastProductUpdate(produto)
+	// broadcast.BroadcastProductUpdate(produto, updatesMap )
 	log.Printf("[Handler] Novo produto criado e broadcast enviado. ID: %d", produto.ID)
 
 	return c.JSON(produto)
@@ -107,7 +107,7 @@ func UpdateProduto(c *fiber.Ctx) error {
 		produto, produto.Nome, produto.Preco, produto.PrecoPromocional, produto.Active)
 
 	// Envia broadcast com as novas informações
-	broadcast.BroadcastProductUpdate(produto)
+	broadcast.BroadcastProductUpdate(produto, updatesMap )
 
 	log.Printf("[BROADCAST] Produto ID %s enviado para os clientes WebSocket.", id)
 

@@ -58,8 +58,8 @@ func UpdateProduto(c *fiber.Ctx) error {
 
 	// Mostra o estado atual do produto
 	log.Printf("[ANTES] Produto atual (ID %d): Nome=%s | Preço=%d | Promo=%d | Active=%t",
-		produto, produto.Nome, produto.Preco, produto.PrecoPromocional, produto.Active)
-
+		c.JSON(produto), produto.Nome, produto.Preco, produto.PrecoPromocional, produto.Active)
+	
 	// Lê o body raw para podermos decodificar tanto em struct quanto em map
 	body := c.Body()
 

@@ -65,7 +65,7 @@ const Cart = () => {
               body: JSON.stringify({
                 qrCode: decodedText,
                 items: productList,
-                total: Number(totalPrice.toFixed(2))
+                total: totalPrice,
               }),
             });
 

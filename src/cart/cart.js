@@ -21,7 +21,7 @@ const Cart = () => {
   // Total de itens no carrinho
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Total do carrinho em reais
+  // Total do carrinho em reais (Apenas para exibição)
   const totalPrice = cart.reduce((sum, item) => {
     const price = item.PrecoPromocional ? item.PrecoPromocional : item.Preco;
     return sum + (price / 100) * item.quantity;
@@ -53,10 +53,12 @@ const Cart = () => {
           setIsSending(true);
 
           try {
+            // Mapeia os produtos para enviar ao backend
             const productList = cart.map(item => ({
               id: item.ID,
               quantity: item.quantity,
-              price: (item.PrecoPromocional ?? item.Preco) / 100
+              // ✅ CORREÇÃO APLICADA: Enviar o preço em CENTAVOS (inteiro)
+              price: (item.PrecoPromocional ?? item.Preco) 
             }));
 
             const response = await fetch('https://restaurant-sw98.onrender.com/checkout', {
@@ -64,19 +66,28 @@ const Cart = () => {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 qrCode: decodedText,
-                items: productList,
-                total: Math.round(totalPrice * 100),
+                items: productList, // Agora os itens têm "price" como inteiro
+                total: Math.round(totalPrice * 100), // "total" também como inteiro
               }),
             });
 
             if (!response.ok) {
+              // Tenta ler a mensagem de erro do backend
+              let errorMsg = `Erro na requisição: ${response.status} ${response.statusText}`;
+              try {
+                const errorData = await response.json();
+                if (errorData && errorData.error) {
+                  errorMsg = errorData.error;
+                }
+              } catch (e) { /* Ignora se a resposta não for JSON */ }
+
               if (scannerStartedRef.current) {
                 await html5QrCode.stop().catch(err => console.debug("Erro ao parar scanner no erro:", err?.message || err));
                 scannerStartedRef.current = false;
               }
               setQrModalVisible(false);
               setErrorModalVisible(true);
-              throw new Error(`Erro na requisição: ${response.statusText}`);
+              throw new Error(errorMsg); // Joga o erro com a msg do backend
             }
 
             if (scannerStartedRef.current) {
@@ -90,13 +101,13 @@ const Cart = () => {
             setSuccessModalVisible(true);
 
           } catch (error) {
-  // Isso mostrará a mensagem, o stack trace e o objeto completo no console
-  console.error('Erro detalhado ao enviar pedido:', {
-    message: error.message,
-    stack: error.stack,
-    errorObject: error
-  });
-},
+            // Log de erro melhorado (que você já tinha aplicado)
+            console.error('Erro detalhado ao enviar pedido:', {
+              message: error.message,
+              stack: error.stack,
+              errorObject: error
+            });
+
           } finally {
             isSendingRef.current = false;
             setIsSending(false);
@@ -153,7 +164,7 @@ const Cart = () => {
         width={470}
         footer={
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <strong>Total: {totalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+            <strong>Total: {totalPrice.toLocaleString('pt-BR', { style: 'currency', 'currency': 'BRL' })}</strong>
             <Button onClick={clearCart} danger>Limpar Carrinho</Button>
           </div>
         }
@@ -175,7 +186,7 @@ const Cart = () => {
                 <List.Item.Meta
                   avatar={<Avatar src={item.Imagem} shape="square" size={48} />}
                   title={`${item.Nome} (${item.weight})`}
-                  description={`Qtd: ${item.quantity} | ${((item.PrecoPromocional ? item.PrecoPromocional : item.Preco)/100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}
+                  description={`Qtd: ${item.quantity} | ${((item.PrecoPromocional ? item.PrecoPromocional : item.Preco) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}
                 />
               </List.Item>
             )}

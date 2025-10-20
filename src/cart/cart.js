@@ -65,7 +65,7 @@ const Cart = () => {
               body: JSON.stringify({
                 qrCode: decodedText,
                 items: productList,
-                total: totalPrice,
+                total: Math.round(totalPrice * 100),
               }),
             });
 

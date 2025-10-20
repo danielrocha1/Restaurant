@@ -96,7 +96,7 @@ const Cart = () => {
     stack: error.stack,
     errorObject: error
   });
-}
+},
           } finally {
             isSendingRef.current = false;
             setIsSending(false);

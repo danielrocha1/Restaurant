@@ -90,7 +90,13 @@ const Cart = () => {
             setSuccessModalVisible(true);
 
           } catch (error) {
-            console.error('Erro ao enviar pedido para o backend:', error);
+  // Isso mostrará a mensagem, o stack trace e o objeto completo no console
+  console.error('Erro detalhado ao enviar pedido:', {
+    message: error.message,
+    stack: error.stack,
+    errorObject: error
+  });
+}
           } finally {
             isSendingRef.current = false;
             setIsSending(false);

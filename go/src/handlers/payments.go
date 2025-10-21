@@ -57,12 +57,12 @@ func PaymentHandler(c *fiber.Ctx) error {
     // USANDO O CAMPO 'number' que corresponde à coluna 'number' no seu modelo StatusTable
     if err := tx.Where("id = ?", payload.TableID).First(&statusTable).Error; err != nil {
         // Se a mesa não for encontrada ou houver erro no DB (gorm.ErrRecordNotFound)
-        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": fmt.Sprintf("Mesa %d não encontrada ou erro de busca: %v", tableNumber, err)})
+        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": fmt.Sprintf("Mesa %d não encontrada ou erro de busca: %v", payload.TableNumber, err)})
     }
 
     if !statusTable.IsOpen {
         // Se a mesa já estiver fechada, impede o registro de pagamento
-        return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": fmt.Sprintf("Mesa %d já está fechada.", tableNumber)})
+        return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": fmt.Sprintf("Mesa %d já está fechada.", payload.TableNumber)})
     }
 
 
@@ -124,7 +124,7 @@ func PaymentHandler(c *fiber.Ctx) error {
 
     // 5. Retornar Sucesso
     return c.JSON(fiber.Map{
-        "message": fmt.Sprintf("Pagamento registrado e Mesa %d fechada com sucesso!", tableNumber),
+        "message": fmt.Sprintf("Pagamento registrado e Mesa %d fechada com sucesso!", payload.TableNumber),
         "table_id": statusTable.ID, // Retorna o ID do registro de status
         "payment_id": paymentRecord.ID, 
     })

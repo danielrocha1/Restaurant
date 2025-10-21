@@ -33,9 +33,13 @@ function App() {
 
 
 const { messages } = useWS(); // 📡 aqui pega todas as mensagens WS
-const normalizeProduto = (prod) => ({
+const normalizeProduto = (data) => {
+  const prod = data?.produto ?? data; // garante que funcione mesmo se vier dentro de "produto"
+
+  return {
     ID: prod.id ?? prod.ID ?? prod.Id,
-    Nome: prod.nome ?? prod.Nome ?? prod.title ?? "",
+    Nome: prod.nome ?? prod.Nome ?? "",
+    Descricao: prod.descricao ?? prod.Descricao ?? "",
     Preco: prod.preco ?? prod.Preco ?? prod.price ?? 0,
     PrecoPromocional:
       prod.preco_promocional ??
@@ -43,8 +47,15 @@ const normalizeProduto = (prod) => ({
       prod.precoPromocional ??
       0,
     Active: prod.active ?? prod.Active ?? prod.is_active ?? prod.isActive ?? false,
-    // demais campos se precisar
-  });
+    Imagem: prod.imagem ?? prod.Imagem ?? "",
+    SubcategoriaID: prod.subcategoria_id ?? prod.SubcategoriaID ?? null,
+    Subcategoria: prod.Subcategoria?.Nome ?? "",
+    Categoria: prod.Subcategoria?.Categoria?.Nome ?? "",
+    CreatedAt: prod.CreatedAt ?? null,
+    UpdatedAt: prod.UpdatedAt ?? null,
+  };
+};
+
   
 useEffect(() => {
   if (messages.length === 0) return;
@@ -80,8 +91,12 @@ useEffect(() => {
         console.log(`✏️ [WS] Produto ${prod.ID} atualizado na categoria "${categoria}"`);
       } else {
         // adiciona produto novo
-        newData[categoria] = [...newData[categoria], prod];
-        console.log(`✅ [WS] Produto ${prod.ID} adicionado à categoria "${categoria}"`);
+        if (prod.Categoria != categoria) {
+            console.log("diferente", categoria, prod.Categoria)
+        }else{
+            console.log("igual", categoria, prod.Categoria)
+        }
+        
       }
     });
 

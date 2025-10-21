@@ -6,7 +6,8 @@ import (
 	"encoding/json"
 	"Restaurant/src/database"
 	"Restaurant/src/models"
-
+	"errors"
+	"gorm.io/gorm"
 	// Importamos o pacote main para acessar a função de broadcast
 	"Restaurant/src/broadcast"
 
@@ -97,11 +98,21 @@ func UpdateProduto(c *fiber.Ctx) error {
 	}
 
 	// Recarrega o produto do banco após atualização
-	if err := database.DB.First(&produto, id).Error; err != nil {
-		log.Printf("[ERRO] Falha ao recarregar produto após update: %v", err)
-		// apesar disso, segue pra retornar algo
-	}
-
+	if err := database.DB.
+		Model(&models.Produto{}).
+		Select("produtos.*, subcategorias.nome AS subcategoria_nome, categorias.nome AS categoria_nome").
+		Joins("JOIN subcategorias ON subcategorias.id = produtos.subcategoria_id").
+		Joins("JOIN categorias ON categorias.id = subcategorias.categoria_id").
+		Where("produtos.id = ?", id).
+		First(&produto).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// trate como 404 no handler
+			return nil
+		}
+		log.Printf("[ERRO] Falha ao recarregar produto %v após update: %v", id, err)
+		return  err
+		}
+	
 	// Mostra o produto final após o update
 	log.Printf("[DEPOIS] Produto atualizado (ID %d): Nome=%s | Preço=%d | Promo=%d | Active=%t",
 		produto, produto.Nome, produto.Preco, produto.PrecoPromocional, produto.Active)

@@ -239,7 +239,7 @@ func Checkout(c *fiber.Ctx) error {
         }
 
         var priceStr uint
-        if prod.PrecoPromocional != ' ' {
+        if prod.PrecoPromocional != 0 {
             priceStr = prod.PrecoPromocional
         } else {
             priceStr = prod.Preco

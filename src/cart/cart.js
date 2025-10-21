@@ -16,14 +16,24 @@ const Cart = () => {
 
   const { cart, addToCart, removeFromCart, clearCart, decreaseFromCart } = useCart();
 
-  const toggleCart = () => setCartOpen(!cartOpen);
+  const toggleCart = () => {
+    setCartOpen(!cartOpen)
+
+    const total = cart.map(item => {
+    console.log("price:",item.PrecoPromocional != 0 ? item.PrecoPromocional : item.Preco )
+      console.log(item)
+    })
+
+    console.log(total)
+  
+  };
 
   // Total de itens no carrinho
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   // Total do carrinho em reais (Apenas para exibição)
   const totalPrice = cart.reduce((sum, item) => {
-    const price = item.PrecoPromocional ? item.PrecoPromocional : item.Preco;
+    const price = item.PrecoPromocional != 0 ? item.PrecoPromocional : item.Preco;
     return sum + (price / 100) * item.quantity;
   }, 0);
 
@@ -33,6 +43,7 @@ const Cart = () => {
 
     let html5QrCode = null;
     const scannerStartedRef = { current: false };
+
 
     const timeout = setTimeout(() => {
       const readerElement = document.getElementById("reader");
@@ -58,7 +69,7 @@ const Cart = () => {
               id: item.ID,
               quantity: item.quantity,
               // ✅ CORREÇÃO APLICADA: Enviar o preço em CENTAVOS (inteiro)
-              price: (item.PrecoPromocional ?? item.Preco) 
+              price: (item.PrecoPromocional  != 0 ?  item.PrecoPromocional : item.Preco) 
             }));
 
             const response = await fetch('https://restaurant-sw98.onrender.com/checkout', {
@@ -70,6 +81,8 @@ const Cart = () => {
                 total: Math.round(totalPrice * 100), // "total" também como inteiro
               }),
             });
+            
+            console.log(body)
 
             if (!response.ok) {
               // Tenta ler a mensagem de erro do backend
@@ -186,7 +199,7 @@ const Cart = () => {
                 <List.Item.Meta
                   avatar={<Avatar src={item.Imagem} shape="square" size={48} />}
                   title={`${item.Nome} (${item.weight})`}
-                  description={`Qtd: ${item.quantity} | ${((item.PrecoPromocional ? item.PrecoPromocional : item.Preco) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}
+                  description={`Qtd: ${item.quantity} | ${((item.PrecoPromocional != 0 ? item.PrecoPromocional : item.Preco) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`}
                 />
               </List.Item>
             )}

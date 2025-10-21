@@ -115,6 +115,11 @@ if err := database.DB.
 	return err
 }
 
+	if err := database.DB.
+		Preload("Subcategoria.Categoria").
+		Find(&produto).Error; err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar produtos"})
+	}
 	
 	// Mostra o produto final após o update
 	log.Printf("[DEPOIS] Produto atualizado (ID %d): Nome=%s | Preço=%d | Promo=%d | Active=%t",

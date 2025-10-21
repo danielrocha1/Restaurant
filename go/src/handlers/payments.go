@@ -34,7 +34,6 @@ func PaymentHandler(c *fiber.Ctx) error {
     }
 
     // A mesa será identificada pelo TableNumber, conforme seu modelo StatusTable
-    tableNumber := payload.TableNumber 
 
     // 3. Início da Transação GORM e Configuração de Timeout/Rollback
     ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
@@ -56,7 +55,7 @@ func PaymentHandler(c *fiber.Ctx) error {
     // -------------------------
     var statusTable models.StatusTable
     // USANDO O CAMPO 'number' que corresponde à coluna 'number' no seu modelo StatusTable
-    if err := tx.Where("number = ?", tableNumber).First(&statusTable).Error; err != nil {
+    if err := tx.Where("id = ?", payload.TableID).First(&statusTable).Error; err != nil {
         // Se a mesa não for encontrada ou houver erro no DB (gorm.ErrRecordNotFound)
         return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": fmt.Sprintf("Mesa %d não encontrada ou erro de busca: %v", tableNumber, err)})
     }

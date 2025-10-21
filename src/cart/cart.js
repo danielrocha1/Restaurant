@@ -81,8 +81,7 @@ const Cart = () => {
                 total: Math.round(totalPrice * 100), // "total" também como inteiro
               }),
             });
-            
-            console.log(body)
+
 
             if (!response.ok) {
               // Tenta ler a mensagem de erro do backend

@@ -298,10 +298,11 @@ type TableSummary struct {
     // Campo agregado do JOIN
     TotalOrderValue float64 `json:"total_order_value" gorm:"column:total_order_value"`
 }
-func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
+
+func ViewTablesOnDate(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var body struct {
-			Date string `json:"date"` // "YYYY-MM-DD"
+			Date string `json:"date"` // formato esperado: "YYYY-MM-DD"
 		}
 
 		if err := c.BodyParser(&body); err != nil || body.Date == "" {
@@ -310,7 +311,7 @@ func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
 			})
 		}
 
-		// Timezone do usuário
+		// Carrega timezone do usuário
 		loc, err := time.LoadLocation("America/Sao_Paulo")
 		if err != nil {
 			loc = time.UTC
@@ -319,7 +320,7 @@ func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
 		userDate, err := time.ParseInLocation("2006-01-02", body.Date, loc)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "formato de data inválido. Use 'YYYY-MM-DD'",
+				"error": "Formato de data inválido. Use 'YYYY-MM-DD'",
 			})
 		}
 
@@ -327,10 +328,11 @@ func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
 		startLocal := time.Date(userDate.Year(), userDate.Month(), userDate.Day(), 0, 0, 0, 0, loc)
 		endLocal := startLocal.Add(24 * time.Hour)
 
+		// Converte para UTC, assumindo que created_at está em UTC
 		startUTC := startLocal.UTC()
 		endUTC := endLocal.UTC()
 
-		// Query: pega todas as mesas criadas no dia, somando total de pedidos
+		// Query SQL sem prepared statement (evita erro de "prepared statement already in use")
 		query := `
 			SELECT
 				st.*,
@@ -344,7 +346,10 @@ func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
 		`
 
 		var results []TableSummary
-		if err := db.Raw(query, startUTC, endUTC).Scan(&results).Error; err != nil {
+
+		if err := db.Session(&gorm.Session{PrepareStmt: false}).
+			Raw(query, startUTC, endUTC).
+			Scan(&results).Error; err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error":  "Erro ao consultar mesas do dia",
 				"detail": err.Error(),

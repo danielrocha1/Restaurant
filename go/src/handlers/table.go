@@ -299,47 +299,52 @@ type TableSummary struct {
     TotalOrderValue float64 `json:"total_order_value" gorm:"column:total_order_value"`
 }
 
+
 func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		// Timezone de São Paulo
-		loc, err := time.LoadLocation("America/Sao_Paulo")
-		if err != nil {
-			loc = time.UTC
-		}
+    return func(c *fiber.Ctx) error {
+        var body struct {
+            Date string `json:"date"` // Espera-se "YYYY-MM-DD"
+        }
 
-		// Hoje no fuso de São Paulo
-		now := time.Now().In(loc)
-		startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
-		endOfDay := startOfDay.Add(24 * time.Hour)
+        if err := c.BodyParser(&body); err != nil || body.Date == "" {
+            return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+                "error": "Corpo inválido ou data ausente (formato esperado da data: 'YYYY-MM-DD')",
+            })
+        }
 
-		startUTC := startOfDay.UTC()
-		endUTC := endOfDay.UTC()
+        var results []TableSummary
 
-		// Query SQL
-		query := `
-			SELECT
-				st.*,
-				COALESCE(SUM(o.total)::numeric, 0) / 100.0 AS total_order_value
-			FROM status_tables st
-			LEFT JOIN orders o ON o.mesa_id = st.id
-			WHERE st.opened_at >= ? 
-			  AND st.opened_at < ?
-			GROUP BY st.id
-			ORDER BY st.opened_at DESC
-		`
+        // 💡 Ajuste na SELECT: `st.*` seleciona todos os campos da status_tables.
+        // A struct TableSummary irá mapeá-los.
+        query := `
+            SELECT 
+                st.*, 
+                COALESCE(SUM(o.total), 0) AS total_order_value 
+            FROM 
+                status_tables st
+            LEFT JOIN 
+                orders o ON o.mesa_id = st.id 
+            WHERE 
+                st.is_open = false 
+                -- DATE() ou CAST(closed_at AS DATE) funciona na maioria dos SQLs
+                -- para comparar apenas a parte da data, ignorando o fuso horário.
+                AND DATE(st.closed_at) = ?
+            GROUP BY 
+                st.id 
+            ORDER BY
+                st.closed_at DESC
+        `
 
-		var results []TableSummary
+        // Executa a consulta e escaneia os resultados diretamente na slice de structs
+        // O GORM faz o mapeamento das colunas (st.id, st.number, etc. e total_order_value) 
+        // para os campos da struct TableSummary.
+        if err := db.Raw(query, body.Date).Scan(&results).Error; err != nil {
+            return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+                "error":  "Erro ao consultar mesas fechadas com total de pedidos",
+                "detail": err.Error(),
+            })
+        }
 
-		// Executa query sem prepared statement
-		if err := db.Session(&gorm.Session{PrepareStmt: false}).
-			Raw(query, startUTC, endUTC).
-			Scan(&results).Error; err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error":  "Erro ao consultar mesas de hoje",
-				"detail": err.Error(),
-			})
-		}
-
-		return c.Status(fiber.StatusOK).JSON(results)
-	}
+        return c.Status(http.StatusOK).JSON(results)
+    }
 }

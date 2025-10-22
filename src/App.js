@@ -7,6 +7,7 @@ import ProductCarousel from "./carousel/carousel";
 import "./App.css";
 
 import { useWS } from "./context/wsContext";
+import { useCart } from "./context/cartContext";
 
 const { Content } = Layout;
 
@@ -31,7 +32,7 @@ function App() {
   window.innerWidth > 768 && window.innerWidth <= 1024
 );
 
-
+const { setCart } = useCart()
 const { messages } = useWS(); // 📡 aqui pega todas as mensagens WS
 const normalizeProduto = (data) => {
   const prod = data?.produto ?? data; // garante que funcione mesmo se vier dentro de "produto"
@@ -56,8 +57,7 @@ const normalizeProduto = (data) => {
   };
 };
 
-  
-useEffect(() => {
+  useEffect(() => {
   if (messages.length === 0) return;
 
   const lastMsg = messages[messages.length - 1];
@@ -71,39 +71,63 @@ useEffect(() => {
   const prod = normalizeProduto(lastMsg.produto);
   console.log("🔧 [WS] Produto normalizado:", prod);
 
+  // Atualiza productData
   setProductData((prevData) => {
     const newData = { ...prevData };
-    console.log("🗂️ [WS] Estado anterior do productData:", prevData);
+    const categoria = prod.Categoria;
 
-    Object.keys(newData).forEach((categoria) => {
+    // Inicializa categoria se não existir
+    if (!newData[categoria]) newData[categoria] = [];
+
+    // Remove de todas as categorias se estiver inativo
+    if (!prod.Active) {
+      Object.keys(newData).forEach((cat) => {
+        newData[cat] = newData[cat].filter((p) => p.ID !== prod.ID);
+      });
+      console.log(`❌ Produto ${prod.ID} removido de todas as categorias (inativo)`);
+    } else {
+      // Atualiza ou adiciona na categoria correta
       const exists = newData[categoria].some((p) => p.ID === prod.ID);
-      console.log(`📌 [WS] Categoria "${categoria}": produto existe?`, exists);
-
-      if (!prod.Active) {
-        // remove produto inativo
-        newData[categoria] = newData[categoria].filter((p) => p.ID !== prod.ID);
-        console.log(`❌ [WS] Produto ${prod.ID} removido da categoria "${categoria}"`);
-      } else if (exists) {
-        // atualiza produto existente
+      if (exists) {
         newData[categoria] = newData[categoria].map((p) =>
           p.ID === prod.ID ? { ...p, ...prod } : p
         );
-        console.log(`✏️ [WS] Produto ${prod.ID} atualizado na categoria "${categoria}"`);
+        console.log(`✏️ Produto ${prod.ID} atualizado na categoria "${categoria}"`);
       } else {
-        // adiciona produto novo
-        if (prod.Categoria != categoria) {
-            console.log("diferente", categoria, prod.Categoria)
-        }else{
-            console.log("igual", categoria, prod.Categoria)
-        }
-        
+        newData[categoria] = [...newData[categoria], prod];
+        console.log(`✅ Produto ${prod.ID} adicionado na categoria "${categoria}"`);
       }
-    });
+    }
 
     console.log("🗂️ [WS] Novo estado do productData:", newData);
     return newData;
   });
+
+  // Atualiza o cart
+  setCart((prevCart) => {
+    let newCart = [...prevCart];
+
+    if (!prod.Active) {
+      // Remove produto inativo do cart
+      newCart = newCart.filter((p) => p.ID !== prod.ID);
+      console.log(`❌ Produto ${prod.ID} removido do cart (inativo)`);
+    } else {
+      // Atualiza ou adiciona produto no cart
+      const existsInCart = newCart.some((p) => p.ID === prod.ID);
+      if (existsInCart) {
+        newCart = newCart.map((p) => (p.ID === prod.ID ? { ...p, ...prod } : p));
+        console.log(`✏️ Produto ${prod.ID} atualizado no cart`);
+      } else {
+        newCart = [...newCart, prod];
+        console.log(`✅ Produto ${prod.ID} adicionado ao cart`);
+      }
+    }
+
+    console.log("🛒 [WS] Novo estado do cart:", newCart);
+    return newCart;
+  });
 }, [messages]);
+
 
 
 

@@ -299,7 +299,7 @@ type TableSummary struct {
     TotalOrderValue float64 `json:"total_order_value" gorm:"column:total_order_value"`
 }
 
-func ViewTablesOnDate(db *gorm.DB) fiber.Handler {
+func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var body struct {
 			Date string `json:"date"` // formato esperado: "YYYY-MM-DD"

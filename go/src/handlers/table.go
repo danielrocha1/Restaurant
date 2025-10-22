@@ -339,10 +339,10 @@ func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
 				COALESCE(SUM(o.total)::numeric, 0) / 100.0 AS total_order_value
 			FROM status_tables st
 			LEFT JOIN orders o ON o.mesa_id = st.id
-			WHERE st.created_at >= ? 
-			  AND st.created_at < ?
+			WHERE st.closed_at >= ? 
+			  AND st.closed_at < ?
 			GROUP BY st.id
-			ORDER BY st.created_at DESC
+			ORDER BY st.closed_at DESC
 		`
 
 		var results []TableSummary

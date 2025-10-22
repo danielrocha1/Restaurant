@@ -301,38 +301,21 @@ type TableSummary struct {
 
 func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		var body struct {
-			Date string `json:"date"` // formato esperado: "YYYY-MM-DD"
-		}
-
-		if err := c.BodyParser(&body); err != nil || body.Date == "" {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Corpo inválido ou data ausente (formato esperado da data: 'YYYY-MM-DD')",
-			})
-		}
-
-		// Carrega timezone do usuário
+		// Timezone de São Paulo
 		loc, err := time.LoadLocation("America/Sao_Paulo")
 		if err != nil {
 			loc = time.UTC
 		}
 
-		userDate, err := time.ParseInLocation("2006-01-02", body.Date, loc)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Formato de data inválido. Use 'YYYY-MM-DD'",
-			})
-		}
+		// Hoje no fuso de São Paulo
+		now := time.Now().In(loc)
+		startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+		endOfDay := startOfDay.Add(24 * time.Hour)
 
-		// Intervalo do dia
-		startLocal := time.Date(userDate.Year(), userDate.Month(), userDate.Day(), 0, 0, 0, 0, loc)
-		endLocal := startLocal.Add(24 * time.Hour)
+		startUTC := startOfDay.UTC()
+		endUTC := endOfDay.UTC()
 
-		// Converte para UTC, assumindo que created_at está em UTC
-		startUTC := startLocal.UTC()
-		endUTC := endLocal.UTC()
-
-		// Query SQL sem prepared statement (evita erro de "prepared statement already in use")
+		// Query SQL
 		query := `
 			SELECT
 				st.*,
@@ -347,11 +330,12 @@ func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
 
 		var results []TableSummary
 
+		// Executa query sem prepared statement
 		if err := db.Session(&gorm.Session{PrepareStmt: false}).
 			Raw(query, startUTC, endUTC).
 			Scan(&results).Error; err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error":  "Erro ao consultar mesas do dia",
+				"error":  "Erro ao consultar mesas de hoje",
 				"detail": err.Error(),
 			})
 		}

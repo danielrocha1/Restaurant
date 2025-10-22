@@ -298,52 +298,66 @@ type TableSummary struct {
     // Campo agregado do JOIN
     TotalOrderValue float64 `json:"total_order_value" gorm:"column:total_order_value"`
 }
-
 func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
-    return func(c *fiber.Ctx) error {
-        var body struct {
-            Date string `json:"date"` // Espera-se "YYYY-MM-DD"
-        }
+	return func(c *fiber.Ctx) error {
+		var body struct {
+			Date string `json:"date"` // "YYYY-MM-DD"
+		}
 
-        if err := c.BodyParser(&body); err != nil || body.Date == "" {
-            return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-                "error": "Corpo inválido ou data ausente (formato esperado da data: 'YYYY-MM-DD')",
-            })
-        }
+		if err := c.BodyParser(&body); err != nil || body.Date == "" {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+				"error": "Corpo inválido ou data ausente (formato esperado da data: 'YYYY-MM-DD')",
+			})
+		}
 
-        var results []TableSummary
+		// Carrega a timezone do usuário; usar America/Sao_Paulo conforme combinado.
+		loc, err := time.LoadLocation("America/Sao_Paulo")
+		if err != nil {
+			// fallback para UTC (raramente acontece), mas reporta
+			loc = time.UTC
+		}
 
-        // 💡 Ajuste na SELECT: `st.*` seleciona todos os campos da status_tables.
-        // A struct TableSummary irá mapeá-los.
-        query := `
-            SELECT 
-                st.*, 
-                COALESCE(SUM(o.total), 0) AS total_order_value 
-            FROM 
-                status_tables st
-            LEFT JOIN 
-                orders o ON o.mesa_id = st.id 
-            WHERE 
-                st.is_open = false 
-                -- DATE() ou CAST(closed_at AS DATE) funciona na maioria dos SQLs
-                -- para comparar apenas a parte da data, ignorando o fuso horário.
-                AND DATE(st.closed_at) = ?
-            GROUP BY 
-                st.id 
-            ORDER BY
-                st.closed_at DESC
-        `
+		// Parse da data na timezone do usuário, considerando meia-noite local
+		// Ex: "2025-10-21" -> 2025-10-21 00:00:00 America/Sao_Paulo
+		userDate, err := time.ParseInLocation("2006-01-02", body.Date, loc)
+		if err != nil {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+				"error": "formato de data inválido. Use 'YYYY-MM-DD'",
+			})
+		}
 
-        // Executa a consulta e escaneia os resultados diretamente na slice de structs
-        // O GORM faz o mapeamento das colunas (st.id, st.number, etc. e total_order_value) 
-        // para os campos da struct TableSummary.
-        if err := db.Raw(query, body.Date).Scan(&results).Error; err != nil {
-            return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-                "error":  "Erro ao consultar mesas fechadas com total de pedidos",
-                "detail": err.Error(),
-            })
-        }
+		// Intervalo [startLocal, endLocal) na timezone do usuário
+		startLocal := time.Date(userDate.Year(), userDate.Month(), userDate.Day(), 0, 0, 0, 0, loc)
+		endLocal := startLocal.Add(24 * time.Hour)
 
-        return c.Status(http.StatusOK).JSON(results)
-    }
+		// Converte para UTC (assumindo que st.closed_at está armazenado como timestamptz/UTC)
+		startUTC := startLocal.UTC()
+		endUTC := endLocal.UTC()
+
+		// Monta query: soma em centavos -> divide por 100.0 para reais.
+		// Se orders.total já estiver em reais, remova a divisão (/:100.0) e o cast.
+		query := `
+			SELECT
+				st.*,
+				COALESCE(SUM(o.total)::numeric, 0) / 100.0 AS total_order_value
+			FROM status_tables st
+			LEFT JOIN orders o ON o.mesa_id = st.id
+			WHERE st.is_open = false
+			  AND st.closed_at >= ? 
+			  AND st.closed_at < ?
+			GROUP BY st.id
+			ORDER BY st.closed_at DESC
+		`
+
+		var results []TableSummary
+		// Executa com os parâmetros startUTC e endUTC
+		if err := db.Raw(query, startUTC, endUTC).Scan(&results).Error; err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+				"error":  "Erro ao consultar mesas fechadas com total de pedidos",
+				"detail": err.Error(),
+			})
+		}
+
+		return c.Status(http.StatusOK).JSON(results)
+	}
 }

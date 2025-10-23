@@ -1,17 +1,39 @@
-.promo-bar-container{
+/* --- Estilos da Promo Bar --- */
+
+/* Ajuste a altura da promo-bar-container para não interferir tanto */
+.promo-bar-container.top {
   background-color: rgb(180,45,45);
   position: fixed;
+  /* Topo agora deve considerar a altura reduzida da promo-bar (ex: 50px de altura total) */
   top: 0;
   left: 0;
   width: 100%;
-  padding: 20px 0;
+  padding: 0; /* Removido padding 20px 0 */
+  height: 50px; /* Altura fixa para ser previsível */
   z-index: 998;
 }
 
-.promo-bar {
+.promo-bar-container.bottom {
+  /* Se você quer a barra de promoções embaixo, descomente e ajuste: */
+  /*
+  background-color: rgb(180,45,45);
   position: fixed;
-  top: 0;
+  bottom: 0;
   left: 0;
+  width: 100%;
+  padding: 0;
+  height: 50px;
+  z-index: 998;
+  */
+  /* Se não quiser a de baixo, pode remover este bloco. */
+  display: none; /* Desabilitando temporariamente para evitar conflito com a nova barra inferior */
+}
+
+/* Ajuste o posicionamento do promo-bar dentro do container */
+.promo-bar {
+  /* Removido position: fixed; e top: 0; */
+  position: absolute; /* Mudar para absolute dentro do container */
+  top: 0;
   margin-left:25vw;
   width: 50%;
   overflow: hidden;
@@ -20,7 +42,11 @@
   font-weight: bold;
   padding: 5px 0;
   white-space: nowrap;
-  z-index: 10000;
+  /* Reduzido z-index para ficar abaixo do carrinho flutuante, mas acima do conteúdo */
+  z-index: 999;
+  height: 100%; /* Ocupa a altura total do container */
+  display: flex;
+  align-items: center; /* Centraliza verticalmente o texto */
 }
 
 .promo-bar-track {
@@ -44,73 +70,82 @@
   }
 }
 
-/* Estilos do Header */
-.header-container {
+/* --- Estilos do Carrinho Flutuante no Topo --- */
+.cart-floating-top {
     position: fixed;
-    height: 10vh;
-    top: 40px; /* Altura da barra de promoção */
-    left: 0;
-    right: 0;
-    z-index: 999; /* Fica abaixo da barra de promoção */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #1c1c1c; /* Preto suave, estilo zen */
-    padding: 10px 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease-in-out;
-
+    top: 50px; /* Abaixo da barra de promoção superior */
+    right: 20px; /* Posicionado à direita */
+    z-index: 1000; /* Prioridade máxima para flutuar */
+    transition: opacity 0.2s ease-in-out;
 }
 
-.header-hidden {
-    transform: translateY(-140%);
-    transition: transform 0.2s ease-in-out;
-  }
-  
-
-
-/* Estilizando a Logo */
-.header-logo {
-    width: 90px;
-    font-weight: bold;
-    color: white;
-    z-index: 999;
-
-}
-
-
-/* Ícones (favoritos, carrinho, usuário) */
+/* Manter estilos de ícones para o carrinho */
 .header-icons {
-    margin-top: 15px;
     display: flex;
-    gap: 105px; /* Maior espaçamento entre os ícones */
     align-items: center;
-    margin-right: 30px;
-    
-    
+    /* Ajuste o espaçamento se necessário */
+    /* gap: 105px;  <-- Removido se só tiver o carrinho */
 }
 
 .header-icons svg {
-    font-size: 27px; /* Ícones maiores */
+    font-size: 27px;
     cursor: pointer;
     color: #d94a4a;
-    
 }
 
 /* Badge de notificação */
 .header-icons .ant-badge {
-    transform: scale(1.4); /* Aumenta os badges */
+    transform: scale(1.4);
 }
 
-/* Avatar do usuário */
-.header-avatar {
-    margin-bottom: 15px;
-    width: 50px;
-    height: 50px;
-    font-size: 28px;
-    cursor: pointer;
-    background: #ffffff; /* Avatar com fundo verde */
-    border-radius: 50%;
+/* --- Estilos da Nova Barra Inferior (Logo + CategoryBar) --- */
+.bottom-bar-container {
+    position: fixed;
+    bottom: 0; /* Ancorado ao fundo */
+    left: 0;
+    right: 0;
+    z-index: 999; /* Abaixo do carrinho, acima do conteúdo */
+    display: flex;
+    flex-direction: column; /* Organiza em coluna (Logo em cima, CategoryBar embaixo) */
+    align-items: center; /* Centraliza horizontalmente */
+    background-color: #1c1c1c; /* Fundo escuro */
+    padding: 10px 0 0 0; /* Padding: 10px em cima, 0 nas laterais e embaixo */
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); /* Sombra para cima */
+    transition: transform 0.2s ease-in-out;
 }
 
+/* Estilo para esconder a barra inferior */
+.bottom-bar-hidden {
+    /* Move para baixo para sair da tela */
+    transform: translateY(100%); 
+}
 
+/* Estilizando a Logo no bottom */
+.header-logo-bottom {
+    width: 90px;
+    margin-bottom: 5px; /* Espaço entre a logo e a CategoryBar */
+    z-index: 999;
+}
+
+/* Certificar que a CategoryBar se ajusta à nova posição */
+/* Se CategoryBar tiver seu próprio CSS, você precisará garantir que ela não tem position: fixed/absolute */
+/* Se a CategoryBar for injetada com className, ajuste aqui: */
+/*
+.category-bar-container {
+    width: 100%;
+    // Outros estilos...
+}
+*/
+
+
+/* --- Estilos Removidos/Ajustados --- */
+
+/* Removido o estilo do antigo header-container e header-hidden, pois não usamos mais o Ant Design Header */
+/*
+.header-container {
+    ...
+}
+.header-hidden {
+    ...
+}
+*/

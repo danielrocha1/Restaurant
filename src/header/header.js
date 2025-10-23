@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Space } from "antd";
+// ❌ Corrigido: Removida a importação de 'Layout'
+import { Space } from "antd"; 
 import Cart from "../cart/cart";
-import CategoryBar from "../header/categoryBar/categorybar";
-
+// ✅ Corrigido: Ajuste o caminho para CategoryBar. Se categorybar.js está em uma subpasta, o caminho deve ser assim:
+import CategoryBarMui from "../header/categoryBar/categorybar";
 import Logo from "../logo.png";
-
 import "./header.css";
-
-const { Header } = Layout;
 
 const AppHeader = () => {
   const [hideHeader, setHideHeader] = useState(false);
@@ -39,26 +37,43 @@ const AppHeader = () => {
 
   return (
     <>
-    <div className="promo-bar-container">
-      <div className="promo-bar">
-        <div className="promo-bar-track">
-          {promoMessages.map((msg, index) => (
-            <span key={index} className="promo-bar-message">
-              {msg}
-            </span>
-          ))}
+      {/* 1. Barra de Promoções Superior (Mantida) */}
+      <div className="promo-bar-container top">
+        <div className="promo-bar">
+          <div className="promo-bar-track">
+            {promoMessages.map((msg, index) => (
+              <span key={index} className="promo-bar-message">
+                {msg}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
 
-      <Header className={"header-container"}>
-        <img alt="logo" src={Logo} className="header-logo" />
+      {/* 2. Cart flutuante no topo */}
+      <div className="cart-floating-top">
         <Space className="header-icons">
           <Cart />
         </Space>
-      </Header>
+      </div>
 
-      <CategoryBar hideHeader={hideHeader} />
+      {/* 3. Logo e CategoryBar no Bottom */}
+      <div className={`bottom-bar-container ${hideHeader ? "bottom-bar-hidden" : ""}`}>
+        <CategoryBarMui />
+      </div>
+
+      {/* 4. Barra de Promoções Inferior */}
+      <div className="promo-bar-container bottom">
+        <div className="promo-bar">
+          <div className="promo-bar-track">
+            {promoMessages.map((msg, index) => (
+              <span key={index} className="promo-bar-message">
+                {msg}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
     </>
   );
 };

@@ -117,10 +117,7 @@ const normalizeProduto = (data) => {
       if (existsInCart) {
         newCart = newCart.map((p) => (p.ID === prod.ID ? { ...p, ...prod } : p));
         console.log(`✏️ Produto ${prod.ID} atualizado no cart`);
-      } else {
-        newCart = [...newCart, prod];
-        console.log(`✅ Produto ${prod.ID} adicionado ao cart`);
-      }
+       } 
     }
 
     console.log("🛒 [WS] Novo estado do cart:", newCart);
@@ -289,7 +286,7 @@ useEffect(() => {
     <div
       style={{
         backgroundColor: "black",
-        marginTop: isMobile ? "170px" : isTablet ? "80px" : "130px",
+        marginTop: isMobile ? "70px" : isTablet ? "80px" : "130px",
         color: "white",
       }}
     >

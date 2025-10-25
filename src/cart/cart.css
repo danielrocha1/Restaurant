@@ -1,6 +1,7 @@
 /* Carrinho */
 .ant-drawer-title {
     font-weight: bold;
+<<<<<<< HEAD
     color: #2E7D32;
 }
 
@@ -16,6 +17,24 @@
 
 .cart-icon{
     margin-right: 30px;
+=======
+    color: #94261e;
+}
+
+.finalizar {
+    background-color: #94261e;
+    border-color: #94261e;
+    color:white;
+}
+
+.finalizar:hover {
+    background-color: #6b1c16;
+    border-color: #6b1c16;
+}
+
+.cart-icon{
+    margin-right: 50px;
+>>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
 
 }
 

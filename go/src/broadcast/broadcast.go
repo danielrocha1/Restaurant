@@ -94,6 +94,16 @@ func BroadcastProductUpdate(produto models.Produto, label map[string]interface{}
 	log.Printf("[BROADCAST] Produto ID %d enviado com ação 'update'.", produto.ID)
 }
 
+func BroadcastNewTable( MesaID uint) {
+	message := fiber.Map{
+		"action": "addTable",
+		"table":  MesaID,
+	}
+
+	GlobalHub.broadcast <- message
+	log.Printf("[BROADCAST] Mesa ID %d enviado com ação 'addTable'.", MesaID)
+}
+
 // readPump lê mensagens do WebSocket (principalmente para detectar desconexão)
 func (c *Client) readPump() {
 	defer func() {

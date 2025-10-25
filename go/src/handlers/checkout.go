@@ -12,6 +12,11 @@ import (
     "Restaurant/src/database"
     "Restaurant/src/models"
 
+<<<<<<< HEAD
+=======
+    "Restaurant/src/broadcast"
+
+>>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
     "github.com/gofiber/fiber/v2"
     "github.com/golang-jwt/jwt/v5"
     "gorm.io/gorm"
@@ -298,6 +303,10 @@ func Checkout(c *fiber.Ctx) error {
     if err := database.DB.Preload("Items.Produto").First(&savedOrder, order.ID).Error; err != nil {
         return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar pedido salvo", "details": err.Error()})
     }
+<<<<<<< HEAD
+=======
+    broadcast.BroadcastNewTable(order.MesaID)
+>>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
 
     return c.JSON(fiber.Map{
         "message": "Checkout autorizado e pedido salvo",

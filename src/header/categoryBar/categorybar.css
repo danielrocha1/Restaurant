@@ -12,15 +12,26 @@
 
 .category-bar {
   position: fixed;                 /* fixa a barra na tela, não rola com o conteúdo */
+<<<<<<< HEAD
   top: 115px;                       /* distância do topo (compensa o header fixo) */
   left: 0;                         /* encosta na lateral esquerda da janela */
   width: 13vw;                    /* largura da barra lateral */
   height: calc(100vh - 95px);      /* altura total da viewport menos o header */
+=======
+  top: 45px;                       /* distância do topo (compensa o header fixo) */
+  left: 0;                         /* encosta na lateral esquerda da janela */
+  width: 13vw;                    /* largura da barra lateral */
+  height: calc(100vh - 25px);      /* altura total da viewport menos o header */
+>>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
   background-color: #1c1c1c;       /* fundo preto suave (estilo zen) */
   box-shadow: 3px 0 6px rgba(0, 0, 0, 0.2); /* sombra lateral para profundidade */
   z-index: 998;                    /* fica acima do conteúdo comum, abaixo de overlays mais altos */
   overflow-y: auto;                /* permite rolagem vertical dentro da barra */
   transition: transform 0.4s ease-in-out; /* animação suave para entrar/sair (ex.: classes toggle) */
+<<<<<<< HEAD
+=======
+  overflow-x: hidden;
+>>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
 }
 
 /* ====== ANT DESIGN (TEMA ESCURO) — BASE ====== */

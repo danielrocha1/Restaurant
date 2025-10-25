@@ -1,12 +1,12 @@
 package broadcast
 
 import (
+	"Restaurant/src/models"
 	"encoding/json"
 	"log"
 	"sync"
-	"Restaurant/src/models"
-	"github.com/gofiber/fiber/v2"
 
+	"github.com/gofiber/fiber/v2"
 
 	"github.com/gorilla/websocket"
 )
@@ -85,23 +85,23 @@ func (h *Hub) Run() {
 // BroadcastProductUpdate envia uma atualização de produto para todos os clientes
 func BroadcastProductUpdate(produto models.Produto, label map[string]interface{}) {
 	message := fiber.Map{
-		"action": "update",
-		"label": label,
-		"produto":  produto,
+		"action":  "update",
+		"label":   label,
+		"produto": produto,
 	}
 
 	GlobalHub.broadcast <- message
 	log.Printf("[BROADCAST] Produto ID %d enviado com ação 'update'.", produto.ID)
 }
 
-func BroadcastNewTable( MesaID uint) {
+func BroadcastNewTable(MesaID uint) {
 	message := fiber.Map{
 		"action": "addTable",
 		"table":  MesaID,
 	}
 
 	GlobalHub.broadcast <- message
-	log.Printf("[BROADCAST] Mesa ID %d enviado com ação 'addTable'.", MesaID)
+	log.Printf("[BROADCAST Table] Mesa ID %d enviado com ação 'addTable'.", MesaID)
 }
 
 // readPump lê mensagens do WebSocket (principalmente para detectar desconexão)

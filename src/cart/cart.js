@@ -151,12 +151,6 @@ const Cart = () => {
 
   return (
     <>
-<<<<<<< HEAD
-      <Badge count={totalItems} size="small" onClick={toggleCart}>
-        <ShoppingCartOutlined
-          style={{
-            fontSize: '12px',
-=======
       <Badge style={{
         marginRight:"25px",
         marginTop:"20px",
@@ -167,18 +161,10 @@ const Cart = () => {
             borderWidth:"2px",
             borderStyle:"dashed",
             fontSize: '16px',
->>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
             color: 'white',
             cursor: 'pointer',
             backgroundColor: 'white',
             borderRadius: '50%',
-<<<<<<< HEAD
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-=======
             width: '50px',
             height: '50px',
             display: 'flex',
@@ -186,7 +172,6 @@ const Cart = () => {
             justifyContent: 'center',
             marginRight:"20px",
             marginTop:"20px",
->>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
           }}
         />
       </Badge>
@@ -231,11 +216,7 @@ const Cart = () => {
         {cart.length > 0 && (
           <Button
             className="finalizar"
-<<<<<<< HEAD
-            type="primary"
-=======
             type=" "
->>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
             block
             onClick={() => setQrModalVisible(true)}
             disabled={isSending}

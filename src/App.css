@@ -119,10 +119,6 @@ img, video, canvas, svg, iframe {
 
 /* ==== Seção de conteúdo (substitui <Content>) ==== */
 .content-section {
-<<<<<<< HEAD
-  margin: 25px 0;
-=======
->>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
   padding: 24px;
   background: transparent;
 }

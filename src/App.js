@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { Layout, BackTop } from "antd";
 import React, { useEffect, useState } from "react";
-=======
-import { Layout, BackTop, Divider } from "antd";
-import React, { useEffect, useState, useRef } from "react";
->>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
 
 import LoadingScreen from "./loading/loading";
 import AppHeader from "./header/header";
@@ -160,18 +155,6 @@ useEffect(() => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 550;
-      if (scroll !== isScrolled) {
-        setScroll(isScrolled);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [scroll]);
-=======
 const containerRef = useRef(null);
 
 useEffect(() => {
@@ -186,7 +169,6 @@ useEffect(() => {
   return () => el.removeEventListener('scroll', handleScroll);
 }, []);
 
->>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
 
   const fetchInitialData = async () => {
     try {
@@ -308,11 +290,7 @@ useEffect(() => {
     <div
       style={{
         backgroundColor: "black",
-<<<<<<< HEAD
-        marginTop: isMobile ? "70px" : isTablet ? "80px" : "130px",
-=======
         marginTop: isMobile ? "70px" : isTablet ? "80px" : "60px",
->>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
         color: "white",
       }}
     >
@@ -321,11 +299,7 @@ useEffect(() => {
 
       <Layout
       className="app-shell"
-<<<<<<< HEAD
-     
-=======
      ref={containerRef}
->>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
       >
         <Layout style={{ background: "transparent" }}>
           {Object.entries(productData).map(([categoria, products], index) => {
@@ -333,16 +307,6 @@ useEffect(() => {
             return (
               <Content
                 key={index}
-<<<<<<< HEAD
-                id={sectionId} // ✅ id da seção com slug
-                className="content-section"
-                style={{ margin: isMobile ? 0 : "4px 36px", padding: 24 }}
-              >
-                {products.length > 0 ? (
-                  <>
-                    <ProductCarousel
-                      id={sectionId}
-=======
                 className="content-section"
                 style={{ marginLeft: isMobile ? 0 : 20, padding: 4 }}
               >
@@ -354,7 +318,6 @@ useEffect(() => {
                   />
 
                     <ProductCarousel
->>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
                       subCategoryName={categoria}
                       products={products}
                       onRequestMore={fetchMoreProducts}
@@ -363,13 +326,9 @@ useEffect(() => {
                       }
                       lastPage={pagination[categoria]?.lastPage || 1}
                     />
-<<<<<<< HEAD
-                  </>
-=======
                     
                   </>
                   
->>>>>>> 5a4ffb1 (Reinicialização do repositório após corrupção)
                 ) : (
                   <p style={{ color: "white" }}>
                     ❌ Nenhum produto disponível para a categoria {categoria}.

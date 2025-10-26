@@ -104,7 +104,7 @@ func BroadcastProductUpdate(produto models.Produto, label map[string]interface{}
 	log.Printf("[BROADCAST] Produto ID %d enviado com ação 'update'.", produto.ID)
 }
 
-func BroadcastNewTable(MesaID uint) {
+func BroadcastNewTable(MesaID map[string]uint) {
 	message := fiber.Map{
 		"action": "addTable",
 		"table":  MesaID,

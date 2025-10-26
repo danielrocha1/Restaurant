@@ -300,9 +300,12 @@ func Checkout(c *fiber.Ctx) error {
     if err := database.DB.Preload("Items.Produto").First(&savedOrder, order.ID).Error; err != nil {
         return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar pedido salvo", "details": err.Error()})
     }
+    mesa :=  make(map[string]uint)
+    mesa["id"] = status.ID
+    mesa["number"] = status.Number
 
     if nova {
-        broadcast.BroadcastNewTable(status.ID)
+        broadcast.BroadcastNewTable(mesa)
     }else{
         broadcast.BroadcastNewOrder(savedOrder,status.ID)
     }

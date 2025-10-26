@@ -303,6 +303,7 @@ func Checkout(c *fiber.Ctx) error {
     mesa :=  make(map[string]uint)
     mesa["id"] = status.ID
     mesa["number"] = status.Number
+    mesa["IsOpen"] = 0
 
     if nova {
         broadcast.BroadcastNewTable(mesa)

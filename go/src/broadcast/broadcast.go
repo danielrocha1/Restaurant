@@ -85,7 +85,7 @@ func (h *Hub) Run() {
 // BroadcastProductUpdate envia uma atualização de produto para todos os clientes
 func BroadcastNewOrder(order models.Order, mesaID uint ) {
 	message := fiber.Map{
-		"action":  "update",
+		"action":  "newOrder",
 		"mesaid":   mesaID,
 		"order": order,
 	}

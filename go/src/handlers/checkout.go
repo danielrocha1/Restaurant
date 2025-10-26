@@ -63,7 +63,7 @@ func validateToken(tokenStr string) (*CustomClaims, error) {
 // -------------------------
 // STATUS MESA
 // -------------------------
-func getOrCreateStatusTx(tx *gorm.DB, tableNumber uint) (models.StatusTable, error) {
+func getOrCreateStatusTx(tx *gorm.DB, tableNumber uint) (models.StatusTable, bool,  error) {
     const maxAttempts = 5
     var status models.StatusTable
 
@@ -74,11 +74,11 @@ func getOrCreateStatusTx(tx *gorm.DB, tableNumber uint) (models.StatusTable, err
             First(&status).Error
 
         if err == nil {
-            return status, nil
+            return status, false ,nil
         }
 
         if !errors.Is(err, gorm.ErrRecordNotFound) {
-            return status, err
+            return status, false,  err
         }
 
         // CREATE
@@ -93,12 +93,12 @@ func getOrCreateStatusTx(tx *gorm.DB, tableNumber uint) (models.StatusTable, err
             if strings.Contains(strings.ToLower(err.Error()), "duplicate") || strings.Contains(strings.ToLower(err.Error()), "unique") {
                 continue
             }
-            return status, err
+            return status, true ,err
         }
-        return nova, nil
+        return nova,true, nil
     }
 
-    return status, fmt.Errorf("não foi possível criar/obter status da mesa após várias tentativas")
+    return status, false, fmt.Errorf("não foi possível criar/obter status da mesa após várias tentativas")
 }
 
 // -------------------------
@@ -175,7 +175,7 @@ func Checkout(c *fiber.Ctx) error {
     // -------------------------
     // 1) GET OR CREATE STATUS
     // -------------------------
-    status, err := getOrCreateStatusTx(tx, claims.Auth.Mesa)
+    status, nova, err := getOrCreateStatusTx(tx, claims.Auth.Mesa)
     if err != nil {
         return c.Status(500).JSON(fiber.Map{"error": "Erro ao obter/criar status", "details": err.Error()})
     }
@@ -300,7 +300,12 @@ func Checkout(c *fiber.Ctx) error {
     if err := database.DB.Preload("Items.Produto").First(&savedOrder, order.ID).Error; err != nil {
         return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar pedido salvo", "details": err.Error()})
     }
-    broadcast.BroadcastNewTable(status.ID)
+
+    if nova {
+        broadcast.BroadcastNewTable(status.ID)
+    }else{
+        broadcast.BroadcastNewOrder(savedOrder,status.ID)
+    }
 
     return c.JSON(fiber.Map{
         "message": "Checkout autorizado e pedido salvo",

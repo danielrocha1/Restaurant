@@ -6,7 +6,7 @@ export const WSProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    const ws = new WebSocket("wss://restaurant-sw98.onrender.com/ws");
+    const ws = new WebSocket("wss://restaurant-2dfg.onrender.com/ws");
 
     ws.onopen = () => console.log("📡 [WS] Conectado");
     ws.onerror = (err) => console.error("💥 [WS] Erro", err);

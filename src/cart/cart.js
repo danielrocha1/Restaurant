@@ -72,7 +72,7 @@ const Cart = () => {
               price: (item.PrecoPromocional  != 0 ?  item.PrecoPromocional : item.Preco) 
             }));
 
-            const response = await fetch('https://restaurant-sw98.onrender.com/checkout', {
+            const response = await fetch('https://restaurant-2dfg.onrender.com/checkout', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({

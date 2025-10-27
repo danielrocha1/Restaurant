@@ -173,7 +173,7 @@ useEffect(() => {
   const fetchInitialData = async () => {
     try {
       const response = await fetch(
-        "https://restaurant-sw98.onrender.com/categoriasSub"
+        "https://restaurant-2dfg.onrender.com/categoriasSub"
       );
       const data = await response.json();
 
@@ -185,7 +185,7 @@ useEffect(() => {
           Subcategorias[0].Nome === "Sem subcategoria"
         ) {
           const response = await fetch(
-            `https://restaurant-sw98.onrender.com/produtos-list?categoria=${encodeURIComponent(
+            `https://restaurant-2dfg.onrender.com/produtos-list?categoria=${encodeURIComponent(
               nomeCategoria
             )}&page=1`
           );
@@ -209,7 +209,7 @@ useEffect(() => {
             if (sub.Nome === "Sem subcategoria") continue;
 
             const response = await fetch(
-              `https://restaurant-sw98.onrender.com/produtos-list?categoria=${encodeURIComponent(
+              `https://restaurant-2dfg.onrender.com/produtos-list?categoria=${encodeURIComponent(
                 sub.Nome
               )}&page=1`
             );
@@ -251,7 +251,7 @@ useEffect(() => {
 
     try {
       const response = await fetch(
-        `https://restaurant-sw98.onrender.com/produtos-list?categoria=${encodeURIComponent(
+        `https://restaurant-2dfg.onrender.com/produtos-list?categoria=${encodeURIComponent(
           categoria
         )}&page=${nextPage}`
       );

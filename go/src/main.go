@@ -104,6 +104,18 @@ func main() {
 	app.Get("/tables/isOpen", handlers.ViewOpenTables(database.DB))
 	app.Post("/payment/", handlers.PaymentHandler)
 
+
+//==================================================================
+	// Financial Routes
+//==================================================================
+
+
+	api := app.Group("/api/finance")
+	api.Post("/daily-sales", handlers.GetDailySales)
+	api.Post("/today-info", handlers.GetDayInfo)
+	api.Post("/top-items", handlers.GetTopItemsByDate)
+	api.Post("/health", handlers.HealthCheck)
+
 	// Ping opcional para manter app acordado
 	go func() {
 		for {

@@ -82,6 +82,7 @@ func GetDailySales(c *fiber.Ctx) error {
 	return c.JSON(results)
 }
 
+
 // 2️⃣ Informações consolidadas do dia da data enviada
 func GetDayInfo(c *fiber.Ctx) error {
 	var req DateRequest
@@ -111,6 +112,75 @@ func GetDayInfo(c *fiber.Ctx) error {
 	if err := database.DB.Raw(query, dateStr).Scan(&result).Error; err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "erro na query", "detail": err.Error()})
 	}
+	return c.JSON(result)
+}
+
+
+func GetDayToMonthlyInfo(c *fiber.Ctx) error {
+
+	type DailyRevenue struct {
+	Day         string `json:"day"`          // "YYYY-MM-DD"
+	Receita     int64  `json:"receita"`      // valor inteiro (reais arredondados)
+	TotalPedidos int64 `json:"total_pedidos"`// nº pedidos no dia
+}
+
+	var req DateRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "body inválido", "detail": err.Error()})
+	}
+
+	date, err := parseDateOrToday(req.Date)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "formato de data inválido, use YYYY-MM-DD", "detail": err.Error()})
+	}
+
+	// Calcular início do mês (mesma timezone da data)
+	loc := date.Location()
+	startOfMonth := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, loc)
+
+	startStr := startOfMonth.Format("2006-01-02")
+	endStr := date.Format("2006-01-02")
+
+	// Query: agrupa por data e retorna soma de total_pago_real e count distinct orders
+	sql := `
+		SELECT
+			DATE(order_created_at) AS day,
+			ROUND(SUM(total_pago_real))::bigint AS receita,            -- arredonda para inteiro (reais)
+			COUNT(DISTINCT order_id)::bigint AS total_pedidos
+		FROM financial_metrics_view
+		WHERE DATE(order_created_at) BETWEEN ?::date AND ?::date
+		GROUP BY DATE(order_created_at)
+		ORDER BY DATE(order_created_at) ASC;
+	`
+
+	var rows []DailyRevenue
+	if err := database.DB.Raw(sql, startStr, endStr).Scan(&rows).Error; err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "erro na query", "detail": err.Error()})
+	}
+
+	// Opcional: garantir que há um registro para cada dia (1..N) mesmo que zero — útil pro gráfico.
+	// Vou preencher dias faltantes com receita=0, total_pedidos=0 para evitar buracos no gráfico.
+	// Construir mapa para lookup rápido:
+	dayMap := make(map[string]DailyRevenue)
+	for _, r := range rows {
+		dayMap[r.Day] = r
+	}
+
+	// Montar lista completa do dia 1 até a data
+	var result []DailyRevenue
+	for d := startOfMonth; !d.After(date); d = d.AddDate(0, 0, 1) {
+		key := d.Format("2006-01-02")
+		if v, ok := dayMap[key]; ok {
+			result = append(result, v)
+		} else {
+			result = append(result, DailyRevenue{
+				Day:         key,
+				Receita:     0,
+				TotalPedidos: 0,
+			})
+		}
+	}
+
 	return c.JSON(result)
 }
 

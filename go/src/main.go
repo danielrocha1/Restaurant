@@ -114,6 +114,7 @@ func main() {
 	api.Post("/daily-sales", handlers.GetDailySales)
 	api.Post("/today-info", handlers.GetDayInfo)
 	api.Post("/top-items", handlers.GetTopItemsByDate)
+	api.Post("/day-to-monthly", handlers.GetDayToMonthlyInfo)
 	api.Post("/health", handlers.HealthCheck)
 
 	// Ping opcional para manter app acordado

@@ -104,22 +104,13 @@ Abaixo estão problemas que afetam segurança e estabilidade. Corrija imediatame
 4.4 Endpoints sensíveis sem autenticação
 - Rotas de criação/atualização/deleção não requerem middleware de autenticação.
 - Ação: criar middleware JWT e aplicar apenas a rotas administrativas (POST/PUT/DELETE).
-
-4.6 Tipos monetários inconsistentes
-- `Produto.Preco` = `uint`; `Order.Total` = `float64`. Recomenda-se `int64` (centavos) ou decimal para evitar imprecisão.
+ 
 
 5) Problemas funcionais / bugs (prioridade média)
 --------------------------------------------------
 5.1 UpdateProduto (handlers/product.go)
 - Uso combinado de unmarshal em struct e map, múltiplas queries redundantes e `return nil` em branch de erro.
 - Ação: simplificar — usar DTOs, validar campos e usar `db.Model(&produto).Updates(updatesMap)` com cuidado.
-
-5.2 Checkout (handlers/checkout.go)
-- Atualização de `mesa_id` possivelmente confunde `MesaID` (número da mesa) com `status.ID` (registro de status). Rever FK e nomes de colunas.
-
-5.3 Broadcast / WebSocket hub
-- `broadcast.Hub.Run()` faz marshalling e itera clients, mas logs usam formatos incorretos.
-- Falta ping/pong, SetReadDeadline e leitura de PONG para manter conexões vivas; adicionar controles para evitar conexões zumbis.
 
 5.4 Uso de AutoMigrate em produção
 - `main.go` chama `AutoMigrate(...)` no startup. Em produção prefira migrações versionadas (golang-migrate).

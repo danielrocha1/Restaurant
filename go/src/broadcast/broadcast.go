@@ -5,10 +5,22 @@ import (
 	"encoding/json"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
-
 	"github.com/gorilla/websocket"
+)
+
+// --- Configurações de timeout / limites ---
+const (
+	// tempo máximo para escrita de uma mensagem
+	writeWait = 10 * time.Second
+	// tempo máximo para receber um PONG (considera conexão viva)
+	pongWait = 60 * time.Second
+	// intervalo entre PINGs — deve ser menor do que pongWait
+	pingPeriod = (pongWait * 9) / 10
+	// limite máximo de bytes por mensagem recebida
+	maxMessageSize = 512 << 10 // 512KB (ajuste se precisar)
 )
 
 // Client representa um cliente WebSocket conectado.
@@ -54,7 +66,7 @@ func (h *Hub) Run() {
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
 				close(client.send)
-				client.conn.Close()
+				_ = client.conn.Close()
 			}
 			h.mu.Unlock()
 			log.Println("Cliente WebSocket desconectado.")
@@ -62,37 +74,42 @@ func (h *Hub) Run() {
 		case update := <-h.broadcast:
 			msg, err := json.Marshal(update)
 			if err != nil {
-				log.Println("Erro ao serializar ProductUpdate:", err)
+				log.Printf("Erro ao serializar payload de broadcast: %v\n", err)
 				continue
 			}
 
 			h.mu.Lock()
+			n := 0
 			for client := range h.clients {
 				select {
 				case client.send <- msg:
+					n++
 				default:
+					// canal bloqueado -> considerar cliente morto
 					close(client.send)
 					delete(h.clients, client)
-					client.conn.Close()
+					_ = client.conn.Close()
 				}
 			}
 			h.mu.Unlock()
-			log.Printf("Broadcast: Produto %d enviado para %d clientes.\n", update, len(h.clients))
+			// log com info segura: número de clientes e tipo do payload
+			log.Printf("Broadcast enviado para %d clientes. Tipo do payload: %T\n", n, update)
 		}
 	}
 }
 
-// BroadcastProductUpdate envia uma atualização de produto para todos os clientes
-func BroadcastNewOrder(order models.Order, mesaID uint ) {
+// BroadcastNewOrder envia uma atualização de novo pedido para todos os clientes
+func BroadcastNewOrder(order models.Order, mesaID uint) {
 	message := fiber.Map{
-		"action":  "newOrder",
-		"mesaid":   mesaID,
-		"order": order,
+		"action": "newOrder",
+		"mesaid": mesaID,
+		"order":  order,
 	}
 
 	GlobalHub.broadcast <- message
-	log.Printf("[BROADCAST] Produto ID %d enviado com ação 'update'.", mesaID)
+	log.Printf("[BROADCAST] newOrder mesaID=%d enviado.\n", mesaID)
 }
+
 func BroadcastProductUpdate(produto models.Produto, label map[string]interface{}) {
 	message := fiber.Map{
 		"action":  "update",
@@ -101,7 +118,7 @@ func BroadcastProductUpdate(produto models.Produto, label map[string]interface{}
 	}
 
 	GlobalHub.broadcast <- message
-	log.Printf("[BROADCAST] Produto ID %d enviado com ação 'update'.", produto.ID)
+	log.Printf("[BROADCAST] Produto ID %d enviado com ação 'update'.\n", produto.ID)
 }
 
 func BroadcastNewTable(MesaID map[string]uint) {
@@ -111,35 +128,75 @@ func BroadcastNewTable(MesaID map[string]uint) {
 	}
 
 	GlobalHub.broadcast <- message
-	log.Printf("[BROADCAST Table] Mesa ID %d enviado com ação 'addTable'.", MesaID)
+	log.Printf("[BROADCAST] addTable enviado. MesaID: %v\n", MesaID)
 }
 
 // readPump lê mensagens do WebSocket (principalmente para detectar desconexão)
 func (c *Client) readPump() {
+	// configurar limites e handler de PONG
+	c.conn.SetReadLimit(maxMessageSize)
+	_ = c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	c.conn.SetPongHandler(func(appData string) error {
+		// ao receber PONG, extendemos o deadline de leitura
+		_ = c.conn.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
+
 	defer func() {
 		GlobalHub.unregister <- c
-		c.conn.Close()
+		_ = c.conn.Close()
 	}()
 
 	for {
-		if _, _, err := c.conn.ReadMessage(); err != nil {
+		// aqui não processamos mensagens de aplicação; apenas mantemos leitura
+		_, _, err := c.conn.ReadMessage()
+		if err != nil {
+			// log opcional para debugging (não poluir logs em produção)
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("Read error (unexpected): %v\n", err)
+			}
 			return
 		}
-		// Processar mensagens recebidas do cliente aqui, se necessário
+		// se quiser processar mensagens vindas do cliente, faça aqui
 	}
 }
 
-// writePump escreve mensagens para o WebSocket
+// writePump escreve mensagens para o WebSocket e envia pings periódicos
 func (c *Client) writePump() {
-	defer c.conn.Close()
+	ticker := time.NewTicker(pingPeriod)
+	defer func() {
+		ticker.Stop()
+		_ = c.conn.Close()
+	}()
+
 	for {
 		select {
 		case msg, ok := <-c.send:
+			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				// hub fechou o canal -> enviamos close
+				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
-			if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+
+			// usamos NextWriter para evitar escrever mensagens fragmentadas de forma insegura
+			w, err := c.conn.NextWriter(websocket.TextMessage)
+			if err != nil {
+				return
+			}
+			if _, err := w.Write(msg); err != nil {
+				_ = w.Close()
+				return
+			}
+			if err := w.Close(); err != nil {
+				return
+			}
+
+		case <-ticker.C:
+			// enviar PING para cliente
+			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				// falha no ping -> encerrar conexão
 				return
 			}
 		}
@@ -148,12 +205,21 @@ func (c *Client) writePump() {
 
 // HandleConnection cria um cliente e inicia read/write pumps
 func HandleConnection(conn *websocket.Conn) {
+	// inicializar prazos básicos imediatamente (defensivo)
+	conn.SetReadLimit(maxMessageSize)
+	_ = conn.SetReadDeadline(time.Now().Add(pongWait))
+	conn.SetPongHandler(func(appData string) error {
+		_ = conn.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
+
 	client := &Client{
 		conn: conn,
 		send: make(chan []byte, 256),
 	}
 	GlobalHub.register <- client
 
+	// iniciar goroutines
 	go client.writePump()
 	go client.readPump()
 }

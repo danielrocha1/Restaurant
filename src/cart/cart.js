@@ -74,11 +74,13 @@ const Cart = () => {
 
             const response = await fetch('https://restaurant-2dfg.onrender.com/checkout', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${decodedText}`, // ✅ Token no header
+              },
               body: JSON.stringify({
-                qrCode: decodedText,
-                items: productList, // Agora os itens têm "price" como inteiro
-                total: Math.round(totalPrice * 100), // "total" também como inteiro
+                items: productList, // Itens com preço inteiro
+                total: Math.round(totalPrice * 100), // Total em centavos
               }),
             });
 

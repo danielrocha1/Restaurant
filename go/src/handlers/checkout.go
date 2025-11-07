@@ -28,7 +28,6 @@ type Itens struct {
 }
 
 type CheckoutRequest struct {
-	QRCode string  `json:"qrCode"`
 	Itens  []Itens `json:"items"`
 	Total  uint    `json:"total"`
 }
@@ -127,7 +126,7 @@ func Checkout(c *fiber.Ctx) error {
 	order := models.Order{
 		NomeLoja: auth.Loja,
 		MesaID:   status.ID,            // <-- usar status.ID (PK) para referenciar o status da mesa
-		QRCode:   payload.QRCode,
+//		QRCode:   payload.QRCode,
 		Status:   "Pendente",
 	}
 	if err := tx.Create(&order).Error; err != nil {

@@ -13,7 +13,7 @@ import (
 var DB *gorm.DB
 
 func LoadEnv() {
-	err := godotenv.Load("../.env") // Caminho relativo para encontrar o arquivo na pasta de cima
+	err := godotenv.Load() // Caminho relativo para encontrar o arquivo na pasta de cima
 	if err != nil {
 		log.Fatal("Erro ao carregar .env: ", err)
 	}

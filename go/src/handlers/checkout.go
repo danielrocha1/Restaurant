@@ -2,113 +2,21 @@ package handlers
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 
-	// "regexp"
-	// "strconv"
-	"strings"
+	
 	"time"
 
 	"Restaurant/src/database"
 	"Restaurant/src/models"
-
 	"Restaurant/src/broadcast"
+	"Restaurant/src/utils"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
-
-var secretKey = []byte("MyS3cr3tKey_@2025!#jwtTokenAkiroSG")
-
-// -------------------------
-// AUTH & TOKEN
-// -------------------------
-type AuthPayload struct {
-	Loja       string `json:"loja"`
-	Mesa       uint   `json:"mesa"`
-	Permission bool   `json:"permission"`
-}
-
-type CustomClaims struct {
-	Auth AuthPayload `json:"auth"`
-	jwt.RegisteredClaims
-}
-
-func GenerateToken(auth AuthPayload) (string, error) {
-	claims := CustomClaims{
-		Auth: auth,
-		RegisteredClaims: jwt.RegisteredClaims{
-			IssuedAt: jwt.NewNumericDate(time.Now()),
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(secretKey)
-}
-
-// validateToken valida o JWT e retorna as claims customizadas.
-func validateToken(tokenStr string) (*CustomClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenStr, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return secretKey, nil
-	})
-	if err != nil {
-		log.Printf("[AUTH] Erro ao validar token: %v", err)
-		return nil, err
-	}
-	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
-		return claims, nil
-	}
-	log.Printf("[AUTH] Token inválido: %v", tokenStr)
-	return nil, fmt.Errorf("token inválido")
-}
-
-// -------------------------
-// STATUS MESA
-// -------------------------
-// getOrCreateStatusTx busca ou cria o status da mesa de forma transacional.
-func getOrCreateStatusTx(tx *gorm.DB, tableNumber uint) (models.StatusTable, bool, error) {
-	const maxAttempts = 5
-	var status models.StatusTable
-
-	for attempt := 0; attempt < maxAttempts; attempt++ {
-		// SELECT FOR UPDATE
-		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Where("number = ? AND is_open = ?", tableNumber, true).
-			First(&status).Error
-
-		if err == nil {
-			return status, false, nil
-		}
-
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			log.Printf("[DB] Erro ao buscar status da mesa: %v", err)
-			return status, false, err
-		}
-
-		// CREATE
-		now := time.Now()
-		nova := models.StatusTable{
-			Number:   tableNumber,
-			OpenedAt: &now,
-			IsOpen:   true,
-		}
-
-		if err := tx.Create(&nova).Error; err != nil {
-			if strings.Contains(strings.ToLower(err.Error()), "duplicate") || strings.Contains(strings.ToLower(err.Error()), "unique") {
-				continue
-			}
-			log.Printf("[DB] Erro ao criar status da mesa: %v", err)
-			return status, true, err
-		}
-		return nova, true, nil
-	}
-
-	log.Printf("[DB] Falha ao criar/obter status da mesa após %d tentativas", maxAttempts)
-	return status, false, fmt.Errorf("não foi possível criar/obter status da mesa após várias tentativas")
-}
 
 // -------------------------
 // CHECKOUT REQUEST STRUCTS
@@ -124,28 +32,7 @@ type CheckoutRequest struct {
 	Itens  []Itens `json:"items"`
 	Total  uint    `json:"total"`
 }
-
-// -------------------------
-// UTIL: PARSE PRICE
-// -------------------------
-// func parsePriceString(s string) (float64, error) {
-//     s = strings.TrimSpace(s)
-//     re := regexp.MustCompile(`[^\d.,\-]`)
-//     s = re.ReplaceAllString(s, "")
-//     if s == "" {
-//         return 0, nil
-//     }
-
-//     if strings.Contains(s, ".") && strings.Contains(s, ",") {
-//         s = strings.ReplaceAll(s, ".", "")
-//         s = strings.ReplaceAll(s, ",", ".")
-//     } else {
-//         s = strings.ReplaceAll(s, ",", ".")
-//     }
-
-//     return strconv.ParseFloat(s, 64)
-// }
-
+ 
 // -------------------------
 // CHECKOUT HANDLER
 // -------------------------
@@ -160,17 +47,37 @@ func Checkout(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Nenhum item enviado"})
 	}
 
-	claims, err := validateToken(payload.QRCode)
-	if err != nil {
-		log.Printf("[CHECKOUT] Token inválido: %v", err)
+	// pegar auth do middleware (middleware já validou token e mesa)
+	authLocal := c.Locals("auth")
+	if authLocal == nil {
+		log.Printf("[CHECKOUT] auth não encontrado no contexto (middleware pode não estar configurado)")
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token não fornecido"})
+	}
+	auth, ok := authLocal.(utils.AuthPayload)
+	if !ok {
+		log.Printf("[CHECKOUT] formato de auth inválido no contexto")
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token inválido"})
 	}
 
-	if claims.Auth.Mesa < 1 || claims.Auth.Mesa > 15 {
-		log.Printf("[CHECKOUT] Mesa fora do intervalo permitido: %d", claims.Auth.Mesa)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Mesa fora do intervalo permitido"})
+	// validações rápidas nos itens
+	itemMap := make(map[uint]uint)
+	for _, it := range payload.Itens {
+		if it.Quantidade == 0 {
+			log.Printf("[CHECKOUT] Item com quantidade zero (produto %d)", it.ID)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": fmt.Sprintf("Quantidade inválida para produto %d", it.ID)})
+		}
+		itemMap[it.ID] += it.Quantidade
+	}
+	if len(itemMap) == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Itens inválidos"})
 	}
 
+	productIDs := make([]uint, 0, len(itemMap))
+	for id := range itemMap {
+		productIDs = append(productIDs, id)
+	}
+
+	// inicia transação com contexto
 	ctx, cancel := context.WithTimeout(c.Context(), 10*time.Second)
 	defer cancel()
 	tx := database.DB.WithContext(ctx).Begin()
@@ -183,25 +90,43 @@ func Checkout(c *fiber.Ctx) error {
 	defer func() {
 		if !committed {
 			log.Printf("[CHECKOUT] Rollback da transação por erro ou commit não realizado")
-			tx.Rollback()
+			_ = tx.Rollback()
 		}
 	}()
 
-	// -------------------------
-	// 1) GET OR CREATE STATUS
-	// -------------------------
-	status, nova, err := getOrCreateStatusTx(tx, claims.Auth.Mesa)
+	// 1) get or create status (usa SELECT FOR UPDATE internamente)
+	status, nova, err := utils.GetOrCreateStatusTx(tx, auth.Mesa) // usa auth.Mesa (número) para localizar/gerar status
 	if err != nil {
 		log.Printf("[CHECKOUT] Erro ao obter/criar status: %v", err)
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao obter/criar status"})
 	}
 
-	// -------------------------
-	// 2) CRIAR PEDIDO
-	// -------------------------
+	// 2) buscar produtos WITHIN tx
+	var produtos []models.Produto
+	if err := tx.Where("id IN ?", productIDs).Find(&produtos).Error; err != nil {
+		log.Printf("[CHECKOUT] Erro ao buscar produtos: %v", err)
+		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar produtos"})
+	}
+	if len(produtos) != len(productIDs) {
+		// identificar quais faltaram
+		found := make(map[uint]bool)
+		for _, p := range produtos {
+			found[p.ID] = true
+		}
+		var missing []uint
+		for _, id := range productIDs {
+			if !found[id] {
+				missing = append(missing, id)
+			}
+		}
+		log.Printf("[CHECKOUT] Produtos não encontrados: %v", missing)
+		return c.Status(400).JSON(fiber.Map{"error": fmt.Sprintf("Produtos não encontrados: %v", missing)})
+	}
+
+	// 3) criar order (assumindo que Order.MesaID é fk para status.ID - manter consistente)
 	order := models.Order{
-		NomeLoja: claims.Auth.Loja,
-		MesaID:   claims.Auth.Mesa,
+		NomeLoja: auth.Loja,
+		MesaID:   status.ID,            // <-- usar status.ID (PK) para referenciar o status da mesa
 		QRCode:   payload.QRCode,
 		Status:   "Pendente",
 	}
@@ -210,64 +135,25 @@ func Checkout(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao criar pedido"})
 	}
 
-	// -------------------------
-	// 3) ATUALIZAR STATUS MESA
-	// -------------------------
-	if err := tx.Model(&status).Updates(map[string]interface{}{
-		"last_order_at": time.Now(),
-	}).Error; err != nil {
-		log.Printf("[CHECKOUT] Erro ao atualizar status da mesa: %v", err)
-		return c.Status(500).JSON(fiber.Map{"error": "Erro ao atualizar status da mesa"})
-	}
-
-	if err := tx.Model(&models.Order{}).Where("id = ?", order.ID).Update("mesa_id", status.ID).Error; err != nil {
-		log.Printf("[CHECKOUT] Erro ao atualizar mesa_id do pedido: %v", err)
-		return c.Status(500).JSON(fiber.Map{"error": "Erro ao atualizar total"})
-	}
-
-	// -------------------------
-	// 4) AGREGAR ITENS
-	// -------------------------
-	itemMap := make(map[uint]uint)
-	for _, it := range payload.Itens {
-		itemMap[it.ID] += it.Quantidade
-	}
-
-	productIDs := make([]uint, 0, len(itemMap))
-	for id := range itemMap {
-		productIDs = append(productIDs, id)
-	}
-
-	var produtos []models.Produto
-	if err := tx.Where("id IN ?", productIDs).Find(&produtos).Error; err != nil {
-		log.Printf("[CHECKOUT] Erro ao buscar produtos: %v", err)
-		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar produtos"})
-	}
-
+	// 4) agregar itens e calcular total usando uint64 para evitar overflow
 	prodMap := make(map[uint]models.Produto)
 	for _, p := range produtos {
 		prodMap[p.ID] = p
 	}
 
 	var itemsToUpsert []models.OrderItem
-	var total uint
+	var total64 uint64 = 0
 	for id, qty := range itemMap {
-		prod, ok := prodMap[id]
-		if !ok {
-			log.Printf("[CHECKOUT] Produto ID %d não encontrado", id)
-			return c.Status(400).JSON(fiber.Map{"error": fmt.Sprintf("Produto ID %d não encontrado", id)})
-		}
-
-		var priceStr uint
+		prod := prodMap[id] // garantido existir acima
+		var price uint
 		if prod.PrecoPromocional != 0 {
-			priceStr = prod.PrecoPromocional
+			price = prod.PrecoPromocional
 		} else {
-			priceStr = prod.Preco
+			price = prod.Preco
 		}
-		price := priceStr
-		total += price * uint(qty)
+		// acumula
+		total64 += uint64(price) * uint64(qty)
 
-		// Removido CreatedAt: time.Now() (GORM já preenche)
 		itemsToUpsert = append(itemsToUpsert, models.OrderItem{
 			OrderID:       order.ID,
 			ProdutoID:     prod.ID,
@@ -276,9 +162,15 @@ func Checkout(c *fiber.Ctx) error {
 		})
 	}
 
-	// -------------------------
-	// 5) UPSERT ITENS
-	// -------------------------
+	// (Opcional) comparar payload.Total com total calculado — comente/descomente conforme política
+	if payload.Total != 0 {
+	    if uint64(payload.Total) != total64 {
+	        log.Printf("[CHECKOUT] Total enviado (%d) difere do calculado (%d)", payload.Total, total64)
+	        return c.Status(400).JSON(fiber.Map{"error": "Total inválido"})
+	    }
+	}
+
+	// 5) upsert items (dentro da transação)
 	if len(itemsToUpsert) > 0 {
 		if err := tx.Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "order_id"}, {Name: "produto_id"}},
@@ -289,42 +181,40 @@ func Checkout(c *fiber.Ctx) error {
 		}
 	}
 
-	// -------------------------
-	// 6) ATUALIZAR TOTAL
-	// -------------------------
-	if err := tx.Model(&models.Order{}).Where("id = ?", order.ID).Update("total", total).Error; err != nil {
+	// 6) atualizar total no pedido (cast seguro)
+	if err := tx.Model(&models.Order{}).Where("id = ?", order.ID).Update("total", uint(total64)).Error; err != nil {
 		log.Printf("[CHECKOUT] Erro ao atualizar total do pedido: %v", err)
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao atualizar total"})
 	}
 
-	if err := tx.Model(&status).Updates(map[string]interface{}{
-		"last_order_at": time.Now(),
-	}).Error; err != nil {
+	// 7) atualizar last_order_at no status (mantém dentro da tx)
+	if err := tx.Model(&status).Updates(map[string]interface{}{"last_order_at": time.Now()}).Error; err != nil {
 		log.Printf("[CHECKOUT] Erro ao atualizar Last_order_at da mesa: %v", err)
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao atualizar Last_order_at da mesa"})
 	}
 
+	// commit
 	if err := tx.Commit().Error; err != nil {
 		log.Printf("[CHECKOUT] Erro ao commitar transação: %v", err)
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao commitar transação"})
 	}
 	committed = true
 
-	// -------------------------
-	// 7) RETORNAR PEDIDO
-	// -------------------------
+	// 8) recuperar pedido salvo (fora da tx, após commit) e broadcast
 	var savedOrder models.Order
 	if err := database.DB.Preload("Items.Produto").First(&savedOrder, order.ID).Error; err != nil {
 		log.Printf("[CHECKOUT] Erro ao buscar pedido salvo: %v", err)
+		// pedido foi criado mas não conseguimos buscar com preload; retornamos ID parcial
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar pedido salvo"})
 	}
-	mesa := make(map[string]uint)
-	mesa["id"] = status.ID
-	mesa["number"] = status.Number
-	mesa["IsOpen"] = 0
 
+	// preparar payload de broadcast
+	mesaMap := map[string]uint{
+		"id":     status.ID,
+		"number": status.Number,
+	}
 	if nova {
-		broadcast.BroadcastNewTable(mesa)
+		broadcast.BroadcastNewTable(mesaMap)
 	} else {
 		broadcast.BroadcastNewOrder(savedOrder, status.ID)
 	}

@@ -39,6 +39,8 @@ func main() {
     if frontendURL == "" {
         log.Println("[WARN] FRONTEND_URL não definido, CORS liberado para todas as origens!")
         app.Use(cors.New())
+        // log.Fatalf("Erro obter cors")
+
     } else {
         app.Use(cors.New(cors.Config{
             AllowOrigins: frontendURL,

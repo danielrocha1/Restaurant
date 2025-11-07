@@ -95,12 +95,7 @@ Observação: existem views SQL usadas pelos handlers (ex.: `view_pedidos_aberto
 4) Achados críticos (prioridade alta)
 -------------------------------------
 Abaixo estão problemas que afetam segurança e estabilidade. Corrija imediatamente.
-
-4.2 Logs e formatação incorreta — risco de runtime errors
-- Uso incorreto de `log.Printf` com format specifiers que não batem com os argumentos (ex.: `%d` com map/interface).
-- Chamadas com efeitos colaterais dentro de logs (`c.JSON(produto)`) — isso altera resposta e quebra fluxo.
-- Ação: substituir por `log.Printf("... %+v", obj)` e remover efeitos colaterais.
-
+ 
 4.4 Endpoints sensíveis sem autenticação
 - Rotas de criação/atualização/deleção não requerem middleware de autenticação.
 - Ação: criar middleware JWT e aplicar apenas a rotas administrativas (POST/PUT/DELETE).

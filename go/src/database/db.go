@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -13,11 +12,11 @@ import (
 var DB *gorm.DB
 
 func LoadEnv() {
-	err := godotenv.Load() // Caminho relativo para encontrar o arquivo na pasta de cima
-	if err != nil {
-		log.Println("Erro ao carregar .env: ", err)
+	
+	dbURL, bol := os.LookupEnv("DATABASE_URL")
+	if bol != false {
+		log.Println("Erro ao carregar .env: ", bol)
 	}
-	dbURL, _ := os.LookupEnv("DATABASE_URL")
 	log.Println("DATABASE_URL length:", len(dbURL)) // só para debug, não logue valores sensíveis em produção
 
 }

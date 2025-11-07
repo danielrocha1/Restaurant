@@ -12,23 +12,20 @@ func (Produto) TableName() string {
 
 type Produto struct {
 	gorm.Model
-	ID             uint           `gorm:"primaryKey"`
-	Active		   bool
+	Active         bool
 	Nome           string         `gorm:"size:255"`
 	Descricao      string         `gorm:"type:text"`
-	Preco          uint         `gorm:"size:255"`
-	PrecoPromocional          uint         `gorm:"size:255"`
+	Preco          uint           `gorm:"size:255"`
+	PrecoPromocional uint         `gorm:"size:255"`
 	Imagem         string         `gorm:"size:512"`
 	SubcategoriaID uint           `gorm:"column:subcategoria_id"`
 	Subcategoria   Subcategoria   `gorm:"foreignKey:SubcategoriaID"`
-	DeletedAt      gorm.DeletedAt `gorm:"index"`
 }
 
 
 type OrderProduto struct {
 	gorm.Model
-	ID             uint           `gorm:"foreignKey"`
-	IDService             uint           `gorm:"foreignKey"`
-	Quantity	uint 
-	
+	ProdutoID  uint
+	OrderID    uint
+	Quantity   uint
 }

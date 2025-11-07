@@ -4,26 +4,25 @@ import (
 	"Restaurant/src/database"
 	"Restaurant/src/models"
 	"strconv"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
+// GetOrders retorna todos os pedidos cadastrados.
 func GetOrders(c *fiber.Ctx) error {
 	var orders []models.Order
 	if err := database.DB.Find(&orders).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar pedidos"})
 	}
-
-	 
-	 
-
 	return c.JSON(orders)
 }
 
-
+// GetOrder retorna um pedido pelo ID.
 func GetOrder(c *fiber.Ctx) error {
 	id := c.Params("id")
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "ID do pedido é obrigatório"})
+	}
 	var order models.Order
 	if err := database.DB.First(&order, id).Error; err != nil {
 		return c.Status(404).JSON(fiber.Map{"error": "Pedido não encontrado"})
@@ -31,57 +30,63 @@ func GetOrder(c *fiber.Ctx) error {
 	return c.JSON(order)
 }
 
+// CreateOrder cria um novo pedido após validar os campos obrigatórios.
 func CreateOrder(c *fiber.Ctx) error {
 	order := new(models.Order)
 	if err := c.BodyParser(order); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Erro no corpo da requisição"})
 	}
-
-	order.CreatedAt = time.Now()
-
+	// Validação básica
+	if order.NomeLoja == "" || order.MesaID == 0 || order.Status == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "Nome da loja, mesa e status são obrigatórios"})
+	}
 	if err := database.DB.Create(&order).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao criar pedido"})
 	}
-
 	return c.Status(201).JSON(order)
 }
 
+// UpdateOrder atualiza um pedido existente.
 func UpdateOrder(c *fiber.Ctx) error {
 	id := c.Params("id")
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "ID do pedido é obrigatório"})
+	}
 	var order models.Order
 	if err := database.DB.First(&order, id).Error; err != nil {
 		return c.Status(404).JSON(fiber.Map{"error": "Pedido não encontrado"})
 	}
-
 	updateData := new(models.Order)
 	if err := c.BodyParser(updateData); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Erro no corpo da requisição"})
 	}
-
-	// Atualiza os campos (incluindo status)
+	// Validação básica para update
+	if updateData.NomeLoja == "" || updateData.MesaID == 0 || updateData.Status == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "Nome da loja, mesa e status são obrigatórios"})
+	}
 	order.NomeLoja = updateData.NomeLoja
 	order.MesaID = updateData.MesaID
 	order.QRCode = updateData.QRCode
 	order.Total = updateData.Total
 	order.Status = updateData.Status
-
 	if err := database.DB.Save(&order).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao atualizar pedido"})
 	}
-
 	return c.JSON(order)
 }
 
+// DeleteOrder remove um pedido pelo ID.
 func DeleteOrder(c *fiber.Ctx) error {
 	id := c.Params("id")
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "ID do pedido é obrigatório"})
+	}
 	idNum, err := strconv.Atoi(id)
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "ID inválido"})
 	}
-
 	if err := database.DB.Delete(&models.Order{}, idNum).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Erro ao deletar pedido"})
 	}
-
 	return c.SendStatus(204)
 }

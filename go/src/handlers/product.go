@@ -14,138 +14,123 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// GetProdutos retorna todos os produtos cadastrados.
 func GetProdutos(c *fiber.Ctx) error {
 	var produtos []models.Produto
-	database.DB.Find(&produtos)
+	if err := database.DB.Find(&produtos).Error; err != nil {
+		log.Printf("[GetProdutos] Erro ao buscar produtos: %v", err)
+		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar produtos"})
+	}
 	return c.JSON(produtos)
 }
 
+// GetProduto retorna um produto pelo ID.
 func GetProduto(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var produto models.Produto
-	result := database.DB.First(&produto, id)
-	if result.Error != nil {
-		return c.Status(404).SendString("Produto não encontrado")
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "ID do produto é obrigatório"})
+	}
+	if err := database.DB.First(&produto, id).Error; err != nil {
+		log.Printf("[GetProduto] Produto ID %s não encontrado: %v", id, err)
+		return c.Status(404).JSON(fiber.Map{"error": "Produto não encontrado"})
 	}
 	return c.JSON(produto)
 }
 
+// CreateProduto cria um novo produto após validar os campos obrigatórios.
 func CreateProduto(c *fiber.Ctx) error {
 	var produto models.Produto
 	if err := c.BodyParser(&produto); err != nil {
-		return err
+		log.Printf("[CreateProduto] Erro ao fazer parse do body: %v", err)
+		return c.Status(400).JSON(fiber.Map{"error": "JSON inválido"})
 	}
-	
-	// 1. Salva o novo produto no DB
-	database.DB.Create(&produto)
-	
-	// 2. Notifica todos os clientes do novo produto
-	// (Assumimos status ATIVO e preço definido)
-	// broadcast.BroadcastProductUpdate(produto, updatesMap )
+	// Validação de campos obrigatórios
+	if produto.Nome == "" || produto.Preco == 0 || produto.SubcategoriaID == 0 {
+		return c.Status(400).JSON(fiber.Map{"error": "Nome, preço e subcategoria são obrigatórios"})
+	}
+	if err := database.DB.Create(&produto).Error; err != nil {
+		log.Printf("[CreateProduto] Erro ao criar produto: %v", err)
+		return c.Status(500).JSON(fiber.Map{"error": "Erro ao criar produto"})
+	}
 	log.Printf("[Handler] Novo produto criado e broadcast enviado. ID: %d", produto.ID)
-
+	broadcast.BroadcastProductUpdate(produto, map[string]interface{}{"create": true})
 	return c.JSON(produto)
 }
 
+// UpdateProduto atualiza um produto existente e envia broadcast.
 func UpdateProduto(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var produto models.Produto
-
-	// Busca o produto atual no banco
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "ID do produto é obrigatório"})
+	}
 	if err := database.DB.First(&produto, id).Error; err != nil {
 		log.Printf("[UpdateProduto] Produto ID %s não encontrado.", id)
-		return c.Status(404).SendString("Produto não encontrado")
+		return c.Status(404).JSON(fiber.Map{"error": "Produto não encontrado"})
 	}
 
-	// Mostra o estado atual do produto
-	log.Printf("[ANTES] Produto atual (ID %d): Nome=%s | Preço=%d | Promo=%d | Active=%t",
-		c.JSON(produto), produto.Nome, produto.Preco, produto.PrecoPromocional, produto.Active)
-	
 	// Lê o body raw para podermos decodificar tanto em struct quanto em map
 	body := c.Body()
 
 	// Decodifica em struct (opcional)
 	var updatedData models.Produto
 	if err := json.Unmarshal(body, &updatedData); err != nil {
-		log.Printf("[ERRO] Falha ao unmarshal para struct: %v", err)
-		// não retorna ainda; vamos tentar decodificar em map a seguir
+		log.Printf("[UpdateProduto] Falha ao unmarshal para struct: %v", err)
 	}
 
 	// Decodifica em map para capturar valores zero explicitamente
 	var updatesMap map[string]interface{}
 	if err := json.Unmarshal(body, &updatesMap); err != nil {
-		log.Printf("[ERRO] Falha ao unmarshal para map: %v", err)
-		return c.Status(400).SendString("Corpo inválido")
+		log.Printf("[UpdateProduto] Falha ao unmarshal para map: %v", err)
+		return c.Status(400).JSON(fiber.Map{"error": "Corpo inválido"})
 	}
 
-	// LOG do que chegou como map
-	log.Printf("[RECEBIDO MAP] %+v", updatesMap)
-	log.Printf("[RECEBIDO STRUCT] Nome=%s | Preço=%d | Promo=%d | Active=%t",
-		updatedData.Nome, updatedData.Preco, updatedData.PrecoPromocional, updatedData.Active)
-
-	// Opcional: normalize keys (se enviar JSON em snake_case -> map terá "preco_promocional", seu DB usa PrecoPromocional)
-	// Exemplo simples: transformar keys comuns para o nome do campo GORM (ajuste conforme seu JSON)
-	if v, ok := updatesMap["preco_promocional"]; ok {
-		updatesMap["preco_promocional"] = v // se seu DB/columns usam esses nomes, ok. Caso contrário, use "preco_promocional" => "preco_promocional" conforme GORM tag
+	// Validação de campos obrigatórios para update (exemplo: nome não pode ser vazio se enviado)
+	if v, ok := updatesMap["nome"]; ok && v == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "Nome não pode ser vazio"})
 	}
-	// Se você usa JSON tags como "preco_promocional" no struct, GORM/DB vai trabalhar com struct -> map translation automaticamente.
-	// Aqui assumimos que updatesMap usa as keys do JSON (ex: "preco", "preco_promocional", "nome", "active")
+	if v, ok := updatesMap["preco"]; ok && v == 0 {
+		return c.Status(400).JSON(fiber.Map{"error": "Preço não pode ser zero"})
+	}
+	if v, ok := updatesMap["subcategoria_id"]; ok && v == 0 {
+		return c.Status(400).JSON(fiber.Map{"error": "Subcategoria é obrigatória"})
+	}
 
-	// Faz a atualização usando o map (aceita false/0/"")
 	if err := database.DB.Model(&produto).Updates(updatesMap).Error; err != nil {
-		log.Printf("[ERRO] Falha ao atualizar produto: %v", err)
-		return c.Status(500).SendString("Erro ao atualizar produto")
+		log.Printf("[UpdateProduto] Falha ao atualizar produto: %v", err)
+		return c.Status(500).JSON(fiber.Map{"error": "Erro ao atualizar produto"})
 	}
 
 	// Recarrega o produto do banco após atualização
-if err := database.DB.
-	Model(&models.Produto{}).
-	Select("produtos.*, subcategorias.nome AS subcategoria_nome, categorias.nome AS categoria_nome").
-	Joins("JOIN subcategorias ON subcategorias.id = produtos.subcategoria_id").
-	Joins("JOIN categorias ON categorias.id = subcategorias.categoria_id").
-	Where("produtos.id = ?", id).
-	First(&produto).Error; err != nil {
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		// Produto não encontrado — handler pode retornar 404
-		return nil
+	if err := database.DB.Preload("Subcategoria.Categoria").First(&produto, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(404).JSON(fiber.Map{"error": "Produto não encontrado após update"})
+		}
+		log.Printf("[UpdateProduto] Falha ao recarregar produto %s após update: %v", id, err)
+		return c.Status(500).JSON(fiber.Map{"error": "Erro ao recarregar produto"})
 	}
 
-	log.Printf("[ERRO] Falha ao recarregar produto %d após update: %v", id, err)
-	return err
-}
-
-	if err := database.DB.
-		Preload("Subcategoria.Categoria").
-		Find(&produto).Error; err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Erro ao buscar produtos"})
-	}
-	
-	// Mostra o produto final após o update
-	log.Printf("[DEPOIS] Produto atualizado (ID %d): Nome=%s | Preço=%d | Promo=%d | Active=%t",
-		produto, produto.Nome, produto.Preco, produto.PrecoPromocional, produto.Active)
-
-	// Envia broadcast com as novas informações
-	broadcast.BroadcastProductUpdate(produto, updatesMap )
-
+	log.Printf("[UpdateProduto] Produto atualizado (ID %s): Nome=%s | Preço=%d | Promo=%d | Active=%t", id, produto.Nome, produto.Preco, produto.PrecoPromocional, produto.Active)
+	broadcast.BroadcastProductUpdate(produto, updatesMap)
 	log.Printf("[BROADCAST] Produto ID %s enviado para os clientes WebSocket.", id)
-
 	return c.JSON(produto)
 }
 
 
 
+// DeleteProduto remove um produto pelo ID.
 func DeleteProduto(c *fiber.Ctx) error {
 	id := c.Params("id")
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "ID do produto é obrigatório"})
+	}
 	result := database.DB.Delete(&models.Produto{}, id)
 	if result.RowsAffected == 0 {
-		return c.Status(404).SendString("Produto não encontrado")
+		return c.Status(404).JSON(fiber.Map{"error": "Produto não encontrado"})
 	}
-
-    // Opcional: Enviar um broadcast específico para DELETAR o produto na UI
-    // main.BroadcastProductDelete(id) // Se você criar uma função BroadcastProductDelete
-    // Por enquanto, o status DESATIVADO cobre a maioria dos casos de remoção do cardápio.
-
+	// Opcional: Enviar um broadcast específico para DELETAR o produto na UI
+	// broadcast.BroadcastProductDelete(id)
 	return c.SendString("Produto removido com sucesso")
 }
 

@@ -11,3 +11,17 @@ services:
       - /app/node_modules  # Evita conflito entre dependências do host e container
     stdin_open: true
     tty: true
+
+  mcp-agent:
+    image: golang:1.20
+    working_dir: /app
+    command: sh -c "go run ./go/src/mcp/main.go"
+    ports:
+      - "8081:8081"
+    volumes:
+      - .:/app
+    environment:
+      - MCP_AGENT_ID=local-agent
+      - MCP_AGENT_SECRET=changeme
+      - MCP_PORT=8081
+    restart: unless-stopped

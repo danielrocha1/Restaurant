@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"time"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -12,17 +13,22 @@ import (
 	"database/sql"
 )
 
+// TablePayload representa o payload de entrada para operações de mesa.
 type TablePayload struct {
 	Number    uint   `json:"number"`
-	ServiceID *uint `json:"service_id,omitempty"`
+	ServiceID *uint  `json:"service_id,omitempty"`
 }
  
+// CloseTable fecha uma mesa aberta, marcando-a como fechada.
 // POST /tables/close
 func CloseTable(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var body TablePayload
-		if err := c.BodyParser(&body); err != nil || body.Number <= 0 {
-			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "body inválido"})
+		if err := c.BodyParser(&body); err != nil {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "JSON inválido"})
+		}
+		if body.Number == 0 {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Número da mesa é obrigatório e deve ser maior que zero"})
 		}
 
 		now := time.Now().UTC()
@@ -54,18 +60,20 @@ func ViewOpenTables(db *gorm.DB) fiber.Handler {
 		// Consulta todas as mesas abertas
 		rows, err := db.Raw("SELECT * FROM status_tables WHERE is_open = true").Rows()
 		if err != nil {
+			log.Printf("[TABLE] Erro ao consultar view: %v", err)
 			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 				"error":  "erro ao consultar status_table",
-				"detail": err.Error(),
+				"detail": "Erro ao consultar status_table",
 			})
 		}
 		defer rows.Close()
 
 		cols, err := rows.Columns()
 		if err != nil {
+			log.Printf("[TABLE] Erro ao ler colunas: %v", err)
 			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 				"error":  "erro ao ler colunas",
-				"detail": err.Error(),
+				"detail": "Erro ao ler colunas",
 			})
 		}
 
@@ -79,9 +87,10 @@ func ViewOpenTables(db *gorm.DB) fiber.Handler {
 			}
 
 			if err := rows.Scan(valuePtrs...); err != nil {
+				log.Printf("[TABLE] Erro ao fazer scan das linhas: %v", err)
 				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 					"error":  "erro ao fazer scan das linhas",
-					"detail": err.Error(),
+					"detail": "Erro ao fazer scan das linhas",
 				})
 			}
 
@@ -117,74 +126,77 @@ func ViewOpenTables(db *gorm.DB) fiber.Handler {
 }
 
 
+// ViewListTable retorna o histórico de pedidos abertos para uma mesa específica.
 // POST /tables/history
 func ViewListTable(db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var body TablePayload
-		if err := c.BodyParser(&body); err != nil || body.Number <= 0 {
-			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "body inválido"})
+		if err := c.BodyParser(&body); err != nil {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "JSON inválido"})
+		}
+		if body.Number == 0 {
+			return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Número da mesa é obrigatório e deve ser maior que zero"})
 		}
 
 		// Consulta a view — filtra por mesa_id; troque para order_id se quiser.
 		rows, err := db.Raw("SELECT * FROM view_pedidos_abertos_com_produtos_json WHERE mesa_id = ?", body.Number).Rows()
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "erro ao consultar view", "detail": err.Error()})
+			// log.Printf("[TABLE] Erro ao consultar view: %v", err)
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "erro ao consultar view"})
 		}
 		defer rows.Close()
 
-		cols, err := rows.Columns()
+		results, err := parseSQLRowsToMap(rows)
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "erro ao ler colunas", "detail": err.Error()})
+			// log.Printf("[TABLE] Erro ao processar resultados: %v", err)
+			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "erro ao processar resultados"})
 		}
 
-		results := make([]map[string]interface{}, 0)
-
-		for rows.Next() {
-			// prepara pointers
-			values := make([]interface{}, len(cols))
-			valuePtrs := make([]interface{}, len(cols))
-			for i := range values {
-				valuePtrs[i] = &values[i]
-			}
-
-			if err := rows.Scan(valuePtrs...); err != nil {
-				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "erro ao fazer scan das linhas", "detail": err.Error()})
-			}
-
-			rowMap := make(map[string]interface{}, len(cols))
-			for i, col := range cols {
-				var v interface{} = values[i]
-
-				// Postgres driver frequentemente retorna []byte para text/json
-				if b, ok := v.([]byte); ok {
-					// tenta desserializar JSON (para 'produtos' por exemplo)
-					var maybeJSON interface{}
-					if json.Unmarshal(b, &maybeJSON) == nil {
-						rowMap[col] = maybeJSON
-					} else {
-						// se não for JSON válido, retornar string
-						rowMap[col] = string(b)
-					}
-				} else if v == nil {
-					rowMap[col] = nil
-				} else if val, ok := v.(sql.NullString); ok {
-					// lidar com sql.NullString se driver usar isso
-					if val.Valid {
-						rowMap[col] = val.String
-					} else {
-						rowMap[col] = nil
-					}
-				} else {
-					rowMap[col] = v
-				}
-			}
-
-			results = append(results, rowMap)
-		}
-
-		// retornar array (mesmo vazio) — assim você sempre tem consistência no frontend
 		return c.Status(http.StatusOK).JSON(results)
 	}
+}
+
+// parseSQLRowsToMap converte rows SQL em slice de mapas para resposta flexível.
+func parseSQLRowsToMap(rows *sql.Rows) ([]map[string]interface{}, error) {
+	cols, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+	results := make([]map[string]interface{}, 0)
+	for rows.Next() {
+		values := make([]interface{}, len(cols))
+		valuePtrs := make([]interface{}, len(cols))
+		for i := range values {
+			valuePtrs[i] = &values[i]
+		}
+		if err := rows.Scan(valuePtrs...); err != nil {
+			return nil, err
+		}
+		rowMap := make(map[string]interface{}, len(cols))
+		for i, col := range cols {
+			var v interface{} = values[i]
+			if b, ok := v.([]byte); ok {
+				var maybeJSON interface{}
+				if json.Unmarshal(b, &maybeJSON) == nil {
+					rowMap[col] = maybeJSON
+				} else {
+					rowMap[col] = string(b)
+				}
+			} else if v == nil {
+				rowMap[col] = nil
+			} else if val, ok := v.(sql.NullString); ok {
+				if val.Valid {
+					rowMap[col] = val.String
+				} else {
+					rowMap[col] = nil
+				}
+			} else {
+				rowMap[col] = v
+			}
+		}
+		results = append(results, rowMap)
+	}
+	return results, nil
 }
 
 
@@ -350,7 +362,7 @@ func ViewClosedTablesOnDate(db *gorm.DB) fiber.Handler {
 		if err := db.Raw(query, startDate, endDate).Scan(&results).Error; err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 				"error":  "Erro ao consultar mesas fechadas com total de pedidos",
-				"detail": err.Error(),
+				"detail": "Erro ao consultar mesas fechadas",
 			})
 		}
 

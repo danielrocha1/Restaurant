@@ -17,6 +17,9 @@ func LoadEnv() {
 	if err != nil {
 		log.Fatal("Erro ao carregar .env: ", err)
 	}
+	dbURL, _ := os.LookupEnv("DATABASE_URL")
+	log.Println("DATABASE_URL length:", len(dbURL)) // só para debug, não logue valores sensíveis em produção
+
 }
 
 

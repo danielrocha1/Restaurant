@@ -117,7 +117,7 @@ const Cart = () => {
           } catch (error) {
             // Log de erro melhorado (que você já tinha aplicado)
             console.error('Erro detalhado ao enviar pedido:', {
-              message: error.message,
+              message: error,
               stack: error.stack,
               errorObject: error
             });

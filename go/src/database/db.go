@@ -11,19 +11,19 @@ import (
 
 var DB *gorm.DB
 
-func LoadEnv() {
+// func LoadEnv() {
 	
-	dbURL, bol := os.LookupEnv("DATABASE_URL")
-	if bol == false {
-		log.Fatal("Erro ao carregar .env: ", bol)
-	}
-	log.Println("DATABASE_URL length:", len(dbURL)) // só para debug, não logue valores sensíveis em produção
+// 	dbURL, bol := os.LookupEnv("DATABASE_URL")
+// 	if bol == false {
+// 		log.Fatal("Erro ao carregar .env: ", bol)
+// 	}
+// 	log.Println("DATABASE_URL length:", len(dbURL)) // só para debug, não logue valores sensíveis em produção
 
-}
+// }
 
 
 func Connect() {
-	LoadEnv()
+	// LoadEnv()
 
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {

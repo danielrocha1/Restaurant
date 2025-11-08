@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"os"
 	"strings"
 
@@ -29,7 +30,7 @@ func JWTClaimsMiddleware() fiber.Handler {
 	// pega secret do env, fallback para um valor "dev" (não use em prod)
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		secret = "changeme123" // ajuste para produção
+		log.Fatal("JWT_SECRET não definido no Env")
 	}
 
 	return func(c *fiber.Ctx) error {

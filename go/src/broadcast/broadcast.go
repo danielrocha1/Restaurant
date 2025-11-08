@@ -110,6 +110,7 @@ func BroadcastNewOrder(order models.Order, mesaID uint) {
 	log.Printf("[BROADCAST] newOrder mesaID=%d enviado.\n", mesaID)
 }
 
+
 func BroadcastProductUpdate(produto models.Produto, label map[string]interface{}) {
 	message := fiber.Map{
 		"action":  "update",

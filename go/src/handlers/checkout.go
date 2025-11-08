@@ -214,9 +214,10 @@ func Checkout(c *fiber.Ctx) error {
 	}
 	if nova {
 		broadcast.BroadcastNewTable(mesaMap)
-	} else {
-		broadcast.BroadcastNewOrder(savedOrder, status.ID)
 	}
+	
+	broadcast.BroadcastNewOrder(savedOrder, status.ID)
+
 
 	return c.JSON(fiber.Map{
 		"message": "Checkout autorizado e pedido salvo",

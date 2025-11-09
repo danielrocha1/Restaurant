@@ -50,16 +50,6 @@ func main() {
             AllowCredentials: true,
         }))
     }
-
-    // Registra todas as rotas no app
-    routes.RegisterRoutes(app)
-
-    // Start server
-    log.Println("Servidor iniciado na porta :4000")
-    if err := app.Listen(":4000"); err != nil {
-        log.Fatalf("Erro ao iniciar servidor: %v", err)
-    }
-
     go func() {
 		for {
             mesaMap := map[string]uint{
@@ -78,4 +68,15 @@ func main() {
 			time.Sleep(50 * time.Second)
 		}
 	}()
+
+    // Registra todas as rotas no app
+    routes.RegisterRoutes(app)
+
+    // Start server
+    log.Println("Servidor iniciado na porta :4000")
+    if err := app.Listen(":4000"); err != nil {
+        log.Fatalf("Erro ao iniciar servidor: %v", err)
+    }
+
+   
 }

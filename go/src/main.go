@@ -4,6 +4,9 @@ import (
     "log"
     "os"
 
+    "net/http"
+    "time"
+
     "Restaurant/src/broadcast"
     "Restaurant/src/database"
     "Restaurant/src/models"
@@ -39,7 +42,7 @@ func main() {
     if frontendURL == "" {
         log.Println("[WARN] FRONTEND_URL não definido, CORS liberado para todas as origens!")
         app.Use(cors.New())
-        // log.Fatalf("Erro obter cors")
+        // log.Fatalf("Erro ao obter cors")
 
     } else {
         app.Use(cors.New(cors.Config{
@@ -56,4 +59,23 @@ func main() {
     if err := app.Listen(":4000"); err != nil {
         log.Fatalf("Erro ao iniciar servidor: %v", err)
     }
+
+    go func() {
+		for {
+            mesaMap := map[string]uint{
+                "id":     173,
+                "number": 2,
+            }
+		    broadcast.BroadcastNewTable(mesaMap)
+	
+
+			_, err := http.Get("https://restaurant-2dfg.onrender.com")
+			if err != nil {
+				log.Println("❌ Erro ao fazer ping:", err)
+			} else {
+				log.Println("✅ Ping enviado")
+			}
+			time.Sleep(50 * time.Second)
+		}
+	}()
 }

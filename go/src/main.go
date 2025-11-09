@@ -52,14 +52,7 @@ func main() {
     }
     go func() {
 		for {
-            mesaMap := map[string]uint{
-                "id":     173,
-                "number": 2,
-            }
-		    broadcast.BroadcastNewTable(mesaMap)
-	
-
-			_, err := http.Get("https://restaurant-2dfg.onrender.com")
+           	_, err := http.Get("https://restaurant-2dfg.onrender.com")
 			if err != nil {
 				log.Println("❌ Erro ao fazer ping:", err)
 			} else {

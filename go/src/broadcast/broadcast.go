@@ -132,6 +132,15 @@ func BroadcastNewTable(MesaID map[string]uint) {
 	log.Printf("[BROADCAST] addTable enviado. MesaID: %v\n", MesaID)
 }
 
+func BroadcastCloseTable(MesaID map[string]uint) {
+	message := fiber.Map{
+		"action": "closeTable",
+		"table":  MesaID,
+	}
+
+	GlobalHub.broadcast <- message
+	log.Printf("[BROADCAST] addTable enviado. MesaID: %v\n", MesaID)
+}
 // readPump lê mensagens do WebSocket (principalmente para detectar desconexão)
 func (c *Client) readPump() {
 	// configurar limites e handler de PONG

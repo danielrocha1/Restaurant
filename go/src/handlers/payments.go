@@ -9,6 +9,7 @@ import (
 
 	"Restaurant/src/database"
 	"Restaurant/src/models"
+	"Restaurant/src/broadcast"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -104,7 +105,14 @@ func PaymentHandler(c *fiber.Ctx) error {
 	}
 	committed = true
 
-	log.Printf("[PAYMENT] Pagamento registrado e mesa %d fechada com sucesso!", payload.TableNumber)
+	// Broadcast para notificar fechamento da mesa
+	broadcastMesaID := map[string]uint{
+		"mesaNumber": statusTable.Number,
+		"mesaID":     statusTable.ID,
+	}
+	broadcast.BroadcastCloseTable(broadcastMesaID)
+	log.Printf("[PAYMENT] Pagamento registrado e mesa %d fechada com sucesso!", statusTable.Number)
+
 	return c.JSON(fiber.Map{
 		"message":    fmt.Sprintf("Pagamento registrado e Mesa %d fechada com sucesso!", payload.TableNumber),
 		"table_id":   statusTable.ID,

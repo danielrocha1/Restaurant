@@ -12,11 +12,12 @@
 
 .category-bar {
   position: fixed;                 /* fixa a barra na tela, não rola com o conteúdo */
-  top: 45px;                       /* distância do topo (compensa o header fixo) */
+  top: 49px;                       /* distância do topo (compensa o header fixo) */
   left: 0;                         /* encosta na lateral esquerda da janela */
   width: 13vw;                    /* largura da barra lateral */
   height: calc(100vh - 25px);      /* altura total da viewport menos o header */
-  background-color: #1c1c1c;       /* fundo preto suave (estilo zen) */
+  background:linear-gradient(45deg,     #1c1c1c, #4a4a4a);
+
   box-shadow: 3px 0 6px rgba(0, 0, 0, 0.2); /* sombra lateral para profundidade */
   z-index: 998;                    /* fica acima do conteúdo comum, abaixo de overlays mais altos */
   overflow-y: auto;                /* permite rolagem vertical dentro da barra */

@@ -2,7 +2,11 @@
 
 /* Ajuste a altura da promo-bar-container para não interferir tanto */
 .promo-bar-container.top {
-  background-color: rgb(180,45,45);
+  background:linear-gradient(
+    to right, 
+    #b42d2d, 
+    #7a1b1b  
+  );
   position: fixed;
   /* Topo agora deve considerar a altura reduzida da promo-bar (ex: 50px de altura total) */
   top: 0;
@@ -37,7 +41,6 @@
   margin-left:25vw;
   width: 50%;
   overflow: hidden;
-  background-color: rgb(180, 45, 45);
   color: white;
   font-weight: bold;
   padding: 5px 0;

@@ -82,7 +82,6 @@
     z-index: 1000; /* Prioridade máxima para flutuar */
     transition: opacity 0.2s ease-in-out;
 }
-
 .cart-btn {
   position: relative;
   width: 50px;
@@ -94,22 +93,23 @@
   background: white;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  overflow: hidden; /* garante que o traço não passe pra fora */
 }
 
 .cart-btn::before {
   content: "";
   position: absolute;
-  left: -6px;   /* menor anel */
-  top: -6px;
-  right: -6px;
-  bottom: -6px;
+  left: 4px;   /* desloca para dentro */
+  top: 4px;
+  right: 4px;
+  bottom: 4px;
   border-radius: 50%;
   pointer-events: none;
   background: repeating-conic-gradient(
-    #c62828 0deg 30deg,   /* traço mais comprido (antes era 20deg) */
-    transparent 30deg 45deg  /* espaço menor (antes era 40deg) */
+    #c62828 0deg 30deg,     /* traço comprido */
+    transparent 30deg 45deg /* espaço menor */
   );
-  /* anel mais fino */
+  /* anel fino e interno */
   -webkit-mask: radial-gradient(
     farthest-side,
     transparent calc(100% - 3px),
@@ -120,17 +120,17 @@
     transparent calc(100% - 3px),
     black calc(100% - 3px)
   );
-  animation: ring-rotate 3s linear infinite; /* velocidade mais lenta */
+  animation: ring-rotate 3s linear infinite;
   z-index: 0;
 }
 
 .cart-icon {
   position: relative;
   z-index: 1;
-  font-size: 22px;
+  font-size: 28px;  /* aumentei o ícone */
   color: #d94a4a;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;

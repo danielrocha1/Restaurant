@@ -78,7 +78,7 @@
 .cart-floating-top {
     position: fixed;
     top: 80px; /* Abaixo da barra de promoção superior */
-    right: 20px; /* Posicionado à direita */
+    right: 35px; /* Posicionado à direita */
     z-index: 1000; /* Prioridade máxima para flutuar */
     transition: opacity 0.2s ease-in-out;
 }

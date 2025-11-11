@@ -3,7 +3,7 @@
 /* https://thumbs.dreamstime.com/b/papel-japon%C3%AAs-preto-escuro-e-fundo-plano-de-geom%C3%A9trico-abstrato-textura-moderna-vetorial-276631992.jpg 
   https://img.freepik.com/premium-vector/seamless-pattern-chinese-style-red-oriental-background-with-waves_632473-3699.jpg
 
-
+  https://img.freepik.com/free-vector/gradient-black-background-with-wavy-lines_23-2149158062.jpg
   https://thumbs.dreamstime.com/b/seamless-vector-pattern-gold-waves-clouds-isolated-black-background-japanese-traditional-motifs-illustration-template-207899753.jpg
   https://img.freepik.com/premium-vector/chinese-traditional-clouds-seamless-pattern-oriental-ornament-background_454705-973.jpg
 
@@ -13,7 +13,7 @@
   inset: 0;
   z-index: 0; /* não use -1 para não “sumir” atrás do body */
   pointer-events: none;
-  background-image: url('https://thumbs.dreamstime.com/b/papel-japon%C3%AAs-preto-escuro-e-fundo-plano-de-geom%C3%A9trico-abstrato-textura-moderna-vetorial-276631992.jpg');
+  background-image: url('https://img.freepik.com/free-vector/gradient-black-background-with-wavy-lines_23-2149158062.jpg');
   background-repeat: repeat;
   /* background-size: 500px 500px; */
   background-position: center left;

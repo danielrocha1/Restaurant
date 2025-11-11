@@ -9,9 +9,13 @@
   align-items: center;
   z-index: 9999;
 }
-  
+
 .loader-container {
   background-image: url('https://img.freepik.com/free-vector/gradient-black-background-with-wavy-lines_23-2149158062.jpg');
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;

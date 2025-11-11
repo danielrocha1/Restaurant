@@ -153,29 +153,15 @@ const Cart = () => {
 
   return (
     <>
-      <Badge style={{
-        marginRight:"25px",
-        marginTop:"20px",
-      }} count={totalItems} size="medium" onClick={toggleCart}>
-        <ShoppingCartOutlined
-          style={{
-            borderColor:"red",
-            borderWidth:"2px",
-            borderStyle:"dashed",
-            fontSize: '16px',
-            color: 'white',
-            cursor: 'pointer',
-            backgroundColor: 'white',
-            borderRadius: '50%',
-            width: '50px',
-            height: '50px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight:"20px",
-            marginTop:"20px",
-          }}
-        />
+      <Badge
+        style={{ marginRight: "25px", marginTop: "20px" }}
+        count={totalItems}
+        size="medium"
+        onClick={toggleCart}
+      >
+        <div className="cart-btn">
+          <ShoppingCartOutlined className="cart-icon" />
+        </div>
       </Badge>
 
       <Drawer

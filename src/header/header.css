@@ -74,26 +74,65 @@
 }
 
 /* --- Estilos do Carrinho Flutuante no Topo --- */
-.cart-floating-top {
-    position: fixed;
-    top: 50px; /* Abaixo da barra de promoção superior */
-    right: 20px; /* Posicionado à direita */
-    z-index: 1000; /* Prioridade máxima para flutuar */
-    transition: opacity 0.2s ease-in-out;
+/* container fixo já existente */
+.cart-floating-top { /* ... seu css atual ... */ }
+
+/* botão do carrinho com anel animado */
+.cart-btn{
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white; /* cor do centro */
+  cursor: pointer;
+  /* sombra opcional */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
 }
 
-/* Manter estilos de ícones para o carrinho */
-.header-icons {
-    display: flex;
-    align-items: center;
-    /* Ajuste o espaçamento se necessário */
-    /* gap: 105px;  <-- Removido se só tiver o carrinho */
+/* o anel tracejado animado criado com pseudo-elemento */
+.cart-btn::before{
+  content: "";
+  position: absolute;
+  left: -8px;   /* distância do anel até o centro */
+  top: -8px;
+  right: -8px;
+  bottom: -8px;
+  border-radius: 50%;
+  pointer-events: none;
+  /* segmentos tracejados: cor / transparente repetidos (ajuste os ângulos para mudar traço/espaço) */
+  background: repeating-conic-gradient(
+    #c62828 0deg 20deg,
+    transparent 20deg 40deg
+  );
+  /* recorta o centro para ficar só o anel (espessura do anel = 8px) */
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 12px), black calc(100% - 12px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 12px), black calc(100% - 12px));
+  /* anima rotação do anel */
+  animation: ring-rotate 1.6s linear infinite;
+  z-index: 0;
 }
 
-.header-icons svg {
-    font-size: 27px;
-    cursor: pointer;
-    color: #d94a4a;
+/* estilo do ícone em si (fica acima do anel) */
+.cart-icon{
+  position: relative;
+  z-index: 1;
+  font-size: 22px;      /* ajuste */
+  color: #d94a4a;       /* cor do ícone */
+  width: 36px;          /* centraliza visual */
+  height: 36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: white;    /* garante contraste com o anel */
+  border-radius: 50%;
+}
+
+/* animação de rotação */
+@keyframes ring-rotate{
+  to { transform: rotate(360deg); }
 }
 
 /* Badge de notificação */

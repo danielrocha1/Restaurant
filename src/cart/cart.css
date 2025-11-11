@@ -15,16 +15,6 @@
     border-color: #6b1c16;
 }
 
-.cart-icon{
-    margin-right: 50px;
-
-}
-
-.cart-icon svg {
-    font-size: 38px; /* Ícones maiores */
-    cursor: pointer;
-    color: white;
-}
 
 
 .ant-message {

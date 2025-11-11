@@ -11,14 +11,18 @@
 }
 
 .loader-container {
-  background-image: url('https://static.vecteezy.com/system/resources/previews/006/137/518/large_2x/japanese-elements-pattern-free-vector.jpg');
-  background-size: 500px 500px;
-  inset: 0;
-  background-position: center left;
+  background-image: url('https://img.freepik.com/free-vector/gradient-black-background-with-wavy-lines_23-2149158062.jpg');
+  background-size: cover;
+  background-position: center;
   width: 100%;
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  transform: translateZ(0);
+}
+
+.lottie-bg {
+  background-color: white; /* 👈 preenche o interior */
+  border-radius: 12px;     /* opcional, só pra suavizar */
+  padding: 10px;           /* dá uma borda de respiro */
 }

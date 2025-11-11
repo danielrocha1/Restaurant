@@ -8,20 +8,22 @@ const LoadingScreen = () => {
 
   useEffect(() => {
     if (lottieRef.current) {
-      lottieRef.current.setSpeed(0.75); // animação 25% mais lenta
+      lottieRef.current.setSpeed(0.75);
     }
   }, []);
 
   return (
     <div className="loading-overlay">
       <div className="loader-container">
-        <Lottie
-          lottieRef={lottieRef}
-          animationData={ramenSushiAnimation}
-          loop
-          autoplay
-          style={{ width: 500, height: 500, filter: "invert(1)", }}
-        />
+        <div className="lottie-bg">
+          <Lottie
+            lottieRef={lottieRef}
+            animationData={ramenSushiAnimation}
+            loop
+            autoplay
+            style={{ width: 200, height: 200 }}
+          />
+        </div>
       </div>
     </div>
   );

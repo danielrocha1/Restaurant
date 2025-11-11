@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import Lottie from "lottie-react";
-import ramenSushiAnimation from "../assets/Ramen&Sushi.json";
+import ramenSushiAnimation from "./Ramen&Sushi.json";
 import "./loading.css";
 
 const LoadingScreen = () => {

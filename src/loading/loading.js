@@ -20,7 +20,7 @@ const LoadingScreen = () => {
           animationData={ramenSushiAnimation}
           loop
           autoplay
-          style={{ width: 500, height: 500, filter: "invert(1)",  }}
+          style={{ width: 500, height: 500, filter: "brightness(0) saturate(100%) invert(10%) sepia(95%) hue-rotate(340deg) brightness(90%) contrast(90%)"  }}
         />
       </div>
     </div>

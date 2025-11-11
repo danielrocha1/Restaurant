@@ -1,14 +1,18 @@
-// src/components/LoadingScreen.jsx
-import React from 'react';
-import { PuffLoader } from 'react-spinners';
-import './loading.css';
+import React from "react";
+import Lottie from "lottie-react";
+import ramenSushiAnimation from "./Ramen&Sushi.json"; // ajuste o caminho conforme onde você salvou o JSON
+import "./loading.css";
 
 const LoadingScreen = () => {
   return (
     <div className="loading-overlay">
-      <div className="pulse-circle"></div>
       <div className="loader-container">
-        <PuffLoader color="#36d7b7" size={80} />
+        <Lottie
+          animationData={ramenSushiAnimation}
+          loop
+          autoplay
+          style={{ width: 200, height: 200 }}
+        />
       </div>
     </div>
   );

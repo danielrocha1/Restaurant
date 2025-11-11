@@ -20,7 +20,7 @@ const LoadingScreen = () => {
           animationData={ramenSushiAnimation}
           loop
           autoplay
-          style={{ width: 200, height: 200 }}
+          style={{ width: 500, height: 500 }}
         />
       </div>
     </div>

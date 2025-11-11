@@ -99,10 +99,10 @@
 .cart-btn::before {
   content: "";
   position: absolute;
-  left: 4px;   /* desloca para dentro */
-  top: 4px;
-  right: 4px;
-  bottom: 4px;
+  left: 2px;   /* desloca para dentro */
+  top: 2px;
+  right: 2px;
+  bottom: 2px;
   border-radius: 50%;
   pointer-events: none;
   background: repeating-conic-gradient(
@@ -127,7 +127,7 @@ mask: radial-gradient(
 .cart-icon {
   position: relative;
   z-index: 1;
-  font-size: 28px;  /* aumentei o ícone */
+  font-size: 30px;  /* aumentei o ícone */
   color: #d94a4a;
   width: 40px;
   height: 40px;

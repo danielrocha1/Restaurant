@@ -159,13 +159,13 @@ const Cart = () => {
       }} count={totalItems} size="medium" onClick={toggleCart}>
         <ShoppingCartOutlined
           style={{
-            borderColor:"red",
+            borderColor:"white",
             borderWidth:"2px",
             borderStyle:"dashed",
             fontSize: '16px',
             color: 'white',
             cursor: 'pointer',
-            backgroundColor: 'white',
+            backgroundColor: '#d94a4a',
             borderRadius: '50%',
             width: '50px',
             height: '50px',

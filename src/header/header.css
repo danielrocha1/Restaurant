@@ -90,11 +90,6 @@
     /* gap: 105px;  <-- Removido se só tiver o carrinho */
 }
 
-.header-icons svg {
-    font-size: 27px;
-    cursor: pointer;
-    color: #d94a4a;
-}
 
 /* Badge de notificação */
 .header-icons .ant-badge {

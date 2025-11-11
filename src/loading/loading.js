@@ -1,28 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import Lottie from "lottie-react";
 import ramenSushiAnimation from "../assets/Ramen&Sushi.json";
 import "./loading.css";
 
 const LoadingScreen = () => {
-  const [show, setShow] = useState(false);
+  const lottieRef = useRef();
 
-  // ⏱️ Delay de 0.75s antes de mostrar o Lottie
+  // 🎵 Define a velocidade da animação
   useEffect(() => {
-    const timer = setTimeout(() => setShow(true), 750);
-    return () => clearTimeout(timer);
+    if (lottieRef.current) {
+      lottieRef.current.setSpeed(0.75); // velocidade 75%
+    }
   }, []);
 
   return (
     <div className="loading-overlay gradient-bg">
       <div className="loader-container">
-        {show && (
-          <Lottie
-            animationData={ramenSushiAnimation}
-            loop
-            autoplay
-            style={{ width: 500, height: 500 }}
-          />
-        )}
+        <Lottie
+          lottieRef={lottieRef}
+          animationData={ramenSushiAnimation}
+          loop
+          autoplay
+          style={{ width: 200, height: 200 }}
+        />
       </div>
     </div>
   );

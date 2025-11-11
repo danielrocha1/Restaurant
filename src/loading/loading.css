@@ -11,6 +11,7 @@
 }
   
 .loader-container {
+  background-color: url('https://img.freepik.com/free-vector/gradient-black-background-with-wavy-lines_23-2149158062.jpg');
   display: flex;
   justify-content: center;
   align-items: center;

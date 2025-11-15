@@ -50,7 +50,7 @@ func main() {
         }))
     }
 
-    backendUrl := os.Getenv("BACKEND_API_URL")
+    backendUrl := os.Getenv("REACT_APP_BACKEND_API_URL")
 
     go func() {
 		for {
@@ -64,7 +64,7 @@ func main() {
 		}
 	}()
 
-    // Registra todas as rotas no app
+  // Registra todas as rotas no app
     routes.RegisterRoutes(app)
 
     // Start server

@@ -2,6 +2,7 @@ import './categorybar.css';
 import React, { useEffect, useRef, useState } from 'react';
 import { Menu, Dropdown } from 'antd';
 import { AppstoreOutlined, DownOutlined } from '@ant-design/icons';
+import {API_URL} from '../../config/config';
 
 const SAFE_WINDOW = typeof window !== 'undefined';
 

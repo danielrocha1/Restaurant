@@ -6,6 +6,8 @@ import AppHeader from "./header/header";
 import ProductCarousel from "./carousel/carousel";
 import "./App.css";
 
+import { API_URL } from "./config/config";
+
 import { useWS } from "./context/wsContext";
 import { useCart } from "./context/cartContext";
 
@@ -123,37 +125,30 @@ const normalizeProduto = (data) => {
     console.log("🛒 [WS] Novo estado do cart:", newCart);
     return newCart;
   });
-}, [messages]);
+}, [messages, setCart]);
 
-
-
-
-
-
-useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth <= 768);
-    setIsTablet(window.innerWidth > 768 && window.innerWidth <= 1024);
-  };
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-}, []);
 
   useEffect(() => {
+    const minProductShow = 11
     const totalProducts = Object.values(productData).reduce(
       (sum, produtos) => sum + produtos.length,
       0
     );
-    if (totalProducts >= 11) {
+    if (totalProducts >= minProductShow) {
       setShowLoading(false);
     }
   }, [productData]);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+ useEffect(() => {
+   const handleResize = () => {
+     const width = window.innerWidth;
+     setIsMobile(width <= 768);
+     setIsTablet(width > 768 && width <= 1024);
+   };
+   handleResize(); // executa na montagem
+   window.addEventListener("resize", handleResize);
+   return () => window.removeEventListener("resize", handleResize);
+ }, []);
 
 const containerRef = useRef(null);
 
@@ -173,7 +168,7 @@ useEffect(() => {
   const fetchInitialData = async () => {
     try {
       const response = await fetch(
-        "https://restaurant-2dfg.onrender.com/categoriasSub"
+        `${API_URL}/categoriasSub`
       );
       const data = await response.json();
 
@@ -185,7 +180,7 @@ useEffect(() => {
           Subcategorias[0].Nome === "Sem subcategoria"
         ) {
           const response = await fetch(
-            `https://restaurant-2dfg.onrender.com/produtos-list?categoria=${encodeURIComponent(
+            `${API_URL}/produtos-list?categoria=${encodeURIComponent(
               nomeCategoria
             )}&page=1`
           );
@@ -209,7 +204,7 @@ useEffect(() => {
             if (sub.Nome === "Sem subcategoria") continue;
 
             const response = await fetch(
-              `https://restaurant-2dfg.onrender.com/produtos-list?categoria=${encodeURIComponent(
+              `${API_URL}/produtos-list?categoria=${encodeURIComponent(
                 sub.Nome
               )}&page=1`
             );
@@ -251,7 +246,7 @@ useEffect(() => {
 
     try {
       const response = await fetch(
-        `https://restaurant-2dfg.onrender.com/produtos-list?categoria=${encodeURIComponent(
+        `${API_URL}/produtos-list?categoria=${encodeURIComponent(
           categoria
         )}&page=${nextPage}`
       );

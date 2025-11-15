@@ -59,122 +59,9 @@
 #### **Problemas Identificados:**
 
 **🔴 P1 - Críticos:**
-
-1. **URL Hardcoded (L176, L188, L212, L254):**
-```javascript
-176: "https://restaurant-2dfg.onrender.com/categoriasSub"
-188: `https://restaurant-2dfg.onrender.com/produtos-list?categoria=...`
-```
-❌ URL não configurável via env vars  
-❌ Quebra se mudar domínio
-
-**Patch:**
-```diff
-+ const API_URL = process.env.REACT_APP_API_URL || 'https://restaurant-2dfg.onrender.com';
-- const response = await fetch("https://restaurant-2dfg.onrender.com/categoriasSub");
-+ const response = await fetch(`${API_URL}/categoriasSub`);
-```
-
-2. **useEffect Duplicado (L133-L140, L152-L156):**
-```javascript
-133: useEffect(() => {
-134:   const handleResize = () => {
-135:     setIsMobile(window.innerWidth <= 768);
-136:     setIsTablet(window.innerWidth > 768 && window.innerWidth <= 1024);
-137:   };
-138:   window.addEventListener("resize", handleResize);
-139:   return () => window.removeEventListener("resize", handleResize);
-140: }, []);
-
-152: useEffect(() => {
-153:   const handleResize = () => setIsMobile(window.innerWidth < 768);
-154:   window.addEventListener("resize", handleResize);
-155:   return () => window.removeEventListener("resize", handleResize);
-156: }, []);
-```
-❌ Dois listeners para o mesmo evento  
-❌ Lógica duplicada e conflitante (L135 usa `<=`, L153 usa `<`)
-
-**Patch:**
-```diff
-- useEffect(() => {
--   const handleResize = () => {
--     setIsMobile(window.innerWidth <= 768);
--     setIsTablet(window.innerWidth > 768 && window.innerWidth <= 1024);
--   };
--   window.addEventListener("resize", handleResize);
--   return () => window.removeEventListener("resize", handleResize);
-- }, []);
-- 
-- useEffect(() => {
--   const handleResize = () => setIsMobile(window.innerWidth < 768);
--   window.addEventListener("resize", handleResize);
--   return () => window.removeEventListener("resize", handleResize);
-- }, []);
-+ useEffect(() => {
-+   const handleResize = () => {
-+     const width = window.innerWidth;
-+     setIsMobile(width <= 768);
-+     setIsTablet(width > 768 && width <= 1024);
-+   };
-+   handleResize(); // executa na montagem
-+   window.addEventListener("resize", handleResize);
-+   return () => window.removeEventListener("resize", handleResize);
-+ }, []);
-```
-
-3. **Dependências Faltando no useEffect (L60-L126):**
-```javascript
-60: useEffect(() => {
-    // ... lógica complexa
-126: }, [messages]);
-```
-❌ Usa `setCart` mas não declara como dependência  
-❌ ESLint vai reclamar
-
-**Patch:**
-```diff
-- }, [messages]);
-+ }, [messages, setCart]);
-```
-
-4. **Console.log em Produção (L64, L67, L72, L87, L95, L98, L102, L113, L119, L123, L164, L235, L241, L248, L275):**
-```javascript
-64: console.log("📩 [WS] Processando última mensagem:", lastMsg);
-67: console.log("⚠️ [WS] Mensagem não contém produto. Ignorando.");
-```
-❌ 15+ console.logs expostos em produção  
-❌ Vazamento de informações de negócio
-
-**Patch:**
-```javascript
-// logger.js
-const isDev = process.env.NODE_ENV === 'development';
-export const logger = {
-  log: (...args) => isDev && console.log(...args),
-  warn: (...args) => isDev && console.warn(...args),
-  error: (...args) => console.error(...args) // sempre loga erros
-};
-
-// Uso
-- console.log("📩 [WS] Processando última mensagem:", lastMsg);
-+ logger.log("📩 [WS] Processando última mensagem:", lastMsg);
-```
-
+ 
 **⚠️ P2 - Médios:**
 
-5. **Magic Number (L147):**
-```javascript
-147: if (totalProducts >= 11) {
-```
-❌ Por que 11? Não está documentado
-
-**Patch:**
-```diff
-+ const MIN_PRODUCTS_TO_SHOW = 11; // mínimo para esconder loading
-- if (totalProducts >= 11) {
-+ if (totalProducts >= MIN_PRODUCTS_TO_SHOW) {
-```
 
 6. **Scroll Handler Inútil (L160-L170):**
 ```javascript
@@ -278,69 +165,13 @@ export const logger = {
 #### **Problemas:**
 
 **🔴 P1:**
-
-1. **URL Hardcoded (L9):**
-```javascript
-9: const ws = new WebSocket("wss://restaurant-2dfg.onrender.com/ws");
-```
-❌ Não configurável
-
-**Patch:**
-```diff
-+ const WS_URL = process.env.REACT_APP_WS_URL || 'wss://restaurant-2dfg.onrender.com/ws';
-- const ws = new WebSocket("wss://restaurant-2dfg.onrender.com/ws");
-+ const ws = new WebSocket(WS_URL);
-```
-
-2. **Sem Reconexão Automática:**
-```javascript
-13: ws.onclose = () => console.log("📴 [WS] Desconectado");
-```
-❌ Se cair, não reconecta
-
-**Patch:**
-```javascript
-const [reconnectAttempts, setReconnectAttempts] = useState(0);
-const MAX_RECONNECT_ATTEMPTS = 5;
-
-ws.onclose = () => {
-  console.log("📴 [WS] Desconectado");
-  if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-    const delay = Math.min(1000 * 2 ** reconnectAttempts, 30000);
-    setTimeout(() => {
-      setReconnectAttempts(prev => prev + 1);
-      // reconectar
-    }, delay);
-  }
-};
-```
-
 3. **Sem Autenticação:**
 ```javascript
 9: const ws = new WebSocket("wss://restaurant-2dfg.onrender.com/ws");
 ```
 ❌ Qualquer cliente pode conectar
 
-**⚠️ P2:**
 
-4. **Array Crescente Infinitamente (L26):**
-```javascript
-26: setMessages((prev) => [...prev, data]);
-```
-❌ Array nunca é limpo  
-❌ Memory leak
-
-**Patch:**
-```diff
-+ const MAX_MESSAGES = 100;
-- setMessages((prev) => [...prev, data]);
-+ setMessages((prev) => {
-+   const newMessages = [...prev, data];
-+   return newMessages.slice(-MAX_MESSAGES); // mantém só últimas 100
-+ });
-```
-
----
 
 ### **context/cartContext.js (105 linhas)**
 
@@ -402,33 +233,6 @@ export const createKey = (name, weight) => `${name}_${weight}`;
 
 **🔴 P1:**
 
-1. **URL Hardcoded (L75):**
-```javascript
-75: const response = await fetch('https://restaurant-2dfg.onrender.com/checkout', {
-```
-
-**Patch:**
-```diff
-+ const API_URL = process.env.REACT_APP_API_URL || 'https://restaurant-2dfg.onrender.com';
-- const response = await fetch('https://restaurant-2dfg.onrender.com/checkout', {
-+ const response = await fetch(`${API_URL}/checkout`, {
-```
-
-2. **Token no Header sem Validação (L79):**
-```javascript
-79: 'Authorization': `Bearer ${decodedText}`,
-```
-❌ Não valida se `decodedText` é um token válido  
-❌ Vulnerável a QR Codes maliciosos
-
-**Patch:**
-```javascript
-// Validar formato do token
-if (!/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(decodedText)) {
-  throw new Error('QR Code inválido');
-}
-```
-
 3. **Race Condition com useRef (L14-L15, L61-L64):**
 ```javascript
 14: const isSendingRef = useRef(false);
@@ -455,38 +259,6 @@ if (!/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(decodedText)) {
 
 **⚠️ P2:**
 
-4. **Comparação de PrecoPromocional (L36, L72, L197):**
-```javascript
-36: const price = item.PrecoPromocional != 0 ? item.PrecoPromocional : item.Preco;
-```
-❌ Usa `!=` em vez de `!==`  
-❌ Falha se PrecoPromocional for null/undefined
-
-**Patch:**
-```diff
-- const price = item.PrecoPromocional != 0 ? item.PrecoPromocional : item.Preco;
-+ const price = item.PrecoPromocional ?? item.Preco;
-```
-
-5. **Console.log Desnecessário (L23-L27):**
-```javascript
-22: const total = cart.map(item => {
-23:   console.log("price:",item.PrecoPromocional != 0 ? item.PrecoPromocional : item.Preco )
-24:   console.log(item)
-25: })
-26: console.log(total)
-```
-❌ Logs em produção  
-❌ `total` não é usado
-
-**Patch:**
-```diff
-- const total = cart.map(item => {
--   console.log("price:",item.PrecoPromocional != 0 ? item.PrecoPromocional : item.Preco )
--   console.log(item)
-- })
-- console.log(total)
-```
 
 6. **Timeout Mágico (L48, L141):**
 ```javascript
@@ -598,11 +370,6 @@ useEffect(() => {
 #### **Problemas:**
 
 **🔴 P1:**
-
-1. **URL Hardcoded (L43):**
-```javascript
-43: fetch('https://restaurant-2dfg.onrender.com/categoriasSub')
-```
 
 **⚠️ P2:**
 
@@ -1066,34 +833,6 @@ REACT_APP_WS_URL=wss://restaurant-2dfg.onrender.com/ws
 // config.js
 export const API_URL = process.env.REACT_APP_API_URL;
 export const WS_URL = process.env.REACT_APP_WS_URL;
-```
-
-### **2. Token sem Validação (cart.js L79)**
-
-**Problema:**
-```javascript
-79: 'Authorization': `Bearer ${decodedText}`,
-```
-- Não valida formato do token
-- Aceita qualquer string do QR Code
-
-**Solução:**
-```javascript
-// Validar JWT format
-const JWT_REGEX = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
-if (!JWT_REGEX.test(decodedText)) {
-  throw new Error('QR Code inválido');
-}
-
-// Validar expiração (se possível decodificar)
-try {
-  const payload = JSON.parse(atob(decodedText.split('.')[1]));
-  if (payload.exp && Date.now() >= payload.exp * 1000) {
-    throw new Error('Token expirado');
-  }
-} catch (e) {
-  throw new Error('Token inválido');
-}
 ```
 
 ### **3. WebSocket sem Autenticação (wsContext.js L9)**

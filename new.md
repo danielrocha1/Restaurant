@@ -58,6 +58,7 @@ js
 Copy code
 const API_URL = process.env.REACT_APP_API_URL;
 fetch(`${API_URL}/categoriasSub`);
+
 🔴 P1.2 — WebSocket sem autenticação
 Impacto: qualquer pessoa consegue conectar no WebSocket do restaurante.
 
@@ -69,6 +70,8 @@ const ws = new WebSocket("wss://restaurant-2dfg.onrender.com/ws");
 js
 Copy code
 const ws = new WebSocket(`${WS_URL}?token=${userToken}`);
+
+
 🔴 P1.3 — Token do QR Code sem validação
 Impacto: QR code malicioso pode ser lido como pedido válido.
 
@@ -80,6 +83,8 @@ Copy code
 js
 Copy code
 if (!JWT_REGEX.test(decodedText)) throw new Error("Token inválido");
+
+
 🔴 P1.4 — Memory leak no WebSocket (mensagens acumulando)
 📌 Antes
 js

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { WS_URL } from "../config/config";
 
 const WSContext = createContext();
 
@@ -6,7 +7,10 @@ export const WSProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
 
  useEffect(() => {
-  const ws = new WebSocket("wss://restaurant-2dfg.onrender.com/ws");
+  const ws = new WebSocket(WS_URL);
+   const MAX_MESSAGES = 100;
+ 
+ 
 
   ws.onopen = () => console.log("📡 [WS] Conectado");
   ws.onerror = (err) => console.error("💥 [WS] Erro:", err);
@@ -23,7 +27,10 @@ export const WSProvider = ({ children }) => {
       }
 
       console.log("📩 [WS] Mensagem recebida:", data);
-      setMessages((prev) => [...prev, data]);
+      setMessages((prev) => {
+      const newMessages = [...prev, data];
+      return newMessages.slice(-MAX_MESSAGES); // mantém só últimas 100
+    });
     } catch (err) {
       console.error("💥 [WS] Erro ao processar mensagem:", err, event.data);
     }

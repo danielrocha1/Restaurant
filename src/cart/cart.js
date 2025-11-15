@@ -3,6 +3,7 @@ import { Badge, Drawer, Button, List, Avatar, Modal } from 'antd';
 import { ShoppingCartOutlined, MinusOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useCart } from '../context/cartContext';
 import { Html5Qrcode } from 'html5-qrcode';
+import { API_URL } from '../config/config';
 import './cart.css';
 
 const Cart = () => {
@@ -72,7 +73,7 @@ const Cart = () => {
               price: (item.PrecoPromocional  != 0 ?  item.PrecoPromocional : item.Preco) 
             }));
 
-            const response = await fetch('https://restaurant-2dfg.onrender.com/checkout', {
+            const response = await fetch(`${API_URL}/checkout`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

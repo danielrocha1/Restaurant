@@ -40,7 +40,7 @@ const CategoryBar = () => {
   }, []);
 
   useEffect(() => {
-    fetch('https://restaurant-2dfg.onrender.com/categoriasSub')
+    fetch(`${API_URL}/categoriasSub`)
       .then((res) => res.json())
       .then((data) => {
         const items = (data || []).map((categoria, i) => {

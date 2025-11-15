@@ -43,16 +43,18 @@ func main() {
         log.Println("[WARN] FRONTEND_URL não definido, CORS liberado para todas as origens!")
         app.Use(cors.New())
         // log.Fatalf("Erro ao obter cors")
-
     } else {
         app.Use(cors.New(cors.Config{
             AllowOrigins: frontendURL,
             AllowCredentials: true,
         }))
     }
+
+    backendUrl := os.Getenv("BACKEND_API_URL")
+
     go func() {
 		for {
-           	_, err := http.Get("https://restaurant-2dfg.onrender.com")
+           	_, err := http.Get(backendUrl)
 			if err != nil {
 				log.Println("❌ Erro ao fazer ping:", err)
 			} else {

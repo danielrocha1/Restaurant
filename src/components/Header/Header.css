@@ -149,37 +149,38 @@ mask: radial-gradient(
     transform: scale(1.4);
 }
 
-/* --- Estilos da Nova Barra de Categorias no Topo (Mobile) --- */
-.top-category-bar-container {
+/* --- Estilos da Nova Barra Inferior (CategoryBar) --- */
+.bottom-bar-container {
     position: fixed;
-    top: 50px; /* Abaixo da promo-bar-container.top (50px de altura) */
+    bottom: 0; /* Ancorado ao fundo */
     left: 0;
     right: 0;
-    z-index: 998; /* Abaixo do carrinho flutuante */
+    z-index: 999; /* Abaixo do carrinho, acima do conteúdo */
     display: none; /* Padrão: escondido */
     background-color: #1c1c1c; /* Fundo escuro */
     padding: 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra para baixo */
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); /* Sombra para cima */
     transition: transform 0.2s ease-in-out;
 }
 
-/* Estilo para mostrar a barra de categorias no topo (apenas no mobile) */
+/* Estilo para mostrar a barra inferior (apenas no mobile) */
 @media (max-width: 768px) {
-    .top-category-bar-container {
-        display: block; /* Mostra no mobile */
+    .bottom-bar-container {
+        display: flex; /* Mostra no mobile */
+        flex-direction: column; /* Para manter a CategoryBar no centro se houver outros elementos */
+        align-items: center;
     }
 }
 
-/* Estilo para esconder a barra de categorias no topo */
-.top-category-bar-hidden {
-    /* Move para cima para sair da tela */
-    transform: translateY(-100%); 
+/* Estilo para esconder a barra inferior */
+.bottom-bar-hidden {
+    /* Move para baixo para sair da tela */
+    transform: translateY(100%); 
 }
 
-/* --- Estilos da Antiga Barra Inferior (Removidos/Ajustados) --- */
-.bottom-bar-container,
-.bottom-bar-hidden,
-.header-logo-bottom {
+/* Remove estilos da antiga barra superior de categorias */
+.top-category-bar-container,
+.top-category-bar-hidden {
     display: none !important;
 }
 

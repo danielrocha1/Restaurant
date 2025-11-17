@@ -56,8 +56,8 @@ function Menu() {
     <div
       style={{
         backgroundColor: "black",
-        // 50px (promo bar) + 40px (category bar) = 90px no mobile
-        marginTop: isMobile ? "90px" : isTablet ? "80px" : "60px",
+        // 50px (promo bar) no topo
+        marginTop: isMobile ? "70px" : isTablet ? "80px" : "60px",
         color: "white",
       }}
     >

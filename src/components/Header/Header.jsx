@@ -59,8 +59,8 @@ const Header = () => {
         </Space>
       </div>
 
-      {/* 3. CategoryBar no Topo (Mobile) */}
-      <div className={`top-category-bar-container ${hideHeader ? "top-category-bar-hidden" : ""}`}>
+      {/* 3. CategoryBar no Bottom */}
+      <div className={`bottom-bar-container ${hideHeader ? "bottom-bar-hidden" : ""}`}>
         <CategoryBar />
       </div>
 

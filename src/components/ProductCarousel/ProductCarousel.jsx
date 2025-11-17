@@ -69,6 +69,7 @@ const ProductCarousel = ({
   useEffect(() => {
     const swiperContainer = document.getElementById(id);
 
+    // Desativa o wheel scroll no mobile (isMobile)
     if (!swiperContainer || isMobile) return;
 
     const handleWheel = (e) => {
@@ -128,17 +129,20 @@ const ProductCarousel = ({
 
       <Swiper
         modules={[Navigation]}
-        direction={isMobile ? "vertical" : "horizontal"}
+        direction="horizontal" // Manter horizontal para simplificar o layout
         spaceBetween={10}
         breakpoints={{
           0: {
-            slidesPerView: 1, // mobile
+            slidesPerView: "auto", // mobile: exibe todos os slides em lista vertical
+            direction: "vertical", // Força o Swiper a se comportar como uma lista vertical
           },
           769: {
             slidesPerView: 2, // tablet
+            direction: "horizontal",
           },
           1025: {
             slidesPerView: 3, // desktop
+            direction: "horizontal",
           },
         }}
         observer={true}

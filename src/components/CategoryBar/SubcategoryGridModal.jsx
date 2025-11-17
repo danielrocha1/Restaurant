@@ -1,9 +1,9 @@
 import React from "react";
-import { Modal, Button, Typography, Grid } from "antd";
+import { Modal, Button, Grid } from "antd";
 import { smoothScrollTo, slug } from "../../utils/helpers";
 import "./SubcategoryGridModal.css";
 
-const { Title } = Typography;
+
 const { useBreakpoint } = Grid;
 
 /**
@@ -26,12 +26,10 @@ const SubcategoryGridModal = ({ isVisible, onClose, category, subcategories }) =
       onCancel={onClose}
       footer={null}
       centered
-      width={isMobile ? "90%" : 500}
+      width={isMobile ? "100%" : 500}
       className="subcategory-grid-modal"
     >
-      <Title level={4} className="modal-title">
-        {category.Nome}
-      </Title>
+      {/* Título removido conforme solicitado */}
       <div className="subcategory-grid">
         {subcategories.map((sub) => (
           <Button

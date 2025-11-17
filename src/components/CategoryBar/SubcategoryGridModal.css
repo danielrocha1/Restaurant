@@ -1,15 +1,26 @@
 /* Estilos para o Modal de Subcategorias em Grid */
 
+/* Estilos para o Modal de Subcategorias em Grid */
+
+.subcategory-grid-modal .ant-modal-wrap {
+  /* Torna o container do modal invisível */
+  background-color: transparent;
+  pointer-events: none; /* Permite cliques passarem para o conteúdo abaixo */
+}
+
 .subcategory-grid-modal .ant-modal-content {
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: 16px 16px 0 0; /* Arredonda apenas o topo */
+  padding: 16px;
   background-color: #fff;
+  pointer-events: auto; /* Reativa cliques no conteúdo do modal */
+  position: absolute;
+  bottom: 0; /* Ancorado ao fundo */
+  width: 100%;
+  margin: 0;
 }
 
 .modal-title {
-  text-align: center;
-  margin-bottom: 20px !important;
-  color: #bb041c;
+  display: none; /* Remove o título */
 }
 
 .subcategory-grid {
@@ -41,7 +52,19 @@
 }
 
 /* Ajustes para mobile */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .subcategory-grid-modal .ant-modal {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .subcategory-grid-modal .ant-modal-content {
+    /* Altura ajustada para ficar logo acima da CategoryBar */
+    /* Assumindo CategoryBar tem ~40px de altura */
+    bottom: 40px; 
+  }
+
   .subcategory-grid {
     /* Garante que o grid se ajuste bem em telas menores */
     grid-template-columns: repeat(3, 1fr);

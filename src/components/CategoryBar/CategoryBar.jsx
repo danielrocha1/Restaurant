@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Menu, Dropdown } from "antd";
+import { Menu } from "antd";
+import SubcategoryGridModal from "./SubcategoryGridModal";
 import { AppstoreOutlined, DownOutlined } from "@ant-design/icons";
 import { useCategories } from "../../hooks/useCategories";
 import { slug, smoothScrollTo, isBrowser } from "../../utils/helpers";
@@ -13,6 +14,8 @@ const CategoryBar = () => {
   const [isMobile, setIsMobile] = useState(
     isBrowser() ? window.innerWidth < 768 : false
   );
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [openKeys, setOpenKeys] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const menuRef = useRef(null);
@@ -92,7 +95,8 @@ const CategoryBar = () => {
   }
 
   return (
-    <div className={`category-bar ${isMobile ? "mobile" : ""}`} ref={menuRef}>
+    <>
+      <div className={`category-bar ${isMobile ? "mobile" : ""}`} ref={menuRef}>
       {isMobile ? (
         <nav className="cat-scroll" aria-label="Categorias">
           {menuItems.map((item) => {
@@ -112,23 +116,20 @@ const CategoryBar = () => {
               );
             }
 
-            const dropdownMenu = { items: item.children };
-
+            // No mobile, abre o modal de grid de subcategorias
             return (
-              <Dropdown
+              <button
                 key={item.key}
-                menu={dropdownMenu}
-                trigger={["click"]}
-                placement="bottom"
+                className="cat-chip has-sub"
+                onClick={() => {
+                  const originalCategory = categories.find(c => c.Nome === item.label);
+                  setSelectedCategory(originalCategory);
+                  setIsModalVisible(true);
+                }}
+                type="button"
               >
-                <button
-                  className="cat-chip has-sub"
-                  onClick={(e) => e.preventDefault()}
-                  type="button"
-                >
-                  {item.label} <DownOutlined />
-                </button>
-              </Dropdown>
+                {item.label} <DownOutlined />
+              </button>
             );
           })}
         </nav>
@@ -143,7 +144,12 @@ const CategoryBar = () => {
         />
       )}
     </div>
+    <SubcategoryGridModal
+      isVisible={isModalVisible}
+      onClose={() => setIsModalVisible(false)}
+      category={selectedCategory}
+      subcategories={selectedCategory?.Subcategorias?.filter(s => s?.Nome && s.Nome !== "Sem subcategoria")}
+    />
+    </>
   );
-};
-
-export default CategoryBar;
+};export default CategoryBar;

@@ -149,45 +149,39 @@ mask: radial-gradient(
     transform: scale(1.4);
 }
 
-/* --- Estilos da Nova Barra Inferior (Logo + CategoryBar) --- */
-.bottom-bar-container {
+/* --- Estilos da Nova Barra de Categorias no Topo (Mobile) --- */
+.top-category-bar-container {
     position: fixed;
-    bottom: 0; /* Ancorado ao fundo */
+    top: 50px; /* Abaixo da promo-bar-container.top (50px de altura) */
     left: 0;
     right: 0;
-    z-index: 999; /* Abaixo do carrinho, acima do conteúdo */
-    display: flex;
-    flex-direction: column; /* Organiza em coluna (Logo em cima, CategoryBar embaixo) */
-    align-items: center; /* Centraliza horizontalmente */
+    z-index: 998; /* Abaixo do carrinho flutuante */
+    display: none; /* Padrão: escondido */
     background-color: #1c1c1c; /* Fundo escuro */
-    padding: 10px 0 0 0; /* Padding: 10px em cima, 0 nas laterais e embaixo */
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); /* Sombra para cima */
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Sombra para baixo */
     transition: transform 0.2s ease-in-out;
 }
 
-/* Estilo para esconder a barra inferior */
-.bottom-bar-hidden {
-    /* Move para baixo para sair da tela */
-    transform: translateY(100%); 
+/* Estilo para mostrar a barra de categorias no topo (apenas no mobile) */
+@media (max-width: 768px) {
+    .top-category-bar-container {
+        display: block; /* Mostra no mobile */
+    }
 }
 
-/* Estilizando a Logo no bottom */
+/* Estilo para esconder a barra de categorias no topo */
+.top-category-bar-hidden {
+    /* Move para cima para sair da tela */
+    transform: translateY(-100%); 
+}
+
+/* --- Estilos da Antiga Barra Inferior (Removidos/Ajustados) --- */
+.bottom-bar-container,
+.bottom-bar-hidden,
 .header-logo-bottom {
-    width: 90px;
-    margin-bottom: 5px; /* Espaço entre a logo e a CategoryBar */
-    z-index: 999;
+    display: none !important;
 }
-
-/* Certificar que a CategoryBar se ajusta à nova posição */
-/* Se CategoryBar tiver seu próprio CSS, você precisará garantir que ela não tem position: fixed/absolute */
-/* Se a CategoryBar for injetada com className, ajuste aqui: */
-/*
-.category-bar-container {
-    width: 100%;
-    // Outros estilos...
-}
-*/
-
 
 /* --- Estilos Removidos/Ajustados --- */
 

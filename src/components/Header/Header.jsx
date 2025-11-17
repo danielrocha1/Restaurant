@@ -23,6 +23,7 @@ const Header = () => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
+      // A lógica de esconder/mostrar será mantida para a nova barra de categorias no topo
       if (currentScrollY > lastScrollY && currentScrollY > SCROLL_THRESHOLD) {
         setHideHeader(true);
       } else if (currentScrollY < lastScrollY) {
@@ -58,8 +59,8 @@ const Header = () => {
         </Space>
       </div>
 
-      {/* 3. CategoryBar no Bottom */}
-      <div className={`bottom-bar-container ${hideHeader ? "bottom-bar-hidden" : ""}`}>
+      {/* 3. CategoryBar no Topo (Mobile) */}
+      <div className={`top-category-bar-container ${hideHeader ? "top-category-bar-hidden" : ""}`}>
         <CategoryBar />
       </div>
 

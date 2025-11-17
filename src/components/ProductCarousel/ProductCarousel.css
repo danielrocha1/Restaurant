@@ -20,7 +20,6 @@
   width: 80vw;
   height: auto; /* Altura automática para se adaptar ao Swiper */
   margin: 0 auto;
-  margin-left: 12.4vw;
 }
 
 .navigation-buttons {
@@ -80,8 +79,8 @@
   }
 
   .swiper-slide {
-    width: 100% !important;
-    margin-right: 0 !important;
+    /* Removido width: 100% !important e margin-right: 0 !important
+       para permitir que o ProductCard defina sua largura e centralização */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -133,7 +132,6 @@
     width: 80vw;
     height: auto; /* Altura automática para se adaptar ao Swiper */
     margin: 0 auto;
-    margin-left: 12.4vw;
   }
 
   .custom-prev,

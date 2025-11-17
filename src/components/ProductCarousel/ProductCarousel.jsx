@@ -37,10 +37,11 @@ const ProductCarousel = ({
       setIsMobile(mobile);
 
       // Lógica para calcular a altura do Swiper (apenas para desktop/tablet)
+      // Adicionando uma margem de segurança maior (ex: 40px) para evitar quebras
       if (!mobile && cardRef.current) {
-        // Altura do card + margem/padding (aproximadamente 20px de margem vertical)
+        // Altura do card + margem/padding (aproximadamente 40px de margem vertical)
         const cardHeight = cardRef.current.offsetHeight;
-        setSwiperHeight(`${cardHeight + 20}px`);
+        setSwiperHeight(`${cardHeight + 40}px`);
       } else {
         // No mobile, a altura é automática (vertical scroll)
         setSwiperHeight("auto");
@@ -150,7 +151,7 @@ const ProductCarousel = ({
 	        // ... (restante das props)
         breakpoints={{
           0: {
-            slidesPerView: "auto", // mobile: exibe todos os slides em lista vertical
+            slidesPerView: 1, // mobile: 1 slide por vez para evitar quebra de layout
             direction: "vertical", // Força o Swiper a se comportar como uma lista vertical
           },
           769: {

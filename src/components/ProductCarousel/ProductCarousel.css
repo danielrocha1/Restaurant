@@ -11,62 +11,6 @@
 }
 
 .category {
-  border: 1px solid rgba(255, 255, 255, 0.3); /* borda clara semi-transparente */
-  background: rgba(217, 74, 74, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25); /* sombra suave */
-  backdrop-filter: blur(10px); /* efeito de desfoque no fundo */
-  -webkit-backdrop-filter: blur(10px); /* para compatibilidade com Safari */
-
-  border-radius: 8px;
-  width: 80vw;
-  height: 50vh;
-  margin: 0 auto;
-  margin-left: 12.4vw;
-}
-
-.navigation-buttons {
-  margin-right: 15px;
-  display: flex;
-  gap: 13px;
-}
-
-.custom-prev,
-.custom-next {
-  background-color: transparent;
-  border: none;
-  font-size: 54px;
-  cursor: pointer;
-  color: #fffcfc;
-  transition: color 0.3s;
-}
-
-.custom-prev:hover,
-.custom-next:hover {
-  color: #000;
-}
-
-
-.swiper-wrapper {
-  height: 85%;
-}
- 
-.product-carousel {
-  scroll-margin-top: 130px; /* ajuste conforme a altura do seu header fixo */
-}
-
-.category-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: white;
-  background-color: #d41d1d;
-  border-radius: 6px;
-  padding-left: 15px;
-  border: dashed honeydew;
-  border-width: 0px 0px 2px 0px;
-}
-
-.category {
   border: 1px solid rgba(255, 255, 255, 0.3);
   background: rgba(217, 74, 74, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
@@ -74,7 +18,7 @@
   -webkit-backdrop-filter: blur(10px);
   border-radius: 8px;
   width: 80vw;
-  height: 70vh;
+  height: auto; /* Altura automática para se adaptar ao Swiper */
   margin: 0 auto;
   margin-left: 12.4vw;
 }
@@ -101,7 +45,7 @@
 }
 
 .swiper-wrapper {
-  height: 85%;
+  height: 100%; /* O Swiper agora receberá a altura via prop style no JSX */
 }
 
 .product-carousel {
@@ -112,9 +56,6 @@
 .custom-next:disabled {
   color: black;
 }
-
-
-
 
 /* --- ESTILOS PARA MOBILE --- */
 @media (max-width: 768px) {
@@ -139,7 +80,6 @@
   }
 
   .swiper-slide {
-    /* Garante que o slide ocupe 100% da largura e não tenha margens indesejadas */
     width: 100% !important;
     margin-right: 0 !important;
     display: flex;
@@ -148,16 +88,14 @@
   }
 }
 
-
 /* ===== Tablet (iPad vertical/horizontal, Android tablets) ===== */
 @media (min-width: 769px) and (max-width: 1024px) {
-  /* Evita empurrar por causa de sidebar fixa no desktop */
   .category {
     width: 75vw;
-    height: 84vh;            /* ocupa bem sem estourar a viewport */
-    margin-left: 160px;       /* remove o 12.4vw do desktop */
+    height: auto; /* Altura automática para se adaptar ao Swiper */
+    margin-left: 160px;
     margin-right: auto;
-    overflow: hidden;        /* garante layout limpo; troque para auto se quiser scroll interno */
+    overflow: hidden;
   }
 
   .category-header {
@@ -165,7 +103,6 @@
     border-radius: 8px;
   }
 
-  /* Mostra os botões no tablet e garante alvo de toque confortável */
   .navigation-buttons {
     display: flex;
     gap: 12px;
@@ -174,20 +111,17 @@
 
   .custom-prev,
   .custom-next {
-    font-size: 44px;         /* menor que desktop, maior que mobile */
+    font-size: 44px;
     line-height: 1;
-    padding: 6px;            /* área de toque (~44px) */
+    padding: 6px;
   }
 
-  /* Altura do carrossel no tablet:
-     use vh para se ajustar à barra do navegador */
   .swiper-wrapper {
-    height: 60vh;
-    min-height: 420px;
-    max-height: 560px;
+    height: 100%; /* O Swiper agora receberá a altura via prop style no JSX */
+    min-height: auto;
+    max-height: none;
   }
 
-  /* Quando rolar para âncoras, compensa header fixo um pouco menor que no desktop */
   .product-carousel {
     scroll-margin-top: 110px;
   }
@@ -197,9 +131,9 @@
 @media (min-width: 1025px) {
   .category {
     width: 80vw;
-    height: 70vh;
+    height: auto; /* Altura automática para se adaptar ao Swiper */
     margin: 0 auto;
-    margin-left: 12.4vw; /* se precisa acomodar sidebar fixa, mantém aqui */
+    margin-left: 12.4vw;
   }
 
   .custom-prev,
@@ -208,7 +142,7 @@
   }
 
   .swiper-wrapper {
-    height: 85%;
+    height: 100%; /* O Swiper agora receberá a altura via prop style no JSX */
   }
 
   .product-carousel {

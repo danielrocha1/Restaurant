@@ -24,19 +24,32 @@ const ProductCarousel = ({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
+  const [swiperHeight, setSwiperHeight] = useState("auto"); // Novo estado para altura dinâmica
+  const cardRef = useRef(null); // Referência para o primeiro card para medir a altura
 
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
-  // Detecta se é mobile
+  // Detecta se é mobile e calcula a altura do Swiper
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+
+      // Lógica para calcular a altura do Swiper (apenas para desktop/tablet)
+      if (!mobile && cardRef.current) {
+        // Altura do card + margem/padding (aproximadamente 20px de margem vertical)
+        const cardHeight = cardRef.current.offsetHeight;
+        setSwiperHeight(`${cardHeight + 20}px`);
+      } else {
+        // No mobile, a altura é automática (vertical scroll)
+        setSwiperHeight("auto");
+      }
     };
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [products.length]); // Recalcula quando os produtos mudam ou a tela redimensiona
 
   // Carrega mais produtos quando chega perto do final
   useEffect(() => {
@@ -95,14 +108,16 @@ const ProductCarousel = ({
     };
   }, [swiperInstance, id, isMobile]);
 
-  const handleSlideChange = (swiper) => {
-    setActiveIndex(swiper.activeIndex);
-    setIsBeginning(swiper.isBeginning);
-    setIsEnd(swiper.isEnd);
-  };
-
-  return (
-    <div id={id} className="category">
+	  const handleSlideChange = (swiper) => {
+	    setActiveIndex(swiper.activeIndex);
+	    setIsBeginning(swiper.isBeginning);
+	    setIsEnd(swiper.isEnd);
+	  };
+	
+	  return (
+	    <div id={id} className="category">
+	      {/* Adiciona o estilo de altura dinâmico ao Swiper */}
+	      {/* A altura será aplicada diretamente no componente Swiper via prop style */}
       <div className="category-header">
         <h2>{subCategoryName}</h2>
         {!isMobile && (
@@ -127,10 +142,12 @@ const ProductCarousel = ({
         )}
       </div>
 
-      <Swiper
-        modules={[Navigation]}
-        direction="horizontal" // Manter horizontal para simplificar o layout
-        spaceBetween={10}
+	      <Swiper
+	        modules={[Navigation]}
+	        direction="horizontal" // Manter horizontal para simplificar o layout
+	        spaceBetween={10}
+	        style={{ height: swiperHeight }} // Aplica a altura calculada
+	        // ... (restante das props)
         breakpoints={{
           0: {
             slidesPerView: "auto", // mobile: exibe todos os slides em lista vertical
@@ -164,13 +181,13 @@ const ProductCarousel = ({
         onSwiper={setSwiperInstance}
         onSlideChange={handleSlideChange}
         className="swiper-wrapper"
-      >
-        {products.map((product, index) => (
-          <SwiperSlide key={index} data-produto-id={`${product.ID}`}>
-            <ProductCard product={product} />
-          </SwiperSlide>
-        ))}
-      </Swiper>
+	      >
+	        {products.map((product, index) => (
+	          <SwiperSlide key={index} data-produto-id={`${product.ID}`}>
+	            <ProductCard product={product} ref={index === 0 ? cardRef : null} />
+	          </SwiperSlide>
+	        ))}
+	      </Swiper>
     </div>
   );
 };

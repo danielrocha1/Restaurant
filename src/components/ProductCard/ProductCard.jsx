@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, forwardRef } from "react";
 import { Card, Button, Typography } from "antd";
 import QuickViewModal from "./QuickViewModal";
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
@@ -8,7 +8,7 @@ import "./ProductCard.css";
 
 const { Text } = Typography;
 
-const ProductCard = ({ product }) => {
+const ProductCard = forwardRef(({ product }, ref) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   
   const defaultWeight =
@@ -32,7 +32,7 @@ const ProductCard = ({ product }) => {
   
   return (
     <>
-      <Card className="product-card" hoverable>
+      <Card className="product-card" hoverable ref={ref}>
         <img
           src={product.Imagem}
           alt={product.Nome}
@@ -101,6 +101,6 @@ const ProductCard = ({ product }) => {
       />
     </>
   );
-};
+});
 
 export default ProductCard;

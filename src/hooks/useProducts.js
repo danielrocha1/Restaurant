@@ -13,7 +13,6 @@ export const useProducts = () => {
   const [productData, setProductData] = useState({});
   const [pagination, setPagination] = useState({});
   const [loadingByCategory, setLoadingByCategory] = useState({});
-  const [loading, setLoading] = useState(true);
 
   const { messages } = useWebSocket();
   const { setCart } = useCart();
@@ -23,7 +22,6 @@ export const useProducts = () => {
    */
   const fetchInitialData = useCallback(async () => {
     try {
-      setLoading(true);
       const categories = await fetchCategoriesWithSubcategories();
 
       for (const categoria of categories) {
@@ -74,8 +72,6 @@ export const useProducts = () => {
       }
     } catch (error) {
       console.error("❌ Erro ao carregar categorias e subcategorias:", error);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -200,7 +196,6 @@ export const useProducts = () => {
   return {
     productData,
     pagination,
-    loading,
     fetchMoreProducts,
     reloadProducts: fetchInitialData,
   };

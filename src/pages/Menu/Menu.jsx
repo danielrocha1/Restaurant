@@ -22,7 +22,7 @@ function Menu() {
     window.innerWidth > 768 && window.innerWidth <= 1024
   );
 
-  const { productData, pagination, loading, fetchMoreProducts } = useProducts();
+  const { productData, pagination, fetchMoreProducts } = useProducts();
 
   // Detecta mudanças de tamanho da tela
   useEffect(() => {
@@ -48,7 +48,7 @@ function Menu() {
     }
   }, [productData]);
 
-  if (showLoading || loading) {
+  if (showLoading) {
     return <LoadingScreen />;
   }
 

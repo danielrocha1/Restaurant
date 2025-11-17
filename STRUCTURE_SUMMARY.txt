@@ -1,0 +1,27 @@
+src
+├── api
+│   ├── services
+│   └── client.js
+├── components
+│   ├── Cart
+│   ├── CategoryBar
+│   ├── Header
+│   ├── LoadingScreen
+│   ├── ProductCard
+│   └── ProductCarousel
+├── contexts
+│   ├── CartContext.js
+│   └── WebSocketContext.js
+├── hooks
+│   ├── useCategories.js
+│   ├── useProducts.js
+│   └── useWebSocket.js
+├── pages
+│   └── Menu
+├── utils
+│   ├── helpers.js
+│   └── validators.js
+├── index.css
+└── index.js
+
+14 directories, 10 files

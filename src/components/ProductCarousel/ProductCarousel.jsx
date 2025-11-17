@@ -43,8 +43,8 @@ const ProductCarousel = ({
         const cardHeight = cardRef.current.offsetHeight;
         setSwiperHeight(`${cardHeight + 40}px`);
       } else {
-        // No mobile, a altura é automática (vertical scroll)
-        setSwiperHeight("auto");
+        // No mobile, a altura é fixa em 70px, conforme solicitado.
+        setSwiperHeight("70px");
       }
     };
     handleResize();

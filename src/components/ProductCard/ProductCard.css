@@ -174,12 +174,13 @@
 @media (max-width: 480px) {
   .product-card {
     width: 94%;
-    margin: 20px auto;
+    margin: 10px auto; /* Reduz margem */
   }
 
   .product-image {
-    height: 180px;
+    height: 140px; /* Reduz altura da imagem */
     border-radius: 16px 16px 0 0;
+    cursor: pointer; /* Adiciona cursor para indicar clique */
   }
 
   .product-info {
@@ -188,8 +189,8 @@
   }
 
   .product-title {
-    font-size: 14px;
-    text-align: center;
+    font-size: 13px; /* Reduz tamanho da fonte */
+    text-align: left; /* Volta para alinhamento à esquerda */
   }
 
   .weight-options {
@@ -202,23 +203,26 @@
   }
 
   .cart-controls {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row; /* Volta para linha */
+    align-items: center;
+    justify-content: space-between; /* Distribui espaço */
+    gap: 10px;
   }
 
   .product-price {
-    font-size: 18px;
-    text-align: center;
+    font-size: 16px; /* Reduz tamanho da fonte do preço */
+    text-align: left; /* Volta para alinhamento à esquerda */
   }
 
   .add-to-cart {
-    font-size: 14px;
-    padding: 10px;
+    font-size: 13px; /* Reduz tamanho da fonte do botão */
+    padding: 8px 10px; /* Reduz padding do botão */
+    width: auto; /* Permite que o botão se ajuste ao conteúdo */
   }
 
   .quantity-controls {
-    justify-content: center;
-    gap: 16px;
+    justify-content: flex-start; /* Alinha à esquerda */
+    gap: 10px;
   }
 
   .quantity-button {

@@ -106,23 +106,25 @@
   /* (Opcional) Evite re-importar a fonte no mobile para não duplicar requests */
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
-  /* Barra de categorias vira uma “faixa” horizontal rolável no topo do conteúdo */
+  /* A CategoryBar é agora um componente filho do bottom-bar-container,
+     que já é fixo e posicionado. Removemos os estilos fixos conflitantes. */
   .category-bar {
-    position: fixed;                 /* continua fixa */
-    width: 100vw;                    /* ocupa toda a largura */
-    height: 10vh;                     /* altura baixa para parecer uma barra/chips */
-    background-color: #1c1c1c;       /* mantém o preto suave */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);   /* sombra mais leve no mobile */
-    z-index: 998;                    /* sobrepõe o conteúdo abaixo */
-    overflow-x: auto;                /* rolagem HORIZONTAL para os chips */
-    overflow-y: hidden;              /* bloqueia rolagem vertical */
-    white-space: nowrap;             /* impede quebra de linha entre chips */
-    padding: 8px 0;                  /* respiro vertical dentro da faixa */
-    display: flex;                   /* layout em linha para os chips */
-    flex-direction: row;             /* garante direção horizontal */
-    gap: 12px;                       /* espaço entre os chips */
-    scroll-behavior: smooth;         /* rolagem suave ao usar scrollTo */
-    left: 0;
+    position: static; /* Remove o position: fixed; */
+    top: auto;        /* Remove o top: 49px; */
+    width: 100%;      /* Ocupa 100% do container pai */
+    height: auto;     /* Altura automática */
+    background-color: transparent; /* Remove o background-color, usa o do pai */
+    box-shadow: none; /* Remove a sombra */
+    z-index: auto;    /* Remove o z-index */
+    overflow-x: auto; /* Mantém a rolagem horizontal para os chips */
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    scroll-behavior: smooth;
+    left: auto;
   }
 
   /* Esconde explicitamente a versão “levantada”/retraída no mobile */

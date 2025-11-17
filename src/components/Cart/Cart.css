@@ -1,0 +1,22 @@
+/* Carrinho */
+.ant-drawer-title {
+    font-weight: bold;
+    color: #94261e;
+}
+
+.finalizar {
+    background-color: #94261e;
+    border-color: #94261e;
+    color:white;
+}
+
+.finalizar:hover {
+    background-color: #6b1c16;
+    border-color: #6b1c16;
+}
+
+
+
+.ant-message {
+  z-index: 1050 !important; /* acima de modais e drawers */
+}

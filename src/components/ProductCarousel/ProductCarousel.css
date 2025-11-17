@@ -1,0 +1,214 @@
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  background: linear-gradient(234deg, #B70F0A, #E82B21);
+  border-radius: 6px;
+  padding-left: 15px;
+  border: dashed honeydew;
+  border-width: 0px 0px 2px 0px;
+}
+
+.category {
+  border: 1px solid rgba(255, 255, 255, 0.3); /* borda clara semi-transparente */
+  background: rgba(217, 74, 74, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25); /* sombra suave */
+  backdrop-filter: blur(10px); /* efeito de desfoque no fundo */
+  -webkit-backdrop-filter: blur(10px); /* para compatibilidade com Safari */
+
+  border-radius: 8px;
+  width: 80vw;
+  height: 50vh;
+  margin: 0 auto;
+  margin-left: 12.4vw;
+}
+
+.navigation-buttons {
+  margin-right: 15px;
+  display: flex;
+  gap: 13px;
+}
+
+.custom-prev,
+.custom-next {
+  background-color: transparent;
+  border: none;
+  font-size: 54px;
+  cursor: pointer;
+  color: #fffcfc;
+  transition: color 0.3s;
+}
+
+.custom-prev:hover,
+.custom-next:hover {
+  color: #000;
+}
+
+
+.swiper-wrapper {
+  height: 85%;
+}
+ 
+.product-carousel {
+  scroll-margin-top: 130px; /* ajuste conforme a altura do seu header fixo */
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  background-color: #d41d1d;
+  border-radius: 6px;
+  padding-left: 15px;
+  border: dashed honeydew;
+  border-width: 0px 0px 2px 0px;
+}
+
+.category {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(217, 74, 74, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 8px;
+  width: 80vw;
+  height: 70vh;
+  margin: 0 auto;
+  margin-left: 12.4vw;
+}
+
+.navigation-buttons {
+  margin-right: 15px;
+  display: flex;
+  gap: 13px;
+}
+
+.custom-prev,
+.custom-next {
+  background-color: transparent;
+  border: none;
+  font-size: 54px;
+  cursor: pointer;
+  color: #fffcfc;
+  transition: color 0.3s;
+}
+
+.custom-prev:hover,
+.custom-next:hover {
+  color: #000;
+}
+
+.swiper-wrapper {
+  height: 85%;
+}
+
+.product-carousel {
+  scroll-margin-top: 130px;
+}
+
+.custom-prev:disabled,
+.custom-next:disabled {
+  color: black;
+}
+
+
+
+
+/* --- ESTILOS PARA MOBILE --- */
+@media (max-width: 768px) {
+  .category {
+    width: 90vw;
+    height: auto;
+    margin: 10px auto;
+  }
+
+  .category-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .navigation-buttons {
+    display: none; /* Oculta botões no mobile */
+  }
+
+  .swiper-wrapper {
+    height: 450px; /* Altura vertical visível */
+  }
+
+  .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+
+/* ===== Tablet (iPad vertical/horizontal, Android tablets) ===== */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Evita empurrar por causa de sidebar fixa no desktop */
+  .category {
+    width: 75vw;
+    height: 84vh;            /* ocupa bem sem estourar a viewport */
+    margin-left: 160px;       /* remove o 12.4vw do desktop */
+    margin-right: auto;
+    overflow: hidden;        /* garante layout limpo; troque para auto se quiser scroll interno */
+  }
+
+  .category-header {
+    gap: 8px;
+    border-radius: 8px;
+  }
+
+  /* Mostra os botões no tablet e garante alvo de toque confortável */
+  .navigation-buttons {
+    display: flex;
+    gap: 12px;
+    margin-right: 10px;
+  }
+
+  .custom-prev,
+  .custom-next {
+    font-size: 44px;         /* menor que desktop, maior que mobile */
+    line-height: 1;
+    padding: 6px;            /* área de toque (~44px) */
+  }
+
+  /* Altura do carrossel no tablet:
+     use vh para se ajustar à barra do navegador */
+  .swiper-wrapper {
+    height: 60vh;
+    min-height: 420px;
+    max-height: 560px;
+  }
+
+  /* Quando rolar para âncoras, compensa header fixo um pouco menor que no desktop */
+  .product-carousel {
+    scroll-margin-top: 110px;
+  }
+}
+
+/* ===== Desktop-only ajustes (mantém teu espaçamento lateral atual) ===== */
+@media (min-width: 1025px) {
+  .category {
+    width: 80vw;
+    height: 70vh;
+    margin: 0 auto;
+    margin-left: 12.4vw; /* se precisa acomodar sidebar fixa, mantém aqui */
+  }
+
+  .custom-prev,
+  .custom-next {
+    font-size: 54px;
+  }
+
+  .swiper-wrapper {
+    height: 85%;
+  }
+
+  .product-carousel {
+    scroll-margin-top: 130px;
+  }
+}

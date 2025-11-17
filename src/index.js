@@ -1,14 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
-import { CartProvider } from "./context/cartContext";
-import { WSProvider } from "./context/wsContext"
+import Menu from "./pages/Menu/Menu";
+import { CartProvider } from "./contexts/CartContext";
+import { WebSocketProvider } from "./contexts/WebSocketContext";
+import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <WSProvider>
+  <WebSocketProvider>
     <CartProvider>
-      <App />
+      <Menu />
     </CartProvider>
-  </WSProvider>
-
+  </WebSocketProvider>
 );

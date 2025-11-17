@@ -1,0 +1,175 @@
+/* 1) Fundo fixo visível atrás de tudo */
+
+/* https://thumbs.dreamstime.com/b/papel-japon%C3%AAs-preto-escuro-e-fundo-plano-de-geom%C3%A9trico-abstrato-textura-moderna-vetorial-276631992.jpg 
+  https://img.freepik.com/premium-vector/seamless-pattern-chinese-style-red-oriental-background-with-waves_632473-3699.jpg
+
+  https://img.freepik.com/free-vector/gradient-black-background-with-wavy-lines_23-2149158062.jpg
+  https://thumbs.dreamstime.com/b/seamless-vector-pattern-gold-waves-clouds-isolated-black-background-japanese-traditional-motifs-illustration-template-207899753.jpg
+  https://img.freepik.com/premium-vector/chinese-traditional-clouds-seamless-pattern-oriental-ornament-background_454705-973.jpg
+
+
+  https://static.vecteezy.com/system/resources/previews/006/137/518/large_2x/japanese-elements-pattern-free-vector.jpg
+  */
+.bg-fixed {
+  position: fixed;
+  inset: 0;
+  z-index: 0; /* não use -1 para não “sumir” atrás do body */
+  pointer-events: none;
+  background-image: url('https://static.vecteezy.com/system/resources/previews/006/137/518/large_2x/japanese-elements-pattern-free-vector.jpg');
+  background-repeat: repeat;
+  background-size: 500px 500px;
+  background-position: center left;
+  /* evita “pulo” no Chrome mobile */
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* 2) Garanta que o conteúdo venha por cima do fundo */
+.app-shell {
+  position: relative;
+  z-index: 1;
+  background: transparent; /* importantíssimo para o fundo aparecer */
+}
+
+/* 3) Evita que o body esconda o z-index 0 do fundo */
+html, body, #root {
+  min-height: 100%;
+  background: transparent; /* se o body for preto, o fundo some */
+  margin: 0;
+}
+
+
+
+ 
+/* Fallback + unidades dinâmicas modernas */
+:root {
+  --app-h: 100dvh;   /* altura “estável” que ignora a barra variável */
+}
+
+@supports not (height: 100dvh) {
+  :root { --app-h: 100vh; } /* fallback p/ navegadores antigos */
+}
+
+/* Exemplo de container que antes usava 100vh */
+.app,
+.page,
+.fullscreen {
+  min-height: var(--app-h);
+  min-height: 100svh;  /* quando a barra está visível */
+  min-height: 100lvh;  /* quando a barra some (Chrome novo) */
+}
+
+/* Evitar “teleporte” do scroll dentro de containers */
+html, body { height: 100%; }
+body { overflow-y: auto; overscroll-behavior-y: contain; }
+
+
+
+
+
+/* ==== Reset e correções globais ==== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;            /* remove a margem branca padrão do body */
+  padding: 0;
+  background: #000;     /* garante o fundo preto na página toda */
+  overflow-x: hidden;   /* mata qualquer overflow horizontal acidental */
+}
+
+/* evita que imagens/iframes causem overflow */
+img, video, canvas, svg, iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ==== A sua classe .App original ==== */
+.App {
+  text-align: center;
+}
+
+/* ==== Container raiz da página ==== */
+.app-root {
+  background-color: #000;
+  color: #fff;
+  min-height: 100vh;
+  overflow-x: hidden; /* redundante, mas mantém seguro */
+}
+
+/* ==== Bloco de fundo com padrão ==== */
+.page-bg {
+  background-image: url('https://img.freepik.com/premium-vector/seamless-pattern-with-sushi-isolated-black-background-design-chalkboard_505564-1815.jpg?w=2000');
+  background-repeat: repeat;
+  background-size: 500px 500px;
+  background-position: center left;
+  background-attachment: fixed; /* bonito no desktop */
+  width: 100%;
+  min-height: 100vh;            /* evita “buracos” em telas baixas */
+}
+
+/* Em mobile, 'fixed' pode causar artefatos/brancos em alguns browsers */
+@media (max-width: 768px) {
+  .page-bg {
+    background-attachment: scroll;
+  }
+}
+
+/* ==== Container das seções (substitui <Layout>) ==== */
+.sections {
+  background: transparent;
+  max-width: 1400px;    /* ajuste se quiser mais largo/estreito */
+  margin: 0 auto;
+  padding: 0 16px 48px; /* respiro lateral + inferior */
+}
+
+/* ==== Seção de conteúdo (substitui <Content>) ==== */
+.content-section {
+  padding: 24px;
+  background: transparent;
+}
+
+/* Texto exibido quando não há produtos */
+.empty-text {
+  color: #fff;
+}
+
+/* ==== Botão do BackTop custom ==== */
+/* Dica: evite margin horizontal fixa que possa empurrar layout.
+   O BackTop do AntD já posiciona fixo; mantenha só o estilo visual. */
+.backtop-custom {
+  height: 50px;
+  width: 50px;
+  background-color: #d94a4a;
+  color: white;
+  text-align: center;
+  line-height: 40px;
+  border-radius: 50%;
+  font-size: 49px;
+  box-shadow: 0 7px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s;
+}
+
+/* Se quiser deslocar, faça no componente <BackTop> com 'right'/'bottom', não com margin-left */
+.backtop-custom:hover {
+  background-color: #8e3232;
+  transform: scale(1.1);
+}
+
+/* ==== Responsividade extra ==== */
+@media (max-width: 480px) {
+  .sections {
+    padding: 0 8px 40px;
+  }
+  .content-section {
+    padding: 16px;
+    margin: 16px 0;
+  }
+
+  
+}

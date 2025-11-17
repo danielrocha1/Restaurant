@@ -1,0 +1,270 @@
+/* Importa a família de fonte Inter (pesos 400 e 600) do Google Fonts.
+   OBS: importar fontes dentro de @media pode causar carregamento duplicado;
+   mantenha idealmente APENAS este import no topo do arquivo. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+/* ====== BARRA DE CATEGORIAS — DESKTOP ====== */
+.ant-menu-dark.ant-menu-inline .ant-menu-sub.ant-menu-inline{
+  background-color: transparent !important; /* fundo transparente para submenus */
+  background-color: transparent !important; /* fundo transparente para submenus */
+  
+}
+
+.category-bar {
+  position: fixed;                 /* fixa a barra na tela, não rola com o conteúdo */
+  top: 49px;                       /* distância do topo (compensa o header fixo) */
+  left: 0;                         /* encosta na lateral esquerda da janela */
+  width: 13vw;                    /* largura da barra lateral */
+  height: calc(100vh - 25px);      /* altura total da viewport menos o header */
+  background:linear-gradient(45deg,     #1c1c1c, #4a4a4a);
+
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.2); /* sombra lateral para profundidade */
+  z-index: 998;                    /* fica acima do conteúdo comum, abaixo de overlays mais altos */
+  overflow-y: auto;                /* permite rolagem vertical dentro da barra */
+  transition: transform 0.4s ease-in-out; /* animação suave para entrar/sair (ex.: classes toggle) */
+  overflow-x: hidden;
+}
+
+/* ====== ANT DESIGN (TEMA ESCURO) — BASE ====== */
+.ant-menu-dark {
+  background-color: transparent !important; /* usa o fundo da barra; remove bg do Menu */
+  
+  border-right: none;                        /* remove a borda padrão direita do Menu */
+}
+
+/* Itens e títulos de submenu dentro do tema escuro */
+.ant-menu-dark .ant-menu-item,
+.ant-menu-dark .ant-menu-submenu-title {
+  font-family: 'Inter', sans-serif; /* aplica a fonte Inter */
+  top: 20px;                        /* empurra levemente para baixo (cuidado: pode afetar alinhamento) */
+  font-size: 1.2rem;                /* tamanho da tipografia dos itens */
+  font-weight: 500;                 /* peso médio para dar destaque */
+  padding-left: 24px !important;    /* espaçamento à esquerda */
+  color: #e0e0e0;                   /* cor do texto padrão (cinza claro) */
+  border-radius: 4px;               /* cantos levemente arredondados no hover/seleção */
+  margin: 8px 8px;                  /* respiro vertical e horizontal entre itens */
+  transition: all 0.3s ease;   
+  width: 13vw;     /* transições suaves (cor, fundo, etc.) */
+}
+
+/* Garante que o título do submenu não tenha bg sólido por padrão */
+.ant-menu-dark .ant-menu-submenu-title {
+  
+  background-color: transparent;
+}
+
+/* Efeito hover tanto para item quanto para título de submenu */
+.ant-menu-dark .ant-menu-item:hover,
+.ant-menu-dark .ant-menu-submenu-title:hover {
+  background-color: #e9e5dc !important; /* “tom arroz” no hover */
+  color: #b71c1c !important;            /* “vermelho sakura” no hover */
+}
+
+/* Estado selecionado do item (clicado/ativo) */
+.ant-menu-dark .ant-menu-item-selected {
+  background-color: #e9e5dc !important; /* mesma paleta do hover */
+  color: #b71c1c !important;
+}
+
+/* Itens FILHOS dentro de submenus (nível inferior) */
+.ant-menu-dark .ant-menu-submenu .ant-menu-item {
+  width: 11vw; 
+  margin-left:33px;
+  background-color: #2a2a2a !important; /* fundo diferente para subnível */
+  
+  padding-left: 36px !important;        /* recuo maior para indicar hierarquia */
+}
+
+/* Itens filhos selecionados */
+.ant-menu-dark .ant-menu-submenu .ant-menu-item-selected {
+  background-color: #e9e5dc !important;
+  padding-left: 36px !important;        /* mantém o recuo mesmo selecionado */
+}
+
+/* Hover em itens filhos */
+.ant-menu-dark .ant-menu-submenu .ant-menu-item:hover {
+  background-color: #e9e5dc !important;
+  color: #b71c1c !important;
+}
+
+/* ====== SCROLLBAR (DESKTOP) DISCRETA ====== */
+/* Largura da barra de rolagem vertical dentro da barra de categorias */
+.category-bar::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Polegar da scrollbar (a parte que arrasta) */
+.category-bar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2); /* cor clara e sutil */
+  
+  border-radius: 3px;                         /* cantos arredondados */
+}
+
+/* ====== MOBILE ====== */
+/* Tudo aqui se aplica quando a viewport for <= 768px */
+@media (max-width: 768px) {
+  /* (Opcional) Evite re-importar a fonte no mobile para não duplicar requests */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+  /* Barra de categorias vira uma “faixa” horizontal rolável no topo do conteúdo */
+  .category-bar {
+    position: fixed;                 /* continua fixa */
+    width: 100vw;                    /* ocupa toda a largura */
+    height: 10vh;                     /* altura baixa para parecer uma barra/chips */
+    background-color: #1c1c1c;       /* mantém o preto suave */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);   /* sombra mais leve no mobile */
+    z-index: 998;                    /* sobrepõe o conteúdo abaixo */
+    overflow-x: auto;                /* rolagem HORIZONTAL para os chips */
+    overflow-y: hidden;              /* bloqueia rolagem vertical */
+    white-space: nowrap;             /* impede quebra de linha entre chips */
+    padding: 8px 0;                  /* respiro vertical dentro da faixa */
+    display: flex;                   /* layout em linha para os chips */
+    flex-direction: row;             /* garante direção horizontal */
+    gap: 12px;                       /* espaço entre os chips */
+    scroll-behavior: smooth;         /* rolagem suave ao usar scrollTo */
+    left: 0;
+  }
+
+  /* Esconde explicitamente a versão “levantada”/retraída no mobile */
+  .category-bar-up {
+    display: none;
+  }
+
+  /* Contêiner interno para os chips, também rolável (redundante, mas útil se usado) */
+  .cat-scroll {
+    display: flex;
+    gap: 12px;
+    padding: 0 12px;                 /* margem interna lateral para afastar das bordas */
+    overflow-x: auto;                /* rolagem horizontal dentro do container */
+    scroll-behavior: smooth;
+  }
+
+  /* Cada “chip” de categoria no mobile */
+  .cat-chip {
+    flex: 0 0 auto;                  /* evita que o chip estique, mantém largura automática */
+    border: none;                    /* remove borda padrão do botão (se for <button>) */
+    background: #2a2a2a;             /* combina com subitens do desktop */
+    color: #e0e0e0;                  /* texto em cinza claro */
+    padding: 10px 18px;              /* tamanho confortável do chip */
+    margin-bottom: 8px;              /* separa um pouco da borda inferior da faixa */
+    border-radius: 20px;             /* visual de “pílula” */
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    white-space: nowrap;             /* impede quebra dentro do texto do chip */
+    cursor: pointer;                 /* indica elemento clicável */
+    transition: all 0.3s ease;       /* animações suaves de hover/active */
+  }
+
+  /* Hover do chip no mobile (útil em tablets ou mouse) */
+  .cat-chip:hover {
+    background: #e9e5dc;             /* “tom arroz” */
+    color: #b71c1c;                  /* “vermelho sakura” */
+  }
+
+  /* Chip com submenu (aplica padding extra para ícone/seta, se houver) */
+  .cat-chip.has-sub {
+    padding-right: 28px;
+    position: relative;              /* permite posicionar ícone/seta absoluta dentro */
+  }
+
+  /* ====== DROPDOWN / SUBMENU NO MOBILE ====== */
+  /* Container do overlay do dropdown (classe custom se você a usar) */
+  .mobile-dropdown,
+  .mobile-dropdown .ant-dropdown-menu {
+    background: #2a2a2a !important;  /* mantém paleta escura no popup */
+    border-radius: 8px;               /* cantos arredondados */
+    padding: 6px 0;                   /* respiro vertical dos itens */
+  }
+
+  /* Estilo dos itens do dropdown (menu do Ant) */
+  .mobile-dropdown .ant-dropdown-menu-item {
+    color: #e0e0e0;                   /* cor do texto */
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Hover dos itens do dropdown */
+  .mobile-dropdown .ant-dropdown-menu-item:hover {
+    background: #e9e5dc !important;   /* “tom arroz” no hover */
+    color: #b71c1c !important;        /* “vermelho sakura” no hover */
+  }
+
+  /* Garante que o overlay do dropdown fique acima de outros elementos */
+  .mobile-dropdown-overlay {
+    z-index: 9999;
+  }
+
+  /* Ajusta posição do submenu (se algum overlay estiver “preso” no topo).
+     Use com cautela: sobrescreve posicionamento padrão. */
+  .custom-submenu {
+    position: absolute !important;    /* força posicionamento absoluto */
+    top: auto !important;             /* “desgruda” do topo fixo */
+    left: auto !important;            /* “desgruda” da esquerda fixa */
+    background-color: #2e7d32 !important; /* verde (ex.: destaque temporário/teste) */
+  }
+
+  /* ====== SCROLLBAR HORIZONTAL (MOBILE) ====== */
+  .category-bar::-webkit-scrollbar {
+    height: 4px;                      /* como a rolagem é horizontal, ajusta a ALTURA */
+  }
+
+  .category-bar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+  }
+
+  /* ====== ACESSIBILIDADE ====== */
+  .cat-chip:focus-visible {
+    outline: 2px solid #e9e5dc;       /* anel de foco visível para teclado */
+    outline-offset: 2px;
+  }
+
+  /* (OBS: as variáveis CSS abaixo idealmente ficam FORA do @media)
+     Manter aqui pode funcionar em alguns casos, mas o ideal é declarar
+     o :root global e sobrescrever em outro @media separado. */
+
+  /* Altura do header fixo (valor padrão) — usar fora do @media (ver notas) */
+  :root { --header-offset: 150px; }
+
+  /* NÃO é suportado aninhar @media dentro de @media em CSS puro.
+     Mantenha esta regra como um @media separado fora deste bloco. */
+  /* @media (max-width: 768px) {
+    :root { --header-offset: 210px; }
+  } */
+
+  /* Garante que a âncora/section não fique escondida pelo header fixo ao scrollTo */
+  .content-section {
+    scroll-margin-top: var(--header-offset);
+  }
+}
+
+/* ====== SUGESTÃO (fora de qualquer @media): variáveis globais de offset ====== */
+/* Declare fora do @media para funcionar em todas as páginas */
+:root { --header-offset: 150px; }
+
+/* E ajuste para mobile num @media separado (sem aninhar) */
+@media (max-width: 768px) {
+  :root { --header-offset: 210px; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  
+  .category-bar {
+    width:20vw;
+    top:16vh;         /* se tiver muito conteúdo interno, deixe crescer */
+  
+  }
+
+.ant-menu-dark .ant-menu-item,
+.ant-menu-dark .ant-menu-submenu-title {
+  width:18vw;
+  font-size:0.8rem;
+}
+
+.ant-menu-dark .ant-menu-submenu .ant-menu-item {
+  width: 16vw; 
+}
+
+
+
+}

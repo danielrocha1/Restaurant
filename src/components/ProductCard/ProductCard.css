@@ -1,0 +1,364 @@
+.product-card {
+  width: 420px;
+  height: auto;
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 40px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  position: relative;
+}
+
+.product-card:hover {
+  border: 1px solid #bb041c;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.product-image {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+  border-radius: 16px 16px 0 0;
+}
+
+.product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Garante que o conteúdo vá para o topo e o carrinho para o final */
+  padding: 16px;
+  gap: 8px;
+}
+
+
+.product-title {
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.weight-options {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+}
+
+.weight-option {
+  cursor: pointer;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  background-color: #fafafa;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.weight-option:hover {
+  border-color: #bb041c;
+}
+
+.weight-option.selected {
+  background-color: #bb041c;
+  color: #fff;
+  border-color: #bb041c;
+}
+
+.cart-controls {
+  justify-content: space-between;
+  margin-top: auto;
+  gap: 7vw;
+}
+/* Envolve os preços juntos */
+.price-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+/* Preço original riscado e cinza */
+.product-price.original {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+/* Preço promocional destacado */
+.product-price.promocional {
+  font-size: 20px;
+  font-weight: bold;
+  color: #bb041c;
+}
+
+/* Quando não tem promoção */
+.product-price {
+  font-size: 20px;
+  font-weight: bold;
+  color: #bb041c;
+}
+
+
+.add-to-cart {
+  background-color: #bb041c;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  width: 100%;
+  text-align: center;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.add-to-cart:hover {
+  background-color: #8e0215;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 7vw;
+}
+
+.quantity-button {
+  background-color: #f1f1f1 !important;
+  padding: 6px !important;
+  border-radius: 50% !important;
+  border: none !important;
+  width: 32px;
+  height: 32px;
+  transition: background-color 0.2s ease-in-out !important;
+}
+
+.quantity-button:hover {
+  background-color: #bb041c !important;
+  color: white !important;
+}
+
+.quantity-value {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.favorite-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  cursor: pointer;
+}
+
+.heart-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.heart-circle.favorite {
+  border-color: #bb041c;
+}
+
+@media (max-width: 480px) {
+  .product-card {
+    width: 94%;
+    margin: 20px auto;
+  }
+
+  .product-image {
+    height: 180px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .product-info {
+    padding: 14px;
+    gap: 8px;
+  }
+
+  .product-title {
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .weight-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .weight-option {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .cart-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .product-price {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .add-to-cart {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .quantity-controls {
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .quantity-button {
+    width: 28px;
+    height: 28px;
+  }
+
+  .quantity-value {
+    font-size: 15px;
+  }
+
+  .favorite-button {
+    top: 8px;
+    right: 8px;
+  }
+
+  .heart-circle {
+    width: 28px;
+    height: 28px;
+  }
+
+  
+  .produto-inativo {
+  opacity: 0.5;
+  pointer-events: none; /* desativa cliques */
+}
+
+.produto-ativo {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+}
+
+
+/* ====== TABLET (481px–1024px) ====== */
+@media (min-width: 481px) and (max-width: 1024px) {
+  .product-card {
+    /* ocupa bem o slide/coluna sem sobrar espaço */
+    width: clamp(320px, 44vw, 520px);
+    height: auto;
+    margin: 0 auto;
+    border-radius: 16px;
+  }
+
+  .product-image {
+    /* altura flexível pra variar entre portrait/landscape */
+     height: clamp(120px, 20vw, 200px);
+    border-radius: 16px 16px 0 0;
+    object-fit: contain;
+  }
+
+  .product-info {
+    padding: 16px;
+    gap: 10px;
+  }
+
+  .product-title {
+    font-size: 16px;
+    text-align: left; /* no tablet já cabe melhor alinhado à esquerda */
+  }
+
+  .weight-options {
+    /* 3 colunas no tablet pra caber mais opções */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .weight-option {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .price-container {
+    margin-bottom: 8px;
+  }
+
+  .product-price,
+  .product-price.promocional {
+    font-size: 19px; /* levemente maior que mobile, menor que desktop */
+  }
+
+  .cart-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* ❗ substitui 7vw por valor fixo pra não “explodir” no tablet */
+    gap: 16px;
+    margin-top: auto;
+  }
+
+  .add-to-cart {
+    font-size: 15px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    width: auto;         /* evita ocupar 100% no tablet */
+    min-width: 140px;    /* alvo de toque confortável */
+    text-align: center;
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;           /* ❗ remove 7vw no tablet */
+  }
+
+  .quantity-button {
+    width: 32px;
+    height: 32px;
+    padding: 6px !important;
+    border-radius: 50% !important;
+  }
+
+  .quantity-value {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .favorite-button {
+    top: 10px;
+    right: 10px;
+  }
+
+  .heart-circle {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Opcional: refinamento quando o tablet está em landscape */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+  .product-card {
+    margin-top:15px;
+    width: clamp(320px, 7vw, 520px);
+    height:auto;
+  }
+  .product-image {
+    height: 130px;
+    width:100%;
+
+  }
+}
